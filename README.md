@@ -10,11 +10,17 @@ Sistema de gerenciamento de petshop.
 
 ## Estrutura do projeto
   backend → lógica do sistema
+  
   frontend → interface do usuário
+  
   docs → documentação do projeto
+
 
 ## Branches
   main → versão estável
+  
   develop →  desenvolvimento
+  
   feature-login →  funcionalidade de login
+  
   feature-cadastro → funcionalidade de cadastro
