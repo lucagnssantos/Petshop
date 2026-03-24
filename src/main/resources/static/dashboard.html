@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Petshop</title>
+</head>
+<body>
+<h1 id="boasVindas">Carregando...</h1>
+<div id="painelBotoes"></div>
+
+<script>
+    // Função para ler o que tem dentro do Token (Base64)
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(window.atob(base64));
+    };
+
+    const token = localStorage.getItem('token_petshop');
+
+    if (!token) {
+        alert("Acesso negado! Faça login.");
+        window.location.href = "login.html";
+    } else {
+        const dadosToken = parseJwt(token);
+        const role = dadosToken.role; // Aqui pegamos o idRole que enviamos no Java
+        const painel = document.getElementById('painelBotoes');
+
+        document.getElementById('boasVindas').innerText = "Bem-vindo, " + dadosToken.sub;
+
+        if (role === 1) { // Supondo que 1 seja ADMIN no seu banco
+            painel.innerHTML = `
+                <button>Gerenciar Funcionários</button>
+                <button>Ver Relatórios</button>
+                <button>Configurar Sistema</button>
+            `;
+        } else { // Qualquer outra role (Usuário comum)
+            painel.innerHTML = `
+                <button>Meus Pets</button>
+            `;
+        }
+    }
+</script>
+</body>
+</html>
