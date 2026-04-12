@@ -1,0 +1,64 @@
+body {
+  font-family: "Inconsolata", monospace;
+}
+
+:root {
+  --bulma-primary-h: 259deg;
+  --bulma-primary-s: 93%;
+  --bulma-primary-l: 63%;
+  --bulma-primary-invert-l: 100%;
+
+  --color-secondary-h: 251deg;
+  --color-secondary-s: 100%;
+  --color-secondary-l: 70%;
+
+  --color-tertiary-h: 258deg;
+  --color-tertiary-s: 100%;
+  --color-tertiary-l: 83%;
+}
+
+.navbar {
+  overflow: visible;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  background-color: transparent;
+}
+
+.nav-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-logo img {
+  max-height: none;
+  height: 60px;
+}
+
+.navbar-item img {
+  max-height: none;
+}
+
+.button.is-secondary {
+  background-color: hsl(var(--color-secondary-h), var(--color-secondary-s), var(--color-secondary-l));
+  color: #fff;
+  border-color: transparent;
+}
+
+.button.is-secondary:hover {
+  filter: brightness(0.9);
+}
+
+.button.is-tertiary {
+  background-color: hsl(var(--color-tertiary-h), var(--color-tertiary-s), var(--color-tertiary-l));
+  color: #fff;
+  border-color: transparent;
+}
+
+.button.is-tertiary:hover {
+  filter: brightness(0.9);
+}
+
+hr {
+  border-top: 1px dashed hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}

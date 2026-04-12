@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Cadastro</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item has-text-weight-bold" href="index.html">Home</a>
+        <a class="navbar-item" href="servicos.html">Serviços</a>
+        <a class="navbar-item" href="sobre.html">Sobre nós</a>
+        <a class="navbar-item" href="contatos.html">Contatos</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="index.html">
+          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+        </a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <a href="cadastro.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 600px;">
+
+      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-5">Faça o seu cadastro!</h1>
+
+      <div class="field">
+        <div class="control">
+          <input class="input" type="text" placeholder="João da Silva Santos Perreira" />
+        </div>
+        <label class="label is-small has-text-primary">Nome Completo</label>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="888.888.888-88" />
+            </div>
+            <label class="label is-small has-text-primary">CPF</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="01/01/2018" />
+            </div>
+            <label class="label is-small has-text-primary">Data de nascimento</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column is-4">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="8.888.888-8" />
+            </div>
+            <label class="label is-small has-text-primary">CEP</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="Rua Principal da Silva Santos" />
+            </div>
+            <label class="label is-small has-text-primary">Endereço</label>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="888888" />
+            </div>
+            <label class="label is-small has-text-primary">Número</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <input class="input" type="email" placeholder="JoãodaSilvaSantosPerreira@Email.com" />
+        </div>
+        <label class="label is-small has-text-primary">Email</label>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <div class="input is-flex is-align-items-center">
+            <button class="button is-small is-outlined is-primary">Adicionar imagem</button>
+          </div>
+        </div>
+        <label class="label is-small has-text-primary">Imagem</label>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="password" placeholder="*******************" />
+            </div>
+            <label class="label is-small has-text-primary">Senha</label>
+            <p class="help">• Deve conter um símbolo</p>
+            <p class="help">• Deve conter um número</p>
+            <p class="help">• Deve conter uma letra maiúscula</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="password" placeholder="*******************" />
+            </div>
+            <label class="label is-small has-text-primary">Repita a senha</label>
+            <p class="help">• A senha deve coincidir</p>
+            <div class="field mt-3">
+              <label class="checkbox">
+                <input type="checkbox" checked />
+                Concordo com os <a href="#"><u>termos de uso e privacidade.</u></a>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="has-text-centered mt-4">
+        <button class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold">
+          <p>PetGO Serviços de Petshop</p>
+        </div>
+        <div class="column has-text-centered has-text-weight-bold">
+          <p>Rua Maria da Silva Santos, 8888</p>
+        </div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>
