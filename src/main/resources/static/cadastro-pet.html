@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Cadastrar Pet</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item has-text-weight-bold" href="index.html">Home</a>
+        <a class="navbar-item" href="servicos.html">Serviços</a>
+        <a class="navbar-item" href="sobre.html">Sobre nós</a>
+        <a class="navbar-item" href="contatos.html">Contatos</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="index.html">
+          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+        </a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item is-flex is-align-items-center" style="gap: 0.5rem;">
+          <span class="has-text-grey">Olá, <a href="meu-perfil.html" class="has-text-primary has-text-weight-bold">João!</a></span>
+          <figure class="image is-40x40">
+            <img class="is-rounded" src="https://placehold.co/40x40?text=JO" alt="Avatar" />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 600px;">
+
+      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-5">Cadastre seu Pet!</h1>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="Rex" />
+            </div>
+            <label class="label is-small has-text-primary">Nome Completo</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="Rotweiller" />
+            </div>
+            <label class="label is-small has-text-primary">Raça</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select>
+                  <option>Tamanho do pet?</option>
+                  <option>Pequeno</option>
+                  <option>Médio</option>
+                  <option>Grande</option>
+                </select>
+              </div>
+            </div>
+            <label class="label is-small has-text-primary">Porte</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select>
+                  <option>Escolha o sexo</option>
+                  <option>Macho</option>
+                  <option>Fêmea</option>
+                </select>
+              </div>
+            </div>
+            <label class="label is-small has-text-primary">Sexo</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input class="input" type="text" placeholder="01/01/2018" />
+            </div>
+            <label class="label is-small has-text-primary">Idade Aproximada</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <input class="input" type="text" placeholder="Não gosta do secador" />
+        </div>
+        <label class="label is-small has-text-primary">Observação</label>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <div class="input is-flex is-align-items-center">
+            <button class="button is-small is-outlined is-primary">Adicionar imagem</button>
+          </div>
+        </div>
+        <label class="label is-small has-text-primary">Imagem</label>
+      </div>
+
+      <div class="field mt-3">
+        <label class="checkbox">
+          <input type="checkbox" checked />
+          Concordo com os <a href="#"><u>termos de uso e privacidade.</u></a>
+        </label>
+      </div>
+
+      <div class="has-text-centered mt-5">
+        <button class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold">
+          <p>PetGO Serviços de Petshop</p>
+        </div>
+        <div class="column has-text-centered has-text-weight-bold">
+          <p>Rua Maria da Silva Santos, 8888</p>
+        </div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>

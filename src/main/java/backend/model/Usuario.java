@@ -1,0 +1,59 @@
+package backend.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "usuarios")
+public class Usuario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String nome;
+    private String cpf;
+    private String dataNascimento;
+    private String cep;
+    private String endereco;
+    private String numero;
+    private String email;
+    private String senha;
+
+    // Nível de acesso (Ex: 1 para Admin, 2 para Cliente)
+    @Column(name = "id_role")
+    private Integer idRole = 2;
+
+    // Construtor vazio (obrigatório para o JPA)
+    public Usuario() {}
+
+    // Getters e Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+
+    public String getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(String dataNascimento) { this.dataNascimento = dataNascimento; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+
+    public String getEndereco() { return endereco; }
+    public void setEndereco(String endereco) { this.endereco = endereco; }
+
+    public String getNumero() { return numero; }
+    public void setNumero(String numero) { this.numero = numero; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+
+    public Integer getIdRole() { return idRole; }
+    public void setIdRole(Integer idRole) { this.idRole = idRole; }
+}
