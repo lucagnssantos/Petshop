@@ -42,7 +42,7 @@
 
       <div class="field">
         <div class="control">
-          <input class="input" type="text" placeholder="João da Silva Santos Perreira" />
+          <input id="nome" class="input" type="text" placeholder="João da Silva Santos Perreira" />
         </div>
         <label class="label is-small has-text-primary">Nome Completo</label>
       </div>
@@ -51,7 +51,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="888.888.888-88" />
+              <input id="cpf" class="input" type="text" placeholder="888.888.888-88" />
             </div>
             <label class="label is-small has-text-primary">CPF</label>
           </div>
@@ -59,7 +59,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="01/01/2018" />
+              <input  id="dataNascimento" class="input" type="text" placeholder="01/01/2018" />
             </div>
             <label class="label is-small has-text-primary">Data de nascimento</label>
           </div>
@@ -70,7 +70,7 @@
         <div class="column is-4">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="8.888.888-8" />
+              <input id="cep" class="input" type="text" placeholder="8.888.888-8" />
             </div>
             <label class="label is-small has-text-primary">CEP</label>
           </div>
@@ -78,7 +78,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="Rua Principal da Silva Santos" />
+              <input id="endereco" class="input" type="text" placeholder="Rua Principal da Silva Santos" />
             </div>
             <label class="label is-small has-text-primary">Endereço</label>
           </div>
@@ -86,7 +86,7 @@
         <div class="column is-3">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="888888" />
+              <input id="numero" class="input" type="text" placeholder="888888" />
             </div>
             <label class="label is-small has-text-primary">Número</label>
           </div>
@@ -95,7 +95,7 @@
 
       <div class="field">
         <div class="control">
-          <input class="input" type="email" placeholder="JoãodaSilvaSantosPerreira@Email.com" />
+          <input id="email" class="input" type="email" placeholder="JoãodaSilvaSantosPerreira@Email.com" />
         </div>
         <label class="label is-small has-text-primary">Email</label>
       </div>
@@ -103,8 +103,7 @@
       <div class="field">
         <div class="control">
           <div class="input is-flex is-align-items-center">
-            <button class="button is-small is-outlined is-primary">Adicionar imagem</button>
-          </div>
+            <input type="file" id="inputImagem" onchange="previewImagem(event)">
         </div>
         <label class="label is-small has-text-primary">Imagem</label>
       </div>
@@ -113,7 +112,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="password" placeholder="*******************" />
+              <input id="senha" class="input" type="password" placeholder="*******************" />
             </div>
             <label class="label is-small has-text-primary">Senha</label>
             <p class="help">• Deve conter um símbolo</p>
@@ -124,7 +123,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="password" placeholder="*******************" />
+              <input id="senhaRepetida" class="input" type="password" placeholder="*******************" />
             </div>
             <label class="label is-small has-text-primary">Repita a senha</label>
             <p class="help">• A senha deve coincidir</p>
@@ -139,7 +138,7 @@
       </div>
 
       <div class="has-text-centered mt-4">
-        <button class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+        <button id="btnCadastrar" class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
       </div>
 
     </div>
