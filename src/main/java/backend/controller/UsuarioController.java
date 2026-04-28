@@ -29,4 +29,35 @@ public class UsuarioController {
         // 3. Retorna sucesso
         return ResponseEntity.ok(Map.of("mensagem", "Usuário cadastrado com sucesso!", "id", usuarioSalvo.getId()));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Usuario usuario) {
+
+        // procura usuário pelo email
+        var usuarioOpt = repository.findByEmail(usuario.getEmail());
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity
+                    .status(401)
+                    .body(Map.of("mensagem", "Email não encontrado"));
+        }
+
+        Usuario user = usuarioOpt.get();
+
+        // verifica senha
+        if (!user.getSenha().equals(usuario.getSenha())) {
+            return ResponseEntity
+                    .status(401)
+                    .body(Map.of("mensagem", "Senha incorreta"));
+        }
+
+        // login ok
+        return ResponseEntity.ok(
+                Map.of(
+                        "mensagem", "Login realizado com sucesso",
+                        "id", user.getId(),
+                        "nome", user.getNome()
+                )
+        );
+    }
 }
