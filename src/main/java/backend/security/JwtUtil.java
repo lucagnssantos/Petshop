@@ -2,6 +2,7 @@ package backend.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,12 +11,13 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // Mínimo 32 caracteres para HS256 (256 bits)
-    private static final String SECRET = "petGo2026#chave@jwt!secreta$longa";
+    @Value("${jwt.secret-key}")
+    private String secret;
+
     private static final long EXPIRATION_MS = 86_400_000L; // 24 horas
 
     private Key getKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateToken(Integer id, String email, Integer role, String cargo) {
