@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Área do Funcionário</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div id="funcionario-dashboard">
+
+  <div class="is-flex" style="min-height: 100vh;">
+
+    <!-- Sidebar -->
+    <aside class="has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/100x50?text=PetGO" alt="PetGO" />
+        <figure class="image is-64x64 mx-auto mt-3">
+          <img id="func-avatar" class="is-rounded" src="https://placehold.co/64x64?text=?" alt="Avatar" style="height:64px;object-fit:cover;border-radius:50%;" />
+        </figure>
+        <p class="has-text-weight-bold mt-2" id="func-nome-nav">...</p>
+        <p class="is-size-7 has-text-grey" id="func-cargo-nav">...</p>
+      </div>
+
+      <a class="navbar-item is-active has-text-weight-bold" href="funcionario.html" data-secao-func="agenda">
+        <span class="icon mr-2"><i class="fas fa-calendar-day"></i></span> Minha Agenda
+      </a>
+      <a class="navbar-item" href="funcionario.html" data-secao-func="perfil">
+        <span class="icon mr-2"><i class="fas fa-user"></i></span> Meu Perfil
+      </a>
+
+      <div style="margin-top: auto;">
+        <button id="btn-sair-funcionario" class="button is-danger is-outlined is-fullwidth is-small">
+          <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="p-5" style="flex: 1;">
+
+      <!-- Seção: Agenda -->
+      <div id="section-func-agenda">
+        <h1 class="title is-4 mb-1">Minha Agenda</h1>
+        <p class="has-text-grey mb-5">Agendamentos atribuídos a você</p>
+
+        <div id="lista-agenda-funcionario">
+          <!-- Preenchido via JS a partir de GET /api/agendamentos/funcionario/{id} -->
+        </div>
+        <div id="agenda-vazio" class="has-text-centered py-6 has-text-grey is-hidden">
+          <p class="is-size-5">Nenhum agendamento para hoje.</p>
+        </div>
+      </div>
+
+      <!-- Seção: Perfil -->
+      <div id="section-func-perfil" class="is-hidden">
+        <h1 class="title is-4 mb-5">Meu Perfil</h1>
+        <div class="box" style="max-width: 520px;">
+          <div class="columns">
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Nome</p>
+              <p id="fp-nome">—</p>
+            </div>
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Cargo</p>
+              <p id="fp-cargo">—</p>
+            </div>
+          </div>
+          <hr class="my-3" />
+          <div class="columns">
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">CPF</p>
+              <p id="fp-cpf">—</p>
+            </div>
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Data de Nascimento</p>
+              <p id="fp-dataNascimento">—</p>
+            </div>
+          </div>
+          <hr class="my-3" />
+          <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p>
+          <p id="fp-email">—</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+<script src="scripts.js"></script>
+</body>
+</html>

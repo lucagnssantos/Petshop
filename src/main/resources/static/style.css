@@ -62,3 +62,24 @@ body {
 hr {
   border-top: 1px dashed hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
+
+.tabs.is-boxed a:hover,
+.tabs.is-boxed li.is-active a {
+  border-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+  color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}
+
+.tabs.is-boxed li.is-active a {
+  background-color: #fff;
+  border-bottom-color: transparent !important;
+}
+
+.servico-link:hover img {
+  opacity: 0.85;
+  transform: translateY(-3px);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.servico-link img {
+  transition: transform 0.2s, opacity 0.2s;
+}

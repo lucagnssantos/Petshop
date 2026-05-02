@@ -17,10 +17,7 @@
   <nav class="navbar" role="navigation">
     <div class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item has-text-weight-bold" href="index.html">Home</a>
-        <a class="navbar-item" href="servicos.html">Serviços</a>
-        <a class="navbar-item" href="sobre.html">Sobre nós</a>
-        <a class="navbar-item" href="contatos.html">Contatos</a>
+        <a class="navbar-item" href="index.html">Voltar ao início</a>
       </div>
       <div class="nav-logo">
         <a class="navbar-item" href="index.html">
@@ -47,7 +44,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="Rex" />
+              <input id="pet-nome" class="input" type="text" placeholder="Rex" />
             </div>
             <label class="label is-small has-text-primary">Nome Completo</label>
           </div>
@@ -55,7 +52,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="Rotweiller" />
+              <input id="pet-raca" class="input" type="text" placeholder="Rotweiller" />
             </div>
             <label class="label is-small has-text-primary">Raça</label>
           </div>
@@ -66,12 +63,12 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <div class="select is-fullwidth">
-                <select>
-                  <option>Tamanho do pet?</option>
-                  <option>Pequeno</option>
-                  <option>Médio</option>
-                  <option>Grande</option>
+              <div class="select is-fullwidth" id="wrap-pet-porte">
+                <select id="pet-porte">
+                  <option value="">Tamanho do pet?</option>
+                  <option value="Pequeno">Pequeno</option>
+                  <option value="Médio">Médio</option>
+                  <option value="Grande">Grande</option>
                 </select>
               </div>
             </div>
@@ -81,11 +78,11 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <div class="select is-fullwidth">
-                <select>
-                  <option>Escolha o sexo</option>
-                  <option>Macho</option>
-                  <option>Fêmea</option>
+              <div class="select is-fullwidth" id="wrap-pet-sexo">
+                <select id="pet-sexo">
+                  <option value="">Escolha o sexo</option>
+                  <option value="Macho">Macho</option>
+                  <option value="Fêmea">Fêmea</option>
                 </select>
               </div>
             </div>
@@ -95,7 +92,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="01/01/2018" />
+              <input id="pet-idade" class="input" type="text" placeholder="01/01/2018" />
             </div>
             <label class="label is-small has-text-primary">Idade Aproximada</label>
           </div>
@@ -104,7 +101,7 @@
 
       <div class="field">
         <div class="control">
-          <input class="input" type="text" placeholder="Não gosta do secador" />
+          <input id="pet-observacao" class="input" type="text" placeholder="Não gosta do secador" />
         </div>
         <label class="label is-small has-text-primary">Observação</label>
       </div>
