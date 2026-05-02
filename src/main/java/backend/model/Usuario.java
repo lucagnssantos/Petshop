@@ -19,9 +19,11 @@ public class Usuario {
     private String email;
     private String senha;
 
-    // Nível de acesso (Ex: 1 para Admin, 2 para Cliente)
+    // Nível de acesso: 1 = Admin, 2 = Cliente, 3 = Funcionário
     @Column(name = "id_role")
     private Integer idRole = 2;
+
+    private String cargo;
 
     // Construtor vazio (obrigatório para o JPA)
     public Usuario() {}
@@ -56,4 +58,7 @@ public class Usuario {
 
     public Integer getIdRole() { return idRole; }
     public void setIdRole(Integer idRole) { this.idRole = idRole; }
+
+    public String getCargo() { return cargo; }
+    public void setCargo(String cargo) { this.cargo = cargo; }
 }

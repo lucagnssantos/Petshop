@@ -62,3 +62,57 @@ body {
 hr {
   border-top: 1px dashed hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
+
+.tabs.is-boxed a:hover,
+.tabs.is-boxed li.is-active a {
+  border-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+  color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}
+
+.tabs.is-boxed li.is-active a {
+  background-color: #fff;
+  border-bottom-color: transparent !important;
+}
+
+.servico-link:hover img {
+  opacity: 0.85;
+  transform: translateY(-3px);
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.servico-link img {
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+#toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+#toast-container .notification {
+  pointer-events: all;
+  min-width: 280px;
+  max-width: 380px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  animation: toast-in 0.25s ease;
+}
+
+#toast-container .notification.toast-saindo {
+  animation: toast-out 0.3s ease forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(2rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(2rem); }
+}
