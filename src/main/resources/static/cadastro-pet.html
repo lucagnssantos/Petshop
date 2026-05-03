@@ -28,10 +28,13 @@
         </a>
       </div>
       <div class="navbar-end">
-        <div class="navbar-item is-flex is-align-items-center" style="gap: 0.5rem;">
-          <span class="has-text-grey">Olá, <a href="meu-perfil.html" class="has-text-primary has-text-weight-bold">João!</a></span>
+        <div class="navbar-item" id="nav-btn-entrar">
+          <a href="login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+        </div>
+        <div class="navbar-item is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem; display: none;">
+          <span class="has-text-grey">Olá, <a href="perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
           <figure class="image is-40x40">
-            <img class="is-rounded" src="https://placehold.co/40x40?text=JO" alt="Avatar" />
+            <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="height:40px;object-fit:cover;" />
           </figure>
         </div>
       </div>
@@ -126,7 +129,7 @@
       </div>
 
       <div class="has-text-centered mt-5">
-        <button class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+        <button id="btn-cadastrar-pet" class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
       </div>
 
     </div>

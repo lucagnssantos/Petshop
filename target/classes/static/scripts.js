@@ -761,6 +761,54 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ================= CADASTRO PET =================
+
+    if (document.getElementById("btn-cadastrar-pet")) {
+        const usuarioId = localStorage.getItem("petgo_id");
+
+        if (!usuarioId) {
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("btn-cadastrar-pet").addEventListener("click", async () => {
+            const ok = [
+                validarNome("pet-nome"),
+                validarObrigatorio("pet-raca", "Raça"),
+                validarSelect("wrap-pet-porte", "pet-porte", "Porte"),
+                validarSelect("wrap-pet-sexo", "pet-sexo", "Sexo"),
+            ].every(Boolean);
+
+            if (!ok) return;
+
+            const body = {
+                nome: document.getElementById("pet-nome").value,
+                raca: document.getElementById("pet-raca").value,
+                porte: document.getElementById("pet-porte").value,
+                sexo: document.getElementById("pet-sexo").value,
+                idade: document.getElementById("pet-idade").value,
+                observacao: document.getElementById("pet-observacao").value,
+                usuarioId: Number(usuarioId)
+            };
+
+            try {
+                const response = await authFetch(`${BASE_URL}/api/pets`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    toast("Pet cadastrado com sucesso!");
+                    setTimeout(() => window.location.href = "perfil.html#pets", 1500);
+                } else {
+                    toast("Erro ao cadastrar pet. Tente novamente.", "danger");
+                }
+            } catch {
+                toast("Erro ao conectar com o servidor.", "danger");
+            }
+        });
+    }
+
     // ================= AGENDAR =================
 
     if (document.getElementById("agendar-pet")) {
