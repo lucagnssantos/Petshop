@@ -1,5 +1,6 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -24,6 +25,11 @@ public class Usuario {
     private Integer idRole = 2;
 
     private String cargo;
+
+    @Lob
+    @Column(name = "imagem")
+    @JsonIgnore
+    private byte[] imagem;
 
     // Construtor vazio (obrigatório para o JPA)
     public Usuario() {}
@@ -61,4 +67,7 @@ public class Usuario {
 
     public String getCargo() { return cargo; }
     public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public byte[] getImagem() { return imagem; }
+    public void setImagem(byte[] imagem) { this.imagem = imagem; }
 }

@@ -111,9 +111,8 @@
 
       <div class="field">
         <div class="control">
-          <div class="input is-flex is-align-items-center">
-            <button class="button is-small is-outlined is-primary">Adicionar imagem</button>
-          </div>
+          <input type="file" id="pet-inputImagem" accept="image/*" onchange="previewImagem(event)" class="input" />
+          <img id="preview-imagem" src="" alt="Preview" style="display:none; max-height:80px; border-radius:4px; margin-top:0.5rem;" />
         </div>
         <label class="label is-small has-text-primary">Imagem</label>
       </div>

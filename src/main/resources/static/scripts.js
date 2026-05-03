@@ -1,3 +1,13 @@
+function previewImagem(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById("preview-imagem");
+    if (preview) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const BASE_URL = "http://localhost:8080";
@@ -43,8 +53,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const navUsuario = document.getElementById("nav-usuario");
 
         if (nome) {
+            const id = localStorage.getItem("petgo_id");
             if (navNome) navNome.textContent = nome.split(" ")[0];
-            if (navAvatar) navAvatar.src = `https://placehold.co/40x40?text=${nome[0].toUpperCase()}`;
+            if (navAvatar && id) {
+                navAvatar.src = `${BASE_URL}/api/usuarios/${id}/imagem`;
+                navAvatar.onerror = function() { this.onerror = null; this.src = `https://placehold.co/40x40?text=${nome[0].toUpperCase()}`; };
+            } else if (navAvatar) {
+                navAvatar.src = `https://placehold.co/40x40?text=${nome[0].toUpperCase()}`;
+            }
             if (navBtnEntrar) navBtnEntrar.style.display = "none";
             if (navUsuario) navUsuario.style.display = "flex";
         } else {
@@ -284,6 +300,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
 
                 if (response.ok) {
+                    const novoId = data.id;
+                    const arquivo = document.getElementById("inputImagem")?.files[0];
+                    if (arquivo && novoId) {
+                        const fd = new FormData();
+                        fd.append("imagem", arquivo);
+                        await fetch(`${BASE_URL}/api/usuarios/${novoId}/imagem`, { method: "POST", body: fd });
+                    }
                     toast("Cadastrado com sucesso!");
                     setTimeout(() => window.location.href = "login.html", 1500);
                 } else {
@@ -349,8 +372,16 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("perfil-nome").textContent = nomeLocal;
         document.getElementById("nav-nome").textContent = nomeLocal.split(" ")[0];
         const inicial = nomeLocal[0]?.toUpperCase() || "?";
-        document.getElementById("perfil-avatar").src = `https://placehold.co/96x96?text=${inicial}`;
-        document.getElementById("nav-avatar").src = `https://placehold.co/40x40?text=${inicial}`;
+        const perfilAvatar = document.getElementById("perfil-avatar");
+        const navAvatarEl = document.getElementById("nav-avatar");
+        if (perfilAvatar) {
+            perfilAvatar.src = `${BASE_URL}/api/usuarios/${usuarioId}/imagem`;
+            perfilAvatar.onerror = function() { this.onerror = null; this.src = `https://placehold.co/96x96?text=${inicial}`; };
+        }
+        if (navAvatarEl) {
+            navAvatarEl.src = `${BASE_URL}/api/usuarios/${usuarioId}/imagem`;
+            navAvatarEl.onerror = function() { this.onerror = null; this.src = `https://placehold.co/40x40?text=${inicial}`; };
+        }
 
         // Endpoint esperado: GET /api/usuarios/{id}
         authFetch(`${BASE_URL}/api/usuarios/${usuarioId}`)
@@ -366,10 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("campo-endereco").textContent = usuario.endereco || "—";
                 document.getElementById("campo-numero").textContent = usuario.numero || "—";
                 document.getElementById("campo-emailPerfil").textContent = usuario.email || "—";
-                if (usuario.imagem) {
-                    document.getElementById("perfil-avatar").src = usuario.imagem;
-                    document.getElementById("nav-avatar").src = usuario.imagem;
-                }
                 localStorage.setItem("petgo_nome", usuario.nome);
             })
             .catch(() => {});
@@ -390,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     col.innerHTML = `
                         <div class="box has-text-centered">
                           <figure class="image is-96x96 mx-auto mb-3">
-                            <img class="is-rounded" src="${pet.imagem || `https://placehold.co/96x96?text=${pet.nome[0]}`}" alt="${pet.nome}" style="height:96px;object-fit:cover;border-radius:50%;" />
+                            <img class="is-rounded" src="${BASE_URL}/api/pets/${pet.id}/imagem" onerror="this.onerror=null;this.src='https://placehold.co/96x96?text=${pet.nome[0]}'" alt="${pet.nome}" style="height:96px;object-fit:cover;border-radius:50%;" />
                           </figure>
                           <p class="has-text-weight-bold">${pet.nome}</p>
                           <p class="is-size-7 has-text-grey">${pet.raca || ""} · ${pet.porte || ""}</p>
@@ -685,7 +712,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("func-nome-nav").textContent = nomeLocal.split(" ")[0];
         document.getElementById("func-cargo-nav").textContent = cargoLocal;
-        document.getElementById("func-avatar").src = `https://placehold.co/64x64?text=${inicial}`;
+        const funcAvatarEl = document.getElementById("func-avatar");
+        if (funcAvatarEl && usuarioId) {
+            funcAvatarEl.src = `${BASE_URL}/api/usuarios/${usuarioId}/imagem`;
+            funcAvatarEl.onerror = function() { this.onerror = null; this.src = `https://placehold.co/64x64?text=${inicial}`; };
+        }
 
         document.querySelectorAll("[data-secao-func]").forEach(link => {
             link.addEventListener("click", (e) => {
@@ -785,11 +816,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(body)
                 });
 
+                const petData = await response.json();
+
                 if (response.ok) {
+                    const arquivo = document.getElementById("pet-inputImagem")?.files[0];
+                    if (arquivo && petData.id) {
+                        const fd = new FormData();
+                        fd.append("imagem", arquivo);
+                        await authFetch(`${BASE_URL}/api/pets/${petData.id}/imagem`, { method: "POST", body: fd });
+                    }
                     toast("Pet cadastrado com sucesso!");
                     setTimeout(() => window.location.href = "perfil.html#pets", 1500);
                 } else {
-                    toast("Erro ao cadastrar pet. Tente novamente.", "danger");
+                    toast(petData.mensagem || "Erro ao cadastrar pet. Tente novamente.", "danger");
                 }
             } catch {
                 toast("Erro ao conectar com o servidor.", "danger");
