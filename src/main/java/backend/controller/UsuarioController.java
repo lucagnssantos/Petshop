@@ -4,10 +4,15 @@ import backend.model.Usuario;
 import backend.repository.UsuarioRepository;
 import backend.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -105,5 +110,31 @@ public class UsuarioController {
     @GetMapping("/funcionarios")
     public List<Usuario> listarFuncionarios() {
         return repository.findByIdRole(3);
+    }
+
+    @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImagem(@PathVariable Integer id,
+                                           @RequestParam("imagem") MultipartFile file) throws IOException {
+        return repository.findById(id).map(u -> {
+            try {
+                u.setImagem(file.getBytes());
+                repository.save(u);
+                return ResponseEntity.ok().build();
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/imagem")
+    public ResponseEntity<byte[]> servirImagem(@PathVariable Integer id) {
+        return repository.findById(id).map(u -> {
+            byte[] imagem = u.getImagem();
+            if (imagem == null || imagem.length == 0)
+                return ResponseEntity.<byte[]>notFound().build();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(imagem, headers, HttpStatus.OK);
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

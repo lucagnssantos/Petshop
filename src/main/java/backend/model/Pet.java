@@ -1,5 +1,6 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,7 +17,10 @@ public class Pet {
     private String sexo;
     private String idade;
     private String observacao;
-    private String imagem;
+    @Lob
+    @Column(name = "imagem")
+    @JsonIgnore
+    private byte[] imagem;
 
     @Column(name = "usuario_id")
     private Integer usuarioId;
@@ -44,8 +48,8 @@ public class Pet {
     public String getObservacao() { return observacao; }
     public void setObservacao(String observacao) { this.observacao = observacao; }
 
-    public String getImagem() { return imagem; }
-    public void setImagem(String imagem) { this.imagem = imagem; }
+    public byte[] getImagem() { return imagem; }
+    public void setImagem(byte[] imagem) { this.imagem = imagem; }
 
     public Integer getUsuarioId() { return usuarioId; }
     public void setUsuarioId(Integer usuarioId) { this.usuarioId = usuarioId; }
