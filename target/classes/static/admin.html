@@ -14,7 +14,6 @@
 <body class="has-background-light">
 <div id="admin-dashboard">
 
-  <!-- Sidebar + conteúdo -->
   <div class="is-flex" style="min-height: 100vh;">
 
     <!-- Sidebar -->
@@ -35,6 +34,9 @@
       </a>
       <a class="navbar-item" href="#" data-secao="funcionarios">
         <span class="icon mr-2"><i class="fas fa-id-badge"></i></span> Funcionários
+      </a>
+      <a class="navbar-item" href="#" data-secao="pets">
+        <span class="icon mr-2"><i class="fas fa-paw"></i></span> Pets
       </a>
       <hr class="my-2" />
       <a class="navbar-item has-text-primary has-text-weight-bold" href="cadastro-funcionario.html">
@@ -101,11 +103,29 @@
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody id="tabela-agendamentos">
-              <!-- Preenchido via JS a partir de GET /api/agendamentos -->
-            </tbody>
+            <tbody id="tabela-agendamentos"></tbody>
           </table>
           <p id="agendamentos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
+        </div>
+      </div>
+
+      <!-- Seção: Usuários -->
+      <div id="section-usuarios" class="mb-6">
+        <h2 class="title is-5 mb-3">Usuários</h2>
+        <div class="box p-0">
+          <table class="table is-fullwidth is-hoverable is-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-usuarios"></tbody>
+          </table>
+          <p id="usuarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum usuário encontrado.</p>
         </div>
       </div>
 
@@ -126,38 +146,144 @@
                 <th>Nome</th>
                 <th>Cargo</th>
                 <th>E-mail</th>
+                <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="tabela-funcionarios">
-              <!--  GET /api/usuarios/funcionarios -->
-            </tbody>
+            <tbody id="tabela-funcionarios"></tbody>
           </table>
           <p id="funcionarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum funcionário cadastrado.</p>
         </div>
       </div>
 
-      <!-- Seção: Usuários -->
-      <div id="section-usuarios">
-        <h2 class="title is-5 mb-3">Usuários</h2>
+      <!-- Seção: Pets -->
+      <div id="section-pets" class="mb-6">
+        <h2 class="title is-5 mb-3">Pets</h2>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
               <tr>
                 <th>#</th>
                 <th>Nome</th>
-                <th>E-mail</th>
-                <th>Perfil</th>
+                <th>Raça</th>
+                <th>Porte</th>
+                <th>Sexo</th>
+                <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="tabela-usuarios">
-              <!--  GET /api/usuarios -->
-            </tbody>
+            <tbody id="tabela-pets"></tbody>
           </table>
-          <p id="usuarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum usuário encontrado.</p>
+          <p id="pets-admin-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum pet cadastrado.</p>
         </div>
       </div>
 
     </main>
+  </div>
+
+  <!-- Modal: Editar Usuário / Funcionário -->
+  <div id="modal-editar-usuario" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id="modal-u-titulo">Editar</p>
+        <button class="delete" id="fechar-modal-u"></button>
+      </header>
+      <section class="modal-card-body">
+        <input type="hidden" id="modal-u-id" />
+        <div class="field">
+          <label class="label is-small">Nome</label>
+          <input class="input" type="text" id="modal-u-nome" />
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">CEP</label>
+              <input class="input" type="text" id="modal-u-cep" />
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Número</label>
+              <input class="input" type="text" id="modal-u-numero" />
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Endereço</label>
+          <input class="input" type="text" id="modal-u-endereco" />
+        </div>
+        <div class="field" id="campo-modal-cargo" style="display:none;">
+          <label class="label is-small">Cargo</label>
+          <div class="select is-fullwidth">
+            <select id="modal-u-cargo">
+              <option value="">Selecione...</option>
+              <option value="Veterinário">Veterinário</option>
+              <option value="Tosador">Tosador</option>
+              <option value="Recepcionista">Recepcionista</option>
+              <option value="Banhista">Banhista</option>
+            </select>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="gap: 0.5rem;">
+        <button class="button is-primary" id="btn-salvar-modal-usuario">Salvar</button>
+        <button class="button" id="cancelar-modal-u">Cancelar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Pet -->
+  <div id="modal-editar-pet" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Editar Pet</p>
+        <button class="delete" id="fechar-modal-p"></button>
+      </header>
+      <section class="modal-card-body">
+        <input type="hidden" id="modal-p-id" />
+        <div class="field">
+          <label class="label is-small">Nome</label>
+          <input class="input" type="text" id="modal-p-nome" />
+        </div>
+        <div class="field">
+          <label class="label is-small">Raça</label>
+          <input class="input" type="text" id="modal-p-raca" />
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Porte</label>
+              <div class="select is-fullwidth">
+                <select id="modal-p-porte">
+                  <option value="Pequeno">Pequeno</option>
+                  <option value="Médio">Médio</option>
+                  <option value="Grande">Grande</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Sexo</label>
+              <div class="select is-fullwidth">
+                <select id="modal-p-sexo">
+                  <option value="Macho">Macho</option>
+                  <option value="Fêmea">Fêmea</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Observação</label>
+          <input class="input" type="text" id="modal-p-observacao" />
+        </div>
+      </section>
+      <footer class="modal-card-foot" style="gap: 0.5rem;">
+        <button class="button is-primary" id="btn-salvar-modal-pet">Salvar</button>
+        <button class="button" id="cancelar-modal-p">Cancelar</button>
+      </footer>
+    </div>
   </div>
 
 </div>

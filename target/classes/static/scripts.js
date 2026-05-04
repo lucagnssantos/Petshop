@@ -576,46 +576,153 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(() => {});
 
-        // Endpoint esperado: GET /api/usuarios (apenas clientes, role=2)
+        // Modais
+        const modalUsuario = document.getElementById("modal-editar-usuario");
+        const modalPet = document.getElementById("modal-editar-pet");
+        const fecharModalU = () => modalUsuario.classList.remove("is-active");
+        const fecharModalP = () => modalPet.classList.remove("is-active");
+        document.getElementById("fechar-modal-u")?.addEventListener("click", fecharModalU);
+        document.getElementById("cancelar-modal-u")?.addEventListener("click", fecharModalU);
+        document.getElementById("fechar-modal-p")?.addEventListener("click", fecharModalP);
+        document.getElementById("cancelar-modal-p")?.addEventListener("click", fecharModalP);
+
+        const abrirModalUsuario = (u) => {
+            document.getElementById("modal-u-titulo").textContent = u.idRole === 3 ? "Editar Funcionário" : "Editar Usuário";
+            document.getElementById("modal-u-id").value = u.id;
+            document.getElementById("modal-u-nome").value = u.nome || "";
+            document.getElementById("modal-u-cep").value = u.cep || "";
+            document.getElementById("modal-u-endereco").value = u.endereco || "";
+            document.getElementById("modal-u-numero").value = u.numero || "";
+            const campoCargo = document.getElementById("campo-modal-cargo");
+            if (u.idRole === 3) {
+                campoCargo.style.display = "";
+                document.getElementById("modal-u-cargo").value = u.cargo || "";
+            } else {
+                campoCargo.style.display = "none";
+            }
+            modalUsuario.classList.add("is-active");
+        };
+
+        const abrirModalPet = (p) => {
+            document.getElementById("modal-p-id").value = p.id;
+            document.getElementById("modal-p-nome").value = p.nome || "";
+            document.getElementById("modal-p-raca").value = p.raca || "";
+            document.getElementById("modal-p-porte").value = p.porte || "Pequeno";
+            document.getElementById("modal-p-sexo").value = p.sexo || "Macho";
+            document.getElementById("modal-p-observacao").value = p.observacao || "";
+            modalPet.classList.add("is-active");
+        };
+
+        document.getElementById("btn-salvar-modal-usuario")?.addEventListener("click", async () => {
+            const id = document.getElementById("modal-u-id").value;
+            const cargo = document.getElementById("modal-u-cargo").value;
+            const body = {
+                nome: document.getElementById("modal-u-nome").value,
+                cep: document.getElementById("modal-u-cep").value,
+                endereco: document.getElementById("modal-u-endereco").value,
+                numero: document.getElementById("modal-u-numero").value,
+                ...(cargo ? { cargo } : {})
+            };
+            try {
+                const r = await authFetch(`${BASE_URL}/api/usuarios/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) { toast("Salvo com sucesso!"); fecharModalU(); setTimeout(() => location.reload(), 800); }
+                else toast("Erro ao salvar.", "danger");
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        document.getElementById("btn-salvar-modal-pet")?.addEventListener("click", async () => {
+            const id = document.getElementById("modal-p-id").value;
+            const body = {
+                nome: document.getElementById("modal-p-nome").value,
+                raca: document.getElementById("modal-p-raca").value,
+                porte: document.getElementById("modal-p-porte").value,
+                sexo: document.getElementById("modal-p-sexo").value,
+                observacao: document.getElementById("modal-p-observacao").value
+            };
+            try {
+                const r = await authFetch(`${BASE_URL}/api/pets/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) { toast("Pet salvo com sucesso!"); fecharModalP(); setTimeout(() => location.reload(), 800); }
+                else toast("Erro ao salvar.", "danger");
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        // GET /api/usuarios
         authFetch(`${BASE_URL}/api/usuarios`)
             .then(r => r.ok ? r.json() : [])
             .then(usuarios => {
                 const tbody = document.getElementById("tabela-usuarios");
                 const vazio = document.getElementById("usuarios-vazio");
-                if (!usuarios || usuarios.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
+                if (!usuarios || usuarios.length === 0) { vazio.classList.remove("is-hidden"); return; }
                 usuarios.forEach(u => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td>${u.id}</td>
                         <td>${u.nome || "—"}</td>
                         <td>${u.email || "—"}</td>
-                        <td><span class="tag ${u.idRole === 1 ? "is-warning" : "is-info"} is-light">${u.idRole === 1 ? "Admin" : "Cliente"}</span></td>`;
+                        <td><span class="tag ${u.idRole === 1 ? "is-warning" : "is-info"} is-light">${u.idRole === 1 ? "Admin" : "Cliente"}</span></td>
+                        <td><button class="button is-small is-light" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
                     tbody.appendChild(tr);
+                });
+                tbody.addEventListener("click", e => {
+                    const btn = e.target.closest("[data-edit-u]");
+                    if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
                 });
             })
             .catch(() => {});
 
-        // Endpoint esperado: GET /api/usuarios/funcionarios (role=3)
+        // GET /api/usuarios/funcionarios
         authFetch(`${BASE_URL}/api/usuarios/funcionarios`)
             .then(r => r.ok ? r.json() : [])
             .then(funcionarios => {
                 const tbody = document.getElementById("tabela-funcionarios");
                 const vazio = document.getElementById("funcionarios-vazio");
-                if (!funcionarios || funcionarios.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
+                if (!funcionarios || funcionarios.length === 0) { vazio.classList.remove("is-hidden"); return; }
                 funcionarios.forEach(f => {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td>${f.id}</td>
                         <td>${f.nome || "—"}</td>
                         <td>${f.cargo || "—"}</td>
-                        <td>${f.email || "—"}</td>`;
+                        <td>${f.email || "—"}</td>
+                        <td><button class="button is-small is-light" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
                     tbody.appendChild(tr);
+                });
+                tbody.addEventListener("click", e => {
+                    const btn = e.target.closest("[data-edit-u]");
+                    if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
+                });
+            })
+            .catch(() => {});
+
+        // GET /api/pets
+        authFetch(`${BASE_URL}/api/pets`)
+            .then(r => r.ok ? r.json() : [])
+            .then(pets => {
+                const tbody = document.getElementById("tabela-pets");
+                const vazio = document.getElementById("pets-admin-vazio");
+                if (!pets || pets.length === 0) { vazio.classList.remove("is-hidden"); return; }
+                pets.forEach(p => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${p.id}</td>
+                        <td>${p.nome || "—"}</td>
+                        <td>${p.raca || "—"}</td>
+                        <td>${p.porte || "—"}</td>
+                        <td>${p.sexo || "—"}</td>
+                        <td><button class="button is-small is-light" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
+                    tbody.appendChild(tr);
+                });
+                tbody.addEventListener("click", e => {
+                    const btn = e.target.closest("[data-edit-p]");
+                    if (btn) abrirModalPet(JSON.parse(btn.dataset.editP));
                 });
             })
             .catch(() => {});
