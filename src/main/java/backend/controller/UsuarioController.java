@@ -97,6 +97,7 @@ public class UsuarioController {
             if (dados.getCep() != null) u.setCep(dados.getCep());
             if (dados.getEndereco() != null) u.setEndereco(dados.getEndereco());
             if (dados.getNumero() != null) u.setNumero(dados.getNumero());
+            if (dados.getCargo() != null) u.setCargo(dados.getCargo());
             repository.save(u);
             return ResponseEntity.ok(Map.of("mensagem", "Usuário atualizado com sucesso!"));
         }).orElse(ResponseEntity.notFound().build());
