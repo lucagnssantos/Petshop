@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Funcionário</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item has-text-weight-bold" href="admin.html">Voltar</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="index.html">
+          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+        </a>
+      </div>
+      <div class="navbar-end"></div>
+    </div>
+  </nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 560px;">
+
+      <!-- Cabeçalho -->
+      <div class="box is-flex is-align-items-center mb-5" style="gap: 1.5rem;">
+        <figure class="image is-96x96" style="flex-shrink:0;">
+          <img id="func-foto" class="is-rounded" src="https://placehold.co/96x96?text=?"
+            style="width:96px;height:96px;object-fit:cover;border-radius:50%;" />
+        </figure>
+        <div>
+          <p class="title is-4 mb-1" id="func-nome">—</p>
+          <p class="subtitle is-6 has-text-primary mb-1" id="func-cargo">—</p>
+          <p class="is-size-7 has-text-grey" id="func-email">—</p>
+        </div>
+      </div>
+
+      <!-- Dados pessoais -->
+      <div class="box mb-5">
+        <p class="label is-small has-text-grey mb-3">DADOS PESSOAIS</p>
+        <div class="columns is-multiline">
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">CPF</p>
+            <p id="func-cpf">—</p>
+          </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">DATA DE NASCIMENTO</p>
+            <p id="func-nascimento">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agendamentos atribuídos -->
+      <div class="box">
+        <p class="label is-small has-text-grey mb-3">AGENDAMENTOS ATRIBUÍDOS</p>
+        <table class="table is-fullwidth is-hoverable is-striped is-size-7">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Pet</th>
+              <th>Serviço</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="func-ags-tbody"></tbody>
+        </table>
+        <p id="func-ags-vazio" class="has-text-grey is-hidden">Nenhum agendamento atribuído.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold"><p>PetGO Serviços de Petshop</p></div>
+        <div class="column has-text-centered has-text-weight-bold"><p>Rua Maria da Silva Santos, 8888</p></div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script>
+  const BASE_URL = "http://localhost:8080";
+  const auth = () => ({ "Authorization": "Bearer " + (localStorage.getItem("petgo_token") || "") });
+  const params = new URLSearchParams(window.location.search);
+  const funcId = params.get("id");
+
+  if (!funcId) window.location.href = "admin.html";
+
+  function fmtData(d) {
+    if (!d) return "—";
+    const [y, m, dia] = d.split("-");
+    return `${dia}/${m}/${y}`;
+  }
+
+  function tagStatus(s) {
+    const map = { "Agendado": "is-primary", "Concluído": "is-success", "Cancelado": "is-danger" };
+    return `<span class="tag ${map[s] || "is-light"} is-light">${s}</span>`;
+  }
+
+  fetch(`${BASE_URL}/api/usuarios/${funcId}`, { headers: auth() })
+    .then(r => r.ok ? r.json() : null)
+    .then(u => {
+      if (!u) return;
+      document.title = `PetGO - ${u.nome}`;
+      document.getElementById("func-nome").textContent = u.nome || "—";
+      document.getElementById("func-cargo").textContent = u.cargo || "—";
+      document.getElementById("func-email").textContent = u.email || "—";
+      document.getElementById("func-cpf").textContent = u.cpf || "—";
+      document.getElementById("func-nascimento").textContent = u.dataNascimento || "—";
+
+      const foto = document.getElementById("func-foto");
+      foto.src = `${BASE_URL}/api/usuarios/${funcId}/imagem`;
+      foto.onerror = function() { this.onerror = null; this.src = `https://placehold.co/96x96?text=${(u.nome||"?")[0].toUpperCase()}`; };
+    });
+
+  fetch(`${BASE_URL}/api/agendamentos/funcionario/${funcId}`, { headers: auth() })
+    .then(r => r.ok ? r.json() : [])
+    .then(ags => {
+      const tbody = document.getElementById("func-ags-tbody");
+      const vazio = document.getElementById("func-ags-vazio");
+      if (!ags || ags.length === 0) { vazio.classList.remove("is-hidden"); return; }
+      ags.sort((a, b) => b.data.localeCompare(a.data)).forEach(ag => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
+        tbody.appendChild(tr);
+      });
+    });
+</script>
+</body>
+</html>

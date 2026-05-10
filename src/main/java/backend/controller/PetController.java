@@ -1,6 +1,9 @@
 package backend.controller;
 
+import backend.dto.PetRequestDTO;
+import backend.dto.PetResponseDTO;
 import backend.model.Pet;
+import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,40 +20,68 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/pets")
-@CrossOrigin(origins = "*")
 public class PetController {
 
     @Autowired
     private PetRepository repository;
 
+    @Autowired
+    private AgendamentoRepository agendamentoRepository;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PetResponseDTO> buscarPorId(@PathVariable Integer id) {
+        return repository.findById(id)
+                .map(p -> ResponseEntity.ok(PetResponseDTO.from(p)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/usuario/{usuarioId}")
-    public List<Pet> listarPorUsuario(@PathVariable Integer usuarioId) {
-        return repository.findByUsuarioId(usuarioId);
+    public List<PetResponseDTO> listarPorUsuario(@PathVariable Integer usuarioId) {
+        return repository.findByUsuarioId(usuarioId).stream().map(PetResponseDTO::from).toList();
     }
 
     @GetMapping
-    public List<Pet> listarTodos() {
-        return repository.findAll();
+    public List<PetResponseDTO> listarTodos() {
+        return repository.findAll().stream().map(PetResponseDTO::from).toList();
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Pet pet) {
+    public ResponseEntity<?> cadastrar(@RequestBody PetRequestDTO dto) {
+        Pet pet = new Pet();
+        pet.setNome(dto.getNome());
+        pet.setRaca(dto.getRaca());
+        pet.setPorte(dto.getPorte());
+        pet.setSexo(dto.getSexo());
+        pet.setIdade(dto.getIdade());
+        pet.setObservacao(dto.getObservacao());
+        pet.setUsuarioId(dto.getUsuarioId());
         Pet salvo = repository.save(pet);
-        return ResponseEntity.ok(salvo);
+        return ResponseEntity.ok(PetResponseDTO.from(salvo));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody Pet dados) {
+    public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto) {
         return repository.findById(id).map(p -> {
-            if (dados.getNome() != null) p.setNome(dados.getNome());
-            if (dados.getRaca() != null) p.setRaca(dados.getRaca());
-            if (dados.getPorte() != null) p.setPorte(dados.getPorte());
-            if (dados.getSexo() != null) p.setSexo(dados.getSexo());
-            if (dados.getIdade() != null) p.setIdade(dados.getIdade());
-            if (dados.getObservacao() != null) p.setObservacao(dados.getObservacao());
+            if (dto.getNome() != null) p.setNome(dto.getNome());
+            if (dto.getRaca() != null) p.setRaca(dto.getRaca());
+            if (dto.getPorte() != null) p.setPorte(dto.getPorte());
+            if (dto.getSexo() != null) p.setSexo(dto.getSexo());
+            if (dto.getIdade() != null) p.setIdade(dto.getIdade());
+            if (dto.getObservacao() != null) p.setObservacao(dto.getObservacao());
             repository.save(p);
             return ResponseEntity.ok(Map.of("mensagem", "Pet atualizado com sucesso!"));
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletar(@PathVariable Integer id) {
+        if (!repository.existsById(id))
+            return ResponseEntity.notFound().build();
+        if (agendamentoRepository.existsByPetIdAndStatus(id, "Agendado"))
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Não é possível remover o pet pois ele possui agendamentos ativos."));
+        agendamentoRepository.deleteByPetId(id);
+        repository.deleteById(id);
+        return ResponseEntity.ok(Map.of("mensagem", "Pet removido com sucesso!"));
     }
 
     @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -67,9 +98,9 @@ public class PetController {
     @GetMapping("/{id}/imagem")
     public ResponseEntity<byte[]> servirImagem(@PathVariable Integer id) {
         Optional<Pet> opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.isEmpty()) return ResponseEntity.<byte[]>notFound().build();
         byte[] imagem = opt.get().getImagem();
-        if (imagem == null || imagem.length == 0) return ResponseEntity.notFound().build();
+        if (imagem == null || imagem.length == 0) return ResponseEntity.<byte[]>notFound().build();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(imagem, headers, HttpStatus.OK);

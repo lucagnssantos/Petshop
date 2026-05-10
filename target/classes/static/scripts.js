@@ -12,6 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BASE_URL = "http://localhost:8080";
 
+    function fmtData(data) {
+        if (!data) return "—";
+        const [a, m, d] = data.split("-");
+        return `${d}/${m}/${a}`;
+    }
+
+    function tagStatus(status) {
+        const cor = status === "Concluído" ? "is-success" : status === "Cancelado" ? "is-danger" : "is-primary";
+        return `<span class="tag ${cor} is-light">${status || "Agendado"}</span>`;
+    }
+
     // ================= AUTH FETCH =================
 
     function authFetch(url, options = {}) {
@@ -28,19 +39,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!container) {
             container = document.createElement("div");
             container.id = "toast-container";
+            container.style.cssText = "position:fixed;top:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;max-width:320px;";
             document.body.appendChild(container);
         }
+        container.innerHTML = "";
         const notif = document.createElement("div");
         notif.className = `notification is-${tipo}`;
-        notif.innerHTML = `<button class="delete"></button>${mensagem}`;
+        notif.style.cssText = "position:relative;padding:1rem 3rem 1rem 1.25rem;min-height:3.5rem;display:flex;align-items:center;";
+        notif.innerHTML = `<button class="delete" style="position:absolute;top:0.75rem;right:0.75rem;"></button>${mensagem}`;
         container.appendChild(notif);
         notif.querySelector(".delete").addEventListener("click", () => fecharToast(notif));
         setTimeout(() => fecharToast(notif), 4000);
     }
 
     function fecharToast(notif) {
+        if (!notif.isConnected) return;
         notif.classList.add("toast-saindo");
-        notif.addEventListener("animationend", () => notif.remove(), { once: true });
+        const fallback = setTimeout(() => notif.remove(), 400);
+        notif.addEventListener("animationend", () => { clearTimeout(fallback); notif.remove(); }, { once: true });
     }
 
     // ================= NAVBAR USUÁRIO =================
@@ -54,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (nome) {
             const id = localStorage.getItem("petgo_id");
+            const role = Number(localStorage.getItem("petgo_role"));
             if (navNome) navNome.textContent = nome.split(" ")[0];
             if (navAvatar && id) {
                 navAvatar.src = `${BASE_URL}/api/usuarios/${id}/imagem`;
@@ -61,11 +78,23 @@ document.addEventListener("DOMContentLoaded", () => {
             } else if (navAvatar) {
                 navAvatar.src = `https://placehold.co/40x40?text=${nome[0].toUpperCase()}`;
             }
+            const btnPainel = document.getElementById("nav-btn-painel");
+            if (btnPainel) {
+                if (role === 1) {
+                    btnPainel.textContent = "Painel Administrador";
+                    btnPainel.href = "admin.html";
+                    btnPainel.style.display = "";
+                } else if (role === 3) {
+                    btnPainel.textContent = "Painel Funcionário";
+                    btnPainel.href = "funcionario.html";
+                    btnPainel.style.display = "";
+                }
+            }
             if (navBtnEntrar) navBtnEntrar.style.display = "none";
-            if (navUsuario) navUsuario.style.display = "flex";
+            if (navUsuario) { navUsuario.classList.remove("is-hidden"); navUsuario.style.display = "flex"; }
         } else {
             if (navBtnEntrar) navBtnEntrar.style.display = "";
-            if (navUsuario) navUsuario.style.display = "none";
+            if (navUsuario) { navUsuario.classList.add("is-hidden"); navUsuario.style.display = "none"; }
         }
     }
 
@@ -214,17 +243,17 @@ document.addEventListener("DOMContentLoaded", () => {
         setOkSelect(wrapperId); return true;
     }
 
-    function mascara(id, opts) {
+    [
+        ["cpf",                  "000.000.000-00"],
+        ["dataNascimento",       "00/00/0000"],
+        ["cep",                  "00000-000"],
+        ["func-cpf",             "000.000.000-00"],
+        ["func-dataNascimento",  "00/00/0000"],
+        ["pet-idade",            "00/00/0000"],
+    ].forEach(([id, mask]) => {
         const el = document.getElementById(id);
-        if (el && window.IMask) IMask(el, opts);
-    }
-
-    mascara("cpf",              { mask: "000.000.000-00" });
-    mascara("dataNascimento",   { mask: "00/00/0000" });
-    mascara("cep",              { mask: "00000-000" });
-    mascara("func-cpf",         { mask: "000.000.000-00" });
-    mascara("func-dataNascimento", { mask: "00/00/0000" });
-    mascara("pet-idade",        { mask: "00/00/0000" });
+        if (el) IMask(el, { mask });
+    });
 
     const blurRules = [
         ["nome",               () => validarNome("nome")],
@@ -234,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["endereco",           () => validarObrigatorio("endereco", "Endereço")],
         ["numero",             () => validarObrigatorio("numero", "Número")],
         ["email",              () => validarEmail("email")],
-        ["senha",              () => validarSenha("senha")],
+        ["senha",              () => !document.getElementById("btnLogin") && validarSenha("senha")],
         ["senhaRepetida",      () => validarConfirmacaoSenha("senha", "senhaRepetida")],
         ["func-nome",          () => validarNome("func-nome")],
         ["func-cpf",           () => validarCpf("func-cpf")],
@@ -445,9 +474,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
                         <div>
                           <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
-                          <p class="is-size-7 has-text-grey">${ag.data || ""} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
+                          <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
                         </div>
-                        <span class="tag is-primary is-light ml-auto">${ag.status || "Agendado"}</span>`;
+                        ${tagStatus(ag.status)}`;
                     lista.appendChild(item);
                 });
             })
@@ -472,6 +501,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("btn-sair")?.addEventListener("click", () => {
             localStorage.removeItem("petgo_id");
             localStorage.removeItem("petgo_nome");
+            localStorage.removeItem("petgo_role");
+            localStorage.removeItem("petgo_cargo");
             localStorage.removeItem("petgo_token");
             window.location.href = "index.html";
         });
@@ -540,59 +571,189 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
         }
 
-        // Endpoint esperado: GET /api/admin/stats
-        authFetch(`${BASE_URL}/api/admin/stats`)
-            .then(r => r.ok ? r.json() : null)
-            .then(stats => {
-                if (!stats) return;
-                document.getElementById("stat-usuarios").textContent = stats.totalUsuarios ?? "—";
-                document.getElementById("stat-pets").textContent = stats.totalPets ?? "—";
-                document.getElementById("stat-agendamentos").textContent = stats.totalAgendamentos ?? "—";
-                document.getElementById("stat-hoje").textContent = stats.agendamentosHoje ?? "—";
-            })
-            .catch(() => {});
+        const loaded = new Set();
 
-        // Endpoint esperado: GET /api/agendamentos
-        authFetch(`${BASE_URL}/api/agendamentos`)
-            .then(r => r.ok ? r.json() : [])
-            .then(agendamentos => {
-                const tbody = document.getElementById("tabela-agendamentos");
-                const vazio = document.getElementById("agendamentos-vazio");
-                if (!agendamentos || agendamentos.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
-                agendamentos.forEach(ag => {
+        function mostrarAba(id) {
+            document.querySelectorAll("[id^='section-']").forEach(s => s.classList.add("is-hidden"));
+            document.getElementById(`section-${id}`)?.classList.remove("is-hidden");
+            document.querySelectorAll("[data-aba]").forEach(l => l.classList.remove("is-active"));
+            document.querySelector(`[data-aba="${id}"]`)?.classList.add("is-active");
+            if (loaders[id] && !loaded.has(id)) {
+                loaders[id]();
+                loaded.add(id);
+            }
+        }
+
+        function carregarDashboard() {
+            authFetch(`${BASE_URL}/api/agendamentos`)
+                .then(r => r.ok ? r.json() : [])
+                .then(todos => {
+                    const hoje = new Date().toISOString().split("T")[0];
+
+                    // Agenda de hoje
+                    const tbodyHoje = document.getElementById("tabela-hoje");
+                    const vazioHoje = document.getElementById("hoje-vazio");
+                    tbodyHoje.innerHTML = "";
+                    vazioHoje.classList.add("is-hidden");
+                    const deHoje = todos.filter(ag => ag.data === hoje)
+                        .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
+                    if (deHoje.length === 0) {
+                        vazioHoje.classList.remove("is-hidden");
+                    } else {
+                        deHoje.forEach(ag => {
+                            const tr = document.createElement("tr");
+                            tr.innerHTML = `
+                                <td>${ag.hora || "—"}</td>
+                                <td>${ag.usuarioNome || "—"}</td>
+                                <td>${ag.petNome || "—"}</td>
+                                <td>${ag.servico || "—"}</td>
+                                <td>${tagStatus(ag.status)}</td>`;
+                            tbodyHoje.appendChild(tr);
+                        });
+                    }
+
+                    // Próximos agendamentos
+                    const tbodyProx = document.getElementById("tabela-proximos");
+                    const vazioProx = document.getElementById("proximos-vazio");
+                    tbodyProx.innerHTML = "";
+                    vazioProx.classList.add("is-hidden");
+                    const proximos = todos.filter(ag => ag.data > hoje && ag.status === "Agendado").sort((a, b) => {
+                        const cmp = (a.data || "").localeCompare(b.data || "");
+                        return cmp !== 0 ? cmp : (a.hora || "").localeCompare(b.hora || "");
+                    });
+                    if (proximos.length === 0) {
+                        vazioProx.classList.remove("is-hidden");
+                    } else {
+                        proximos.forEach(ag => {
+                            const tr = document.createElement("tr");
+                            tr.innerHTML = `
+                                <td>${fmtData(ag.data)}</td>
+                                <td>${ag.hora || "—"}</td>
+                                <td>${ag.usuarioNome || "—"}</td>
+                                <td>${ag.petNome || "—"}</td>
+                                <td>${ag.servico || "—"}</td>
+                                <td>${tagStatus(ag.status)}</td>`;
+                            tbodyProx.appendChild(tr);
+                        });
+                    }
+                }).catch(() => {});
+        }
+
+        function paginar(items, renderRow, tbodyId, vazioId, navId, porPagina = 10) {
+            const tbody = document.getElementById(tbodyId);
+            const vazio = document.getElementById(vazioId);
+            const nav   = document.getElementById(navId);
+            if (!items || items.length === 0) { vazio.classList.remove("is-hidden"); return; }
+
+            let pagina = 1;
+            const totalPaginas = () => Math.ceil(items.length / porPagina);
+
+            function renderPagina() {
+                tbody.innerHTML = "";
+                const inicio = (pagina - 1) * porPagina;
+                items.slice(inicio, inicio + porPagina).forEach(item => {
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `
+                    tr.innerHTML = renderRow(item);
+                    tbody.appendChild(tr);
+                });
+                renderNav();
+            }
+
+            function renderNav() {
+                const total = totalPaginas();
+                if (total <= 1) { nav.classList.add("is-hidden"); return; }
+                nav.classList.remove("is-hidden");
+                nav.innerHTML = `
+                    <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>Anterior</a>
+                    <a class="pagination-next" ${pagina === total ? "disabled" : ""}>Próximo</a>
+                    <ul class="pagination-list">
+                      ${Array.from({length: total}, (_, i) => i + 1).map(p =>
+                        `<li><a class="pagination-link ${p === pagina ? "is-current" : ""}" data-p="${p}">${p}</a></li>`
+                      ).join("")}
+                    </ul>`;
+                nav.querySelector(".pagination-previous").addEventListener("click", () => {
+                    if (pagina > 1) { pagina--; renderPagina(); }
+                });
+                nav.querySelector(".pagination-next").addEventListener("click", () => {
+                    if (pagina < total) { pagina++; renderPagina(); }
+                });
+                nav.querySelectorAll(".pagination-link").forEach(a => {
+                    a.addEventListener("click", () => { pagina = +a.dataset.p; renderPagina(); });
+                });
+            }
+
+            renderPagina();
+        }
+
+        function carregarAgendamentos() {
+            authFetch(`${BASE_URL}/api/agendamentos`)
+                .then(r => r.ok ? r.json() : [])
+                .then(ags => {
+                    const tbody = document.getElementById("tabela-agendamentos");
+                    paginar(ags, ag => `
                         <td>${ag.id}</td>
                         <td>${ag.usuarioNome || "—"}</td>
                         <td>${ag.petNome || "—"}</td>
                         <td>${ag.servico || "—"}</td>
-                        <td>${ag.data || "—"} ${ag.hora || ""}</td>
-                        <td><span class="tag is-primary is-light">${ag.status || "Agendado"}</span></td>`;
-                    tbody.appendChild(tr);
+                        <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
+                        <td>${tagStatus(ag.status)}</td>
+                        <td>
+                          <div class="buttons are-small mb-0">
+                            <button class="button is-light" title="Detalhes" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                            <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                            ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="Marcar como Concluído" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
+                          </div>
+                        </td>`,
+                    "tabela-agendamentos", "agendamentos-vazio", "pag-agendamentos");
+                })
+                .catch(() => {});
+        }
+
+        document.getElementById("tabela-agendamentos")?.addEventListener("click", async e => {
+            const btnDet = e.target.closest("[data-ag]");
+            if (btnDet) { abrirModalDetalheAg(JSON.parse(btnDet.dataset.ag)); return; }
+            const btnCon = e.target.closest("[data-concluir]");
+            if (btnCon) {
+                if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
+                const r = await authFetch(`${BASE_URL}/api/agendamentos/${btnCon.dataset.concluir}`, {
+                    method: "PUT", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "Concluído" })
                 });
-            })
-            .catch(() => {});
+                if (r.ok) { toast("Agendamento concluído."); loaded.delete("agendamentos"); loaded.delete("dashboard"); carregarAgendamentos(); }
+                else toast("Erro ao concluir.", "danger");
+            }
+        });
 
         // Modais
         const modalUsuario = document.getElementById("modal-editar-usuario");
         const modalPet = document.getElementById("modal-editar-pet");
         const fecharModalU = () => modalUsuario.classList.remove("is-active");
         const fecharModalP = () => modalPet.classList.remove("is-active");
+        let usuarioAtivo = null;
+        let petAtivo = null;
         document.getElementById("fechar-modal-u")?.addEventListener("click", fecharModalU);
         document.getElementById("cancelar-modal-u")?.addEventListener("click", fecharModalU);
         document.getElementById("fechar-modal-p")?.addEventListener("click", fecharModalP);
         document.getElementById("cancelar-modal-p")?.addEventListener("click", fecharModalP);
 
         const abrirModalUsuario = (u) => {
-            document.getElementById("modal-u-titulo").textContent = u.idRole === 3 ? "Editar Funcionário" : "Editar Usuário";
+            usuarioAtivo = u;
+            document.getElementById("modal-u-titulo").textContent = u.idRole === 3 ? "Editar Funcionário" : "Editar Cliente";
             document.getElementById("modal-u-id").value = u.id;
             document.getElementById("modal-u-nome").value = u.nome || "";
             document.getElementById("modal-u-cep").value = u.cep || "";
             document.getElementById("modal-u-endereco").value = u.endereco || "";
             document.getElementById("modal-u-numero").value = u.numero || "";
+
+            const camposReadonly = document.getElementById("campos-readonly-cliente");
+            if (u.idRole === 2) {
+                document.getElementById("modal-u-cpf").value = u.cpf || "—";
+                document.getElementById("modal-u-nascimento").value = u.dataNascimento || "—";
+                camposReadonly.style.display = "";
+            } else {
+                camposReadonly.style.display = "none";
+            }
+
             const campoCargo = document.getElementById("campo-modal-cargo");
             if (u.idRole === 3) {
                 campoCargo.style.display = "";
@@ -604,6 +765,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         const abrirModalPet = (p) => {
+            petAtivo = p;
             document.getElementById("modal-p-id").value = p.id;
             document.getElementById("modal-p-nome").value = p.nome || "";
             document.getElementById("modal-p-raca").value = p.raca || "";
@@ -654,86 +816,514 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch { toast("Erro ao conectar.", "danger"); }
         });
 
-        // GET /api/usuarios
-        authFetch(`${BASE_URL}/api/usuarios`)
-            .then(r => r.ok ? r.json() : [])
-            .then(usuarios => {
-                const tbody = document.getElementById("tabela-usuarios");
-                const vazio = document.getElementById("usuarios-vazio");
-                if (!usuarios || usuarios.length === 0) { vazio.classList.remove("is-hidden"); return; }
-                usuarios.forEach(u => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
+        document.getElementById("btn-excluir-usuario")?.addEventListener("click", async () => {
+            if (!usuarioAtivo) return;
+            const tipo = usuarioAtivo.idRole === 3 ? "funcionário" : "cliente";
+            const aviso = usuarioAtivo.idRole === 2 ? " Todos os pets e histórico serão removidos." : "";
+            if (!confirm(`Tem certeza que deseja excluir este ${tipo}?${aviso}`)) return;
+            try {
+                const r = await authFetch(`${BASE_URL}/api/usuarios/${usuarioAtivo.id}`, { method: "DELETE" });
+                if (r.ok) {
+                    toast(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)} excluído com sucesso!`);
+                    fecharModalU();
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    const data = await r.json().catch(() => ({}));
+                    toast(data.mensagem || "Erro ao excluir.", "danger");
+                }
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        document.getElementById("btn-excluir-pet")?.addEventListener("click", async () => {
+            if (!petAtivo) return;
+            if (!confirm(`Tem certeza que deseja excluir o pet "${petAtivo.nome}"?`)) return;
+            try {
+                const r = await authFetch(`${BASE_URL}/api/pets/${petAtivo.id}`, { method: "DELETE" });
+                if (r.ok) {
+                    toast("Pet excluído com sucesso!");
+                    fecharModalP();
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    const data = await r.json().catch(() => ({}));
+                    toast(data.mensagem || "Erro ao excluir.", "danger");
+                }
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        function carregarClientes() {
+            authFetch(`${BASE_URL}/api/usuarios/clientes`)
+                .then(r => r.ok ? r.json() : [])
+                .then(clientes => {
+                    const tbody = document.getElementById("tabela-clientes");
+                    paginar(clientes, u => `
                         <td>${u.id}</td>
                         <td>${u.nome || "—"}</td>
                         <td>${u.email || "—"}</td>
-                        <td><span class="tag ${u.idRole === 1 ? "is-warning" : "is-info"} is-light">${u.idRole === 1 ? "Admin" : "Cliente"}</span></td>
-                        <td><button class="button is-small is-light" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
-                    tbody.appendChild(tr);
-                });
-                tbody.addEventListener("click", e => {
-                    const btn = e.target.closest("[data-edit-u]");
-                    if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
-                });
-            })
-            .catch(() => {});
+                        <td>
+                          <div class="buttons are-small mb-0">
+                            <a class="button is-light" href="cliente.html?id=${u.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                            <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                          </div>
+                        </td>`,
+                    "tabela-clientes", "clientes-vazio", "pag-clientes");
+                    tbody.addEventListener("click", e => {
+                        const btn = e.target.closest("[data-edit-u]");
+                        if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
+                    });
+                })
+                .catch(() => {});
+        }
 
-        // GET /api/usuarios/funcionarios
-        authFetch(`${BASE_URL}/api/usuarios/funcionarios`)
-            .then(r => r.ok ? r.json() : [])
-            .then(funcionarios => {
-                const tbody = document.getElementById("tabela-funcionarios");
-                const vazio = document.getElementById("funcionarios-vazio");
-                if (!funcionarios || funcionarios.length === 0) { vazio.classList.remove("is-hidden"); return; }
-                funcionarios.forEach(f => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
+        function carregarFuncionarios() {
+            authFetch(`${BASE_URL}/api/usuarios/funcionarios`)
+                .then(r => r.ok ? r.json() : [])
+                .then(funcionarios => {
+                    const tbody = document.getElementById("tabela-funcionarios");
+                    paginar(funcionarios, f => `
                         <td>${f.id}</td>
                         <td>${f.nome || "—"}</td>
                         <td>${f.cargo || "—"}</td>
                         <td>${f.email || "—"}</td>
-                        <td><button class="button is-small is-light" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
-                    tbody.appendChild(tr);
-                });
-                tbody.addEventListener("click", e => {
-                    const btn = e.target.closest("[data-edit-u]");
-                    if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
-                });
-            })
-            .catch(() => {});
+                        <td>
+                          <div class="buttons are-small mb-0">
+                            <a class="button is-light" href="func-detalhe.html?id=${f.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                            <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                          </div>
+                        </td>`,
+                    "tabela-funcionarios", "funcionarios-vazio", "pag-funcionarios");
+                    tbody.addEventListener("click", e => {
+                        const btn = e.target.closest("[data-edit-u]");
+                        if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
+                    });
+                })
+                .catch(() => {});
+        }
 
-        // GET /api/pets
-        authFetch(`${BASE_URL}/api/pets`)
-            .then(r => r.ok ? r.json() : [])
-            .then(pets => {
-                const tbody = document.getElementById("tabela-pets");
-                const vazio = document.getElementById("pets-admin-vazio");
-                if (!pets || pets.length === 0) { vazio.classList.remove("is-hidden"); return; }
-                pets.forEach(p => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
+        function carregarPets() {
+            authFetch(`${BASE_URL}/api/pets`)
+                .then(r => r.ok ? r.json() : [])
+                .then(pets => {
+                    const tbody = document.getElementById("tabela-pets");
+                    paginar(pets, p => `
                         <td>${p.id}</td>
                         <td>${p.nome || "—"}</td>
                         <td>${p.raca || "—"}</td>
                         <td>${p.porte || "—"}</td>
                         <td>${p.sexo || "—"}</td>
-                        <td><button class="button is-small is-light" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button></td>`;
-                    tbody.appendChild(tr);
-                });
-                tbody.addEventListener("click", e => {
-                    const btn = e.target.closest("[data-edit-p]");
-                    if (btn) abrirModalPet(JSON.parse(btn.dataset.editP));
-                });
-            })
-            .catch(() => {});
+                        <td>
+                          <div class="buttons are-small mb-0">
+                            <a class="button is-light" href="pet.html?id=${p.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                            <button class="button is-light" title="Editar" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                          </div>
+                        </td>`,
+                    "tabela-pets", "pets-admin-vazio", "pag-pets");
+                    tbody.addEventListener("click", e => {
+                        const btn = e.target.closest("[data-edit-p]");
+                        if (btn) abrirModalPet(JSON.parse(btn.dataset.editP));
+                    });
+                })
+                .catch(() => {});
+        }
 
-        document.querySelectorAll("[data-secao]").forEach(link => {
-            link.addEventListener("click", (e) => {
+        // Cache de serviços (invalida ao criar/deletar na aba Serviços)
+        let servicosCache = null;
+        async function getServicos() {
+            if (servicosCache) return servicosCache;
+            const r = await authFetch(`${BASE_URL}/api/servicos`);
+            servicosCache = r.ok ? await r.json() : [];
+            return servicosCache;
+        }
+
+        function renderCheckboxes(containerId, servicos, selecionados, disabled) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = "";
+
+            // No modal de edição (há selecionados), exibe só serviços do mesmo tipo
+            let lista = servicos;
+            if (selecionados.length > 0) {
+                const selObj = selecionados.map(n => servicos.find(s => s.nome === n)).filter(Boolean);
+                if (selObj.length > 0) {
+                    const isVetSel = selObj.some(s => s.isVet);
+                    lista = servicos.filter(s => Boolean(s.isVet) === isVetSel);
+                }
+            }
+
+            const normais = lista.filter(s => !s.isVet);
+            const vets    = lista.filter(s =>  s.isVet);
+
+            const renderGrupo = (titulo, grupo) => {
+                if (grupo.length === 0) return;
+                if (titulo) {
+                    const header = document.createElement("div");
+                    header.className = "column is-full pb-0 pt-2";
+                    header.innerHTML = `<p class="has-text-weight-semibold is-size-7 has-text-grey-dark">${titulo}</p>`;
+                    container.appendChild(header);
+                }
+                grupo.forEach(s => {
+                    const div = document.createElement("div");
+                    div.className = "column is-half py-1";
+                    const label = document.createElement("label");
+                    label.className = "checkbox";
+                    const cb = document.createElement("input");
+                    cb.type = "checkbox";
+                    cb.value = s.nome;
+                    cb.dataset.isVet = s.isVet ? "true" : "false";
+                    cb.checked = selecionados.includes(s.nome);
+                    cb.disabled = !!disabled;
+                    label.appendChild(cb);
+                    label.appendChild(document.createTextNode(" " + s.nome));
+                    div.appendChild(label);
+                    container.appendChild(div);
+                });
+            };
+
+            renderGrupo("Serviços Gerais:", normais);
+            renderGrupo("Serviços Veterinários:", vets);
+        }
+
+        function carregarServicos() {
+            const tbody = document.getElementById("tabela-servicos");
+            const vazio = document.getElementById("servicos-vazio");
+            authFetch(`${BASE_URL}/api/servicos`)
+                .then(r => r.ok ? r.json() : [])
+                .then(servicos => {
+                    tbody.innerHTML = "";
+                    if (!servicos || servicos.length === 0) { vazio.classList.remove("is-hidden"); return; }
+                    vazio.classList.add("is-hidden");
+                    servicos.forEach(s => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${s.id}</td>
+                            <td>${s.nome}</td>
+                            <td>${s.duracao ? s.duracao + ' min' : '—'}</td>
+                            <td>${s.isVet ? '<span class="tag is-info is-light is-small">Veterinário</span>' : '<span class="tag is-light is-small">Geral</span>'}</td>
+                            <td><button class="button is-small is-danger is-outlined" data-del-serv="${s.id}" title="Excluir"><span class="icon"><i class="fas fa-trash"></i></span></button></td>`;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => {});
+        }
+
+        document.getElementById("tabela-servicos")?.addEventListener("click", async e => {
+            const btn = e.target.closest("[data-del-serv]");
+            if (!btn) return;
+            if (!confirm("Excluir este serviço? Agendamentos existentes não serão afetados.")) return;
+            const r = await authFetch(`${BASE_URL}/api/servicos/${btn.dataset.delServ}`, { method: "DELETE" });
+            if (r.ok) { servicosCache = null; carregarServicos(); toast("Serviço excluído."); }
+            else toast("Erro ao excluir.", "danger");
+        });
+
+        document.getElementById("btn-add-servico")?.addEventListener("click", async () => {
+            const nomeInput = document.getElementById("novo-servico-nome");
+            const duracaoInput = document.getElementById("novo-servico-duracao");
+            const isVetInput = document.getElementById("novo-servico-isvet");
+            const nome = nomeInput.value.trim();
+            if (!nome) { toast("Digite o nome do serviço.", "warning"); return; }
+            const duracao = parseInt(duracaoInput.value) || null;
+            if (!duracao || duracao < 1) { toast("Informe o tempo estimado em minutos.", "warning"); return; }
+            const isVet = isVetInput?.checked || false;
+            const r = await authFetch(`${BASE_URL}/api/servicos`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome, duracao, isVet })
+            });
+            if (r.ok) {
+                servicosCache = null;
+                nomeInput.value = "";
+                duracaoInput.value = "";
+                if (isVetInput) isVetInput.checked = false;
+                carregarServicos();
+                toast("Serviço adicionado!");
+            } else {
+                const d = await r.json().catch(() => ({}));
+                toast(d.mensagem || "Erro ao adicionar.", "danger");
+            }
+        });
+
+        document.getElementById("novo-servico-nome")?.addEventListener("keydown", e => {
+            if (e.key === "Enter") document.getElementById("btn-add-servico").click();
+        });
+
+        const loaders = {
+            dashboard:    carregarDashboard,
+            agendamentos: carregarAgendamentos,
+            clientes:     carregarClientes,
+            funcionarios: carregarFuncionarios,
+            pets:         carregarPets,
+            servicos:     carregarServicos,
+        };
+
+        // Modal: Novo Agendamento
+        const modalAg = document.getElementById("modal-novo-agendamento");
+        const fecharModalAg = () => {
+            modalAg.classList.remove("is-active");
+            document.querySelectorAll("#modal-ag-servicos input[type=checkbox]").forEach(cb => cb.checked = false);
+            const horaSelect = document.getElementById("modal-ag-hora");
+            [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+        };
+        document.getElementById("fechar-modal-ag")?.addEventListener("click", fecharModalAg);
+        document.getElementById("cancelar-modal-ag")?.addEventListener("click", fecharModalAg);
+
+        async function verificarDisponibilidade() {
+            const data = document.getElementById("modal-ag-data")?.value;
+            const horaSelect = document.getElementById("modal-ag-hora");
+            if (!horaSelect) return;
+            [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+            const selecionados = [...document.querySelectorAll("#modal-ag-servicos input[type=checkbox]:checked")].map(cb => cb.value);
+            if (!data || selecionados.length === 0) return;
+            const todosServicos = await getServicos();
+            const isVetAppointment = selecionados.some(n => todosServicos.find(sv => sv.nome === n)?.isVet);
+            const tipo = isVetAppointment ? "vet" : "normal";
+            const totalDuracao = selecionados.reduce((sum, nome) => {
+                const s = todosServicos.find(sv => sv.nome === nome);
+                return sum + (s?.duracao || 60);
+            }, 0);
+            const slotsNeeded = Math.ceil(totalDuracao / 60);
+            try {
+                const resp = await authFetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
+                if (!resp.ok) return;
+                const { slots } = await resp.json();
+                [...horaSelect.options].forEach(opt => {
+                    if (!opt.value) return;
+                    const startH = parseInt(opt.value.split(":")[0]);
+                    let blocked = false;
+                    for (let i = 0; i < slotsNeeded; i++) {
+                        const key = String(startH + i).padStart(2, "0") + ":00";
+                        if ((slots[key] || 0) <= 0) { blocked = true; break; }
+                    }
+                    opt.disabled = blocked;
+                    opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
+                });
+            } catch (e) {}
+        }
+
+        // Impede mistura de serviços vet + não-vet no modal de novo agendamento
+        document.getElementById("modal-ag-servicos")?.addEventListener("change", e => {
+            if (!e.target.matches("input[type=checkbox]")) return;
+            const cbs = [...document.querySelectorAll("#modal-ag-servicos input[type=checkbox]")];
+            const checked = cbs.filter(cb => cb.checked);
+            if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
+            const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
+            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+        });
+
+        document.getElementById("modal-ag-data")?.addEventListener("change", verificarDisponibilidade);
+        document.getElementById("modal-ag-servicos")?.addEventListener("change", verificarDisponibilidade);
+
+        document.getElementById("btn-novo-agendamento")?.addEventListener("click", async () => {
+            const selectCliente = document.getElementById("modal-ag-cliente");
+            if (selectCliente.options.length === 1) {
+                authFetch(`${BASE_URL}/api/usuarios`)
+                    .then(r => r.ok ? r.json() : [])
+                    .then(usuarios => {
+                        usuarios.filter(u => u.idRole === 2).forEach(u => {
+                            const opt = document.createElement("option");
+                            opt.value = u.id;
+                            opt.textContent = u.nome;
+                            selectCliente.appendChild(opt);
+                        });
+                    });
+            }
+            const servicos = await getServicos();
+            renderCheckboxes("modal-ag-servicos", servicos, [], false);
+            document.getElementById("modal-ag-data").min = new Date().toISOString().split("T")[0];
+            modalAg.classList.add("is-active");
+            verificarDisponibilidade();
+        });
+
+        document.getElementById("modal-ag-cliente")?.addEventListener("change", function() {
+            const selectPet = document.getElementById("modal-ag-pet");
+            selectPet.innerHTML = "<option value=''>Carregando...</option>";
+            selectPet.disabled = true;
+            if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
+            authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
+                .then(r => r.ok ? r.json() : [])
+                .then(pets => {
+                    selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
+                    pets.forEach(p => {
+                        const opt = document.createElement("option");
+                        opt.value = p.id;
+                        opt.textContent = p.nome;
+                        selectPet.appendChild(opt);
+                    });
+                    selectPet.disabled = pets.length === 0;
+                    if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
+                });
+        });
+
+        document.getElementById("btn-salvar-modal-ag")?.addEventListener("click", async () => {
+            const usuarioId = document.getElementById("modal-ag-cliente").value;
+            const petId = document.getElementById("modal-ag-pet").value;
+            const servico = [...document.querySelectorAll("#modal-ag-servicos input[type=checkbox]:checked")].map(c => c.value).join(", ");
+            const data = document.getElementById("modal-ag-data").value;
+            const hora = document.getElementById("modal-ag-hora").value;
+            const observacao = document.getElementById("modal-ag-observacao").value;
+
+            if (!usuarioId || !petId || !servico || !data || !hora) {
+                toast("Selecione pelo menos um serviço e preencha todos os campos.", "warning"); return;
+            }
+
+            try {
+                const r = await authFetch(`${BASE_URL}/api/agendamentos`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ usuarioId: Number(usuarioId), petId: Number(petId), servico, data, hora, observacao })
+                });
+                if (r.ok) {
+                    toast("Agendamento criado com sucesso!");
+                    fecharModalAg();
+                    document.getElementById("tabela-agendamentos").innerHTML = "";
+                    loaded.delete("agendamentos");
+                    loaded.delete("dashboard");
+                    carregarAgendamentos();
+                    loaded.add("agendamentos");
+                } else {
+                    const err = await r.json();
+                    toast(err.mensagem || "Erro ao agendar.", "danger");
+                }
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        // Modal: Detalhe / Edição de Agendamento
+        let agAtivo = null;
+        const modalDet = document.getElementById("modal-ag-detalhe");
+
+        const fecharModalDet = () => {
+            modalDet.classList.remove("is-active");
+            document.getElementById("ag-detalhe-form").classList.remove("is-hidden");
+            document.getElementById("ag-cancel-confirm").classList.add("is-hidden");
+            document.getElementById("ag-footer-esq").style.display      = "none";
+            document.getElementById("ag-footer-dir").style.display      = "flex";
+            document.getElementById("btn-ag-det-salvar").style.display  = "none";
+            document.getElementById("btn-ag-det-fechar").style.display  = "none";
+            document.getElementById("ag-det-footer-confirm").style.display = "none";
+            document.getElementById("ag-cancel-motivo").value = "";
+            document.getElementById("ag-det-motivo-section").style.display = "none";
+        };
+
+        document.getElementById("fechar-modal-ag-det")?.addEventListener("click", fecharModalDet);
+        document.getElementById("btn-ag-det-fechar")?.addEventListener("click", fecharModalDet);
+
+        async function abrirModalDetalheAg(ag) {
+            agAtivo = ag;
+            const editavel = ag.status === "Agendado";
+
+            document.getElementById("modal-ag-det-titulo").textContent = `Agendamento #${ag.id}`;
+            document.getElementById("ag-det-cliente").textContent = ag.usuarioNome || "—";
+            document.getElementById("ag-det-pet").textContent = ag.petNome || "—";
+
+            const servicos = await getServicos();
+            const servList = (ag.servico || "").split(",").map(s => s.trim());
+            renderCheckboxes("ag-det-servicos", servicos, servList, !editavel);
+
+            const inputData = document.getElementById("ag-det-data");
+            inputData.value = ag.data || "";
+            inputData.disabled = !editavel;
+
+            const selHora = document.getElementById("ag-det-hora");
+            selHora.value = ag.hora || "";
+            selHora.disabled = !editavel;
+
+            const txtObs = document.getElementById("ag-det-obs");
+            txtObs.value = ag.observacao || "";
+            txtObs.disabled = !editavel;
+
+            const motivoSection = document.getElementById("ag-det-motivo-section");
+            if (ag.status === "Cancelado" && ag.motivo) {
+                document.getElementById("ag-det-motivo").textContent = ag.motivo;
+                motivoSection.style.display = "block";
+            } else {
+                motivoSection.style.display = "none";
+            }
+
+            if (editavel) {
+                document.getElementById("ag-footer-esq").style.display     = "flex";
+                document.getElementById("btn-ag-det-salvar").style.display = "inline-flex";
+                document.getElementById("btn-ag-det-fechar").style.display = "none";
+            } else {
+                document.getElementById("ag-footer-esq").style.display     = "none";
+                document.getElementById("btn-ag-det-salvar").style.display = "none";
+                document.getElementById("btn-ag-det-fechar").style.display = "inline-flex";
+            }
+
+            modalDet.classList.add("is-active");
+        }
+
+        document.getElementById("btn-ag-det-salvar")?.addEventListener("click", async () => {
+            if (!agAtivo) return;
+            const body = {
+                servico:    [...document.querySelectorAll("#ag-det-servicos input[type=checkbox]:checked")].map(c => c.value).join(", "),
+                data:       document.getElementById("ag-det-data").value,
+                hora:       document.getElementById("ag-det-hora").value,
+                observacao: document.getElementById("ag-det-obs").value,
+            };
+            try {
+                const r = await authFetch(`${BASE_URL}/api/agendamentos/${agAtivo.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) {
+                    toast("Agendamento atualizado!");
+                    fecharModalDet();
+                    document.getElementById("tabela-agendamentos").innerHTML = "";
+                    loaded.delete("agendamentos");
+                    loaded.delete("dashboard");
+                    carregarAgendamentos();
+                    loaded.add("agendamentos");
+                } else toast("Erro ao salvar.", "danger");
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        document.getElementById("btn-ag-cancelar-inicio")?.addEventListener("click", () => {
+            document.getElementById("ag-detalhe-form").classList.add("is-hidden");
+            document.getElementById("ag-cancel-confirm").classList.remove("is-hidden");
+            document.getElementById("ag-footer-esq").style.display         = "none";
+            document.getElementById("ag-footer-dir").style.display         = "none";
+            document.getElementById("ag-det-footer-confirm").style.display = "flex";
+        });
+
+        document.getElementById("btn-ag-voltar-form")?.addEventListener("click", () => {
+            document.getElementById("ag-detalhe-form").classList.remove("is-hidden");
+            document.getElementById("ag-cancel-confirm").classList.add("is-hidden");
+            document.getElementById("ag-det-footer-confirm").style.display = "none";
+            document.getElementById("ag-footer-esq").style.display         = "flex";
+            document.getElementById("ag-footer-dir").style.display         = "flex";
+            document.getElementById("btn-ag-det-salvar").style.display     = "inline-flex";
+            document.getElementById("btn-ag-det-fechar").style.display     = "none";
+        });
+
+        document.getElementById("btn-ag-confirmar-cancel")?.addEventListener("click", async () => {
+            const motivo = document.getElementById("ag-cancel-motivo").value.trim();
+            if (!motivo) { toast("Informe o motivo do cancelamento.", "warning"); return; }
+            if (!agAtivo) return;
+            try {
+                const r = await authFetch(`${BASE_URL}/api/agendamentos/${agAtivo.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "Cancelado", motivo: motivo })
+                });
+                if (r.ok) {
+                    toast("Agendamento cancelado.");
+                    fecharModalDet();
+                    document.getElementById("tabela-agendamentos").innerHTML = "";
+                    loaded.delete("agendamentos");
+                    loaded.delete("dashboard");
+                    carregarAgendamentos();
+                    loaded.add("agendamentos");
+                } else toast("Erro ao cancelar.", "danger");
+            } catch { toast("Erro ao conectar.", "danger"); }
+        });
+
+        document.querySelectorAll("[data-aba]").forEach(link => {
+            link.addEventListener("click", e => {
                 e.preventDefault();
-                const id = link.dataset.secao;
-                document.getElementById(`section-${id}`).scrollIntoView({ behavior: "smooth" });
+                mostrarAba(link.dataset.aba);
             });
         });
+
+        mostrarAba("dashboard");
 
         document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
             localStorage.removeItem("petgo_id");
@@ -742,15 +1332,21 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.removeItem("petgo_token");
             window.location.href = "index.html";
         });
-    }
 
-    // ================= CADASTRO FUNCIONÁRIO =================
-
-    if (document.getElementById("pagina-cadastro-funcionario")) {
-        const role = localStorage.getItem("petgo_role");
-        if (!localStorage.getItem("petgo_id") || Number(role) !== 1) {
-            window.location.href = "index.html";
-        }
+        // Modal: Novo Funcionário
+        const modalFunc = document.getElementById("modal-novo-funcionario");
+        const fecharModalFunc = () => {
+            modalFunc.classList.remove("is-active");
+            ["func-nome","func-cpf","func-email","func-senha","func-senhaRepetida","func-dataNascimento"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.value = ""; el.classList.remove("is-danger"); }
+            });
+            document.getElementById("func-cargo").value = "";
+            document.getElementById("wrap-func-cargo").classList.remove("is-danger");
+        };
+        document.getElementById("btn-abrir-modal-func")?.addEventListener("click", () => modalFunc.classList.add("is-active"));
+        document.getElementById("fechar-modal-func")?.addEventListener("click", fecharModalFunc);
+        document.getElementById("cancelar-modal-func")?.addEventListener("click", fecharModalFunc);
 
         document.getElementById("btn-cadastrar-funcionario")?.addEventListener("click", async () => {
             const ok = [
@@ -762,7 +1358,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 validarSenha("func-senha"),
                 validarConfirmacaoSenha("func-senha", "func-senhaRepetida"),
             ].every(Boolean);
-
             if (!ok) return;
 
             const body = {
@@ -780,12 +1375,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 });
-
                 const data = await response.json();
-
                 if (response.ok) {
                     toast("Funcionário cadastrado com sucesso!");
-                    setTimeout(() => window.location.href = "admin.html", 1500);
+                    fecharModalFunc();
+                    loaded.delete("funcionarios");
+                    mostrarAba("funcionarios");
                 } else {
                     toast(data.mensagem || "Erro ao cadastrar.", "danger");
                 }
@@ -793,15 +1388,93 @@ document.addEventListener("DOMContentLoaded", () => {
                 toast("Erro ao conectar com o servidor.", "danger");
             }
         });
+    }
 
-        document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
-            localStorage.removeItem("petgo_id");
-            localStorage.removeItem("petgo_nome");
-            localStorage.removeItem("petgo_role");
-            localStorage.removeItem("petgo_token");
+    // ================= FUNCIONÁRIO =================
+
+    if (document.getElementById("funcionario-dashboard")) {
+        const funcId   = localStorage.getItem("petgo_id");
+        const funcRole = Number(localStorage.getItem("petgo_role"));
+        if (!funcId || funcRole !== 3) { window.location.href = "index.html"; }
+
+        // Navegação entre seções
+        const secoes = { agenda: "section-func-agenda", perfil: "section-func-perfil" };
+        document.querySelectorAll("[data-secao-func]").forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+                const alvo = link.dataset.secaoFunc;
+                Object.values(secoes).forEach(id => document.getElementById(id)?.classList.add("is-hidden"));
+                document.getElementById(secoes[alvo])?.classList.remove("is-hidden");
+                document.querySelectorAll("[data-secao-func]").forEach(l => l.classList.remove("is-active"));
+                link.classList.add("is-active");
+            });
+        });
+
+        // Carrega dados do funcionário
+        authFetch(`${BASE_URL}/api/usuarios/${funcId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(u => {
+                if (!u) return;
+                const avatar = document.getElementById("func-avatar");
+                if (avatar) {
+                    avatar.src = `${BASE_URL}/api/usuarios/${funcId}/imagem`;
+                    avatar.onerror = function() { this.onerror = null; this.src = `https://placehold.co/64x64?text=${u.nome[0]}`; };
+                }
+                const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || "—"; };
+                setText("func-nome-nav",    u.nome?.split(" ")[0]);
+                setText("func-cargo-nav",   u.cargo);
+                setText("fp-nome",          u.nome);
+                setText("fp-cargo",         u.cargo);
+                setText("fp-cpf",           u.cpf);
+                setText("fp-dataNascimento",u.dataNascimento);
+                setText("fp-email",         u.email);
+            }).catch(() => {});
+
+        // Carrega agenda
+        authFetch(`${BASE_URL}/api/agendamentos/funcionario/${funcId}`)
+            .then(r => r.ok ? r.json() : [])
+            .then(ags => {
+                const tbody = document.getElementById("tabela-func-agenda");
+                const vazio = document.getElementById("func-agenda-vazio");
+                tbody.innerHTML = "";
+                if (!ags.length) { vazio.classList.remove("is-hidden"); return; }
+                vazio.classList.add("is-hidden");
+                ags.sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora))
+                   .forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${ag.data || "—"}</td>
+                        <td>${ag.hora || "—"}</td>
+                        <td>${ag.usuarioNome || "—"}</td>
+                        <td>${ag.petNome || "—"}</td>
+                        <td>${ag.servico || "—"}</td>
+                        <td>${tagStatus(ag.status)}</td>
+                        <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}</td>`;
+                    tbody.appendChild(tr);
+                });
+                tbody.addEventListener("click", async e => {
+                    const btn = e.target.closest("[data-concluir-func]");
+                    if (!btn) return;
+                    if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
+                    const r = await authFetch(`${BASE_URL}/api/agendamentos/${btn.dataset.concluirFunc}`, {
+                        method: "PUT", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ status: "Concluído" })
+                    });
+                    if (r.ok) {
+                        toast("Agendamento concluído.");
+                        btn.closest("tr").querySelector("td:nth-last-child(2)").innerHTML = tagStatus("Concluído");
+                        btn.closest("td").innerHTML = "";
+                    } else toast("Erro ao concluir.", "danger");
+                });
+            }).catch(() => {});
+
+        document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
+            ["petgo_id","petgo_nome","petgo_role","petgo_cargo","petgo_token"].forEach(k => localStorage.removeItem(k));
             window.location.href = "index.html";
         });
     }
+
+    // ================= CADASTRO FUNCIONÁRIO =================
 
     // ================= FUNCIONÁRIO DASHBOARD =================
 
@@ -869,9 +1542,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
                         <div>
                           <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
-                          <p class="is-size-7 has-text-grey">${ag.data || ""} ${ag.hora || ""} · Pet: ${ag.petNome || "-"} · Cliente: ${ag.usuarioNome || "-"}</p>
+                          <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"} · Cliente: ${ag.usuarioNome || "-"}</p>
                         </div>
-                        <span class="tag is-primary is-light ml-auto">${ag.status || "Agendado"}</span>`;
+                        ${tagStatus(ag.status)}`;
                     lista.appendChild(item);
                 });
             })
@@ -968,19 +1641,100 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("agendar-data").min = new Date().toISOString().split("T")[0];
 
+        let servicosAgendar = [];
+        fetch(`${BASE_URL}/api/servicos`)
+            .then(r => r.ok ? r.json() : [])
+            .then(servicos => {
+                servicosAgendar = servicos;
+                const container = document.getElementById("agendar-servicos");
+                if (!container) return;
+                const normais = servicos.filter(s => !s.isVet);
+                const vets    = servicos.filter(s =>  s.isVet);
+                const addGrupo = (titulo, grupo) => {
+                    if (grupo.length === 0) return;
+                    if (titulo) {
+                        const header = document.createElement("div");
+                        header.className = "column is-full pb-0 pt-2";
+                        header.innerHTML = `<p class="has-text-weight-semibold is-size-7 has-text-grey-dark">${titulo}</p>`;
+                        container.appendChild(header);
+                    }
+                    grupo.forEach(s => {
+                        const div = document.createElement("div");
+                        div.className = "column is-half py-1";
+                        const label = document.createElement("label");
+                        label.className = "checkbox";
+                        const cb = document.createElement("input");
+                        cb.type = "checkbox";
+                        cb.value = s.nome;
+                        cb.dataset.isVet = s.isVet ? "true" : "false";
+                        label.appendChild(cb);
+                        label.appendChild(document.createTextNode(" " + s.nome));
+                        div.appendChild(label);
+                        container.appendChild(div);
+                    });
+                };
+                addGrupo("Serviços Gerais:", normais);
+                addGrupo("Serviços Veterinários:", vets);
+            })
+            .catch(() => {});
+
+        async function verificarDisponibilidadeAgendar() {
+            const data = document.getElementById("agendar-data")?.value;
+            const horaSelect = document.getElementById("agendar-hora");
+            if (!horaSelect) return;
+            [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+            const selecionados = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]:checked")].map(cb => cb.value);
+            if (!data || selecionados.length === 0) return;
+            const isVetAppointment = selecionados.some(n => servicosAgendar.find(sv => sv.nome === n)?.isVet);
+            const tipo = isVetAppointment ? "vet" : "normal";
+            const totalDuracao = selecionados.reduce((sum, nome) => {
+                const s = servicosAgendar.find(sv => sv.nome === nome);
+                return sum + (s?.duracao || 60);
+            }, 0);
+            const slotsNeeded = Math.ceil(totalDuracao / 60);
+            try {
+                const resp = await fetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
+                if (!resp.ok) return;
+                const { slots } = await resp.json();
+                [...horaSelect.options].forEach(opt => {
+                    if (!opt.value) return;
+                    const startH = parseInt(opt.value.split(":")[0]);
+                    let blocked = false;
+                    for (let i = 0; i < slotsNeeded; i++) {
+                        const key = String(startH + i).padStart(2, "0") + ":00";
+                        if ((slots[key] || 0) <= 0) { blocked = true; break; }
+                    }
+                    opt.disabled = blocked;
+                    opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
+                });
+            } catch (e) {}
+        }
+
+        // Impede mistura de serviços vet + não-vet no agendar.html
+        document.getElementById("agendar-servicos")?.addEventListener("change", e => {
+            if (!e.target.matches("input[type=checkbox]")) return;
+            const cbs = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]")];
+            const checked = cbs.filter(cb => cb.checked);
+            if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
+            const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
+            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+        });
+
+        document.getElementById("agendar-data")?.addEventListener("change", verificarDisponibilidadeAgendar);
+        document.getElementById("agendar-servicos")?.addEventListener("change", verificarDisponibilidadeAgendar);
+
         document.getElementById("btn-agendar")?.addEventListener("click", async () => {
             const petId = document.getElementById("agendar-pet").value;
-            const servico = document.getElementById("agendar-servico").value;
+            const servico = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]:checked")].map(c => c.value).join(", ");
             const data = document.getElementById("agendar-data").value;
             const hora = document.getElementById("agendar-hora").value;
             const observacao = document.getElementById("agendar-observacao").value;
 
-            if (!petId || !servico || !data || !hora) {
-                toast("Preencha todos os campos obrigatórios.", "warning");
-                return;
-            }
+            if (!petId) { toast("Selecione um pet.", "warning"); return; }
+            if (!servico) { toast("Selecione pelo menos um serviço.", "warning"); return; }
+            if (!data || !hora) { toast("Informe a data e o horário.", "warning"); return; }
 
-            const body = { usuarioId, petId, servico, data, hora, observacao };
+            const body = { usuarioId: Number(usuarioId), petId: Number(petId), servico, data, hora, observacao };
 
             try {
                 // Endpoint esperado: POST /api/agendamentos
