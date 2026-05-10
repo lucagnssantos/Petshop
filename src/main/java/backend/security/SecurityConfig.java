@@ -34,7 +34,9 @@ public class SecurityConfig {
                     "/api/usuarios/cadastrar",
                     "/api/usuarios/funcionario/cadastrar",
                     "/api/usuarios/*/imagem",
-                    "/api/pets/*/imagem"
+                    "/api/pets/*/imagem",
+                    "/api/servicos",
+                    "/api/agendamentos/disponibilidade"
                 ).permitAll()
                 // Toda rota /api/** exige autenticação
                 .requestMatchers("/api/**").authenticated()

@@ -83,3 +83,63 @@ hr {
 .servico-link img {
   transition: transform 0.2s, opacity 0.2s;
 }
+
+.navbar-item.is-active { font-weight: 700; }
+
+.pagination-previous,
+.pagination-next,
+.pagination-link {
+  font-size: 1rem;
+}
+
+.pagination-link.is-current {
+  background-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l)) !important;
+  border-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l)) !important;
+  color: #fff !important;
+}
+
+#admin-dashboard aside .navbar-item,
+#funcionario-dashboard aside .navbar-item {
+  color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}
+
+#admin-dashboard aside .navbar-item.is-active {
+  font-weight: 700;
+}
+
+#admin-dashboard main .title,
+#funcionario-dashboard main .title {
+  color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
+}
+
+#admin-dashboard .table {
+  table-layout: fixed;
+}
+
+#admin-dashboard .table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.toast-saindo {
+  animation: toast-fade-out 0.3s ease forwards;
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}

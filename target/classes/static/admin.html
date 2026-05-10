@@ -23,32 +23,27 @@
         <p class="is-size-7 has-text-grey mt-2">Painel Admin</p>
       </div>
 
-      <a class="navbar-item has-text-weight-bold is-active" href="admin.html">
+      <a class="navbar-item is-active" href="#" data-aba="dashboard">
         <span class="icon mr-2"><i class="fas fa-chart-bar"></i></span> Dashboard
       </a>
-      <a class="navbar-item" href="#" data-secao="agendamentos">
+      <a class="navbar-item" href="#" data-aba="agendamentos">
         <span class="icon mr-2"><i class="fas fa-calendar-alt"></i></span> Agendamentos
       </a>
-      <a class="navbar-item" href="#" data-secao="usuarios">
-        <span class="icon mr-2"><i class="fas fa-users"></i></span> Usuários
+      <a class="navbar-item" href="#" data-aba="clientes">
+        <span class="icon mr-2"><i class="fas fa-users"></i></span> Clientes
       </a>
-      <a class="navbar-item" href="#" data-secao="funcionarios">
+      <a class="navbar-item" href="#" data-aba="funcionarios">
         <span class="icon mr-2"><i class="fas fa-id-badge"></i></span> Funcionários
       </a>
-      <a class="navbar-item" href="#" data-secao="pets">
+      <a class="navbar-item" href="#" data-aba="pets">
         <span class="icon mr-2"><i class="fas fa-paw"></i></span> Pets
       </a>
-      <hr class="my-2" />
-      <a class="navbar-item has-text-primary has-text-weight-bold" href="cadastro-funcionario.html">
-        <span class="icon mr-2"><i class="fas fa-user-plus"></i></span> Novo Funcionário
+      <a class="navbar-item" href="#" data-aba="servicos">
+        <span class="icon mr-2"><i class="fas fa-concierge-bell"></i></span> Serviços
       </a>
-
-      <div style="margin-top: auto;">
-        <button id="btn-sair-admin" class="button is-danger is-outlined is-fullwidth is-small">
-          <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-          <span>Sair</span>
-        </button>
-      </div>
+      <button id="btn-sair-admin" class="navbar-item has-text-danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
+        <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> Sair
+      </button>
     </aside>
 
     <!-- Conteúdo principal -->
@@ -56,62 +51,78 @@
 
       <h1 class="title is-4 mb-5">Dashboard</h1>
 
-      <!-- Cards de estatísticas -->
-      <div class="columns mb-5">
-        <div class="column">
-          <div class="box has-text-centered">
-            <p class="is-size-7 has-text-grey has-text-weight-bold mb-1">USUÁRIOS</p>
-            <p class="title is-3 has-text-primary" id="stat-usuarios">—</p>
-            <span class="icon has-text-primary"><i class="fas fa-users"></i></span>
-          </div>
-        </div>
-        <div class="column">
-          <div class="box has-text-centered">
-            <p class="is-size-7 has-text-grey has-text-weight-bold mb-1">PETS</p>
-            <p class="title is-3 has-text-primary" id="stat-pets">—</p>
-            <span class="icon has-text-primary"><i class="fas fa-paw"></i></span>
-          </div>
-        </div>
-        <div class="column">
-          <div class="box has-text-centered">
-            <p class="is-size-7 has-text-grey has-text-weight-bold mb-1">AGENDAMENTOS</p>
-            <p class="title is-3 has-text-primary" id="stat-agendamentos">—</p>
-            <span class="icon has-text-primary"><i class="fas fa-calendar-check"></i></span>
-          </div>
-        </div>
-        <div class="column">
-          <div class="box has-text-centered">
-            <p class="is-size-7 has-text-grey has-text-weight-bold mb-1">HOJE</p>
-            <p class="title is-3 has-text-primary" id="stat-hoje">—</p>
-            <span class="icon has-text-primary"><i class="fas fa-clock"></i></span>
-          </div>
-        </div>
-      </div>
+      <!-- Seção: Dashboard (agenda de hoje + próximos) -->
+      <div id="section-dashboard" class="mb-6">
 
-      <!-- Seção: Agendamentos -->
-      <div id="section-agendamentos" class="mb-6">
-        <h2 class="title is-5 mb-3">Agendamentos</h2>
+        <h2 class="title is-5 mb-3">Agenda de Hoje</h2>
+        <div class="box p-0 mb-5">
+          <table class="table is-fullwidth is-hoverable is-striped">
+            <thead>
+              <tr>
+                <th>Horário</th>
+                <th>Cliente</th>
+                <th>Pet</th>
+                <th>Serviço</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-hoje"></tbody>
+          </table>
+          <p id="hoje-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento para hoje.</p>
+        </div>
+
+        <h2 class="title is-5 mb-3">Próximos Agendamentos</h2>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
               <tr>
-                <th>#</th>
+                <th>Data</th>
+                <th>Horário</th>
                 <th>Cliente</th>
                 <th>Pet</th>
                 <th>Serviço</th>
-                <th>Data / Hora</th>
                 <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-proximos"></tbody>
+          </table>
+          <p id="proximos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento futuro.</p>
+        </div>
+
+      </div>
+
+      <!-- Seção: Agendamentos -->
+      <div id="section-agendamentos" class="mb-6 is-hidden">
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
+          <h2 class="title is-5 mb-0">Agendamentos</h2>
+          <button id="btn-novo-agendamento" class="button is-primary has-text-weight-bold">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Novo agendamento</span>
+          </button>
+        </div>
+        <div class="box p-0">
+          <table class="table is-fullwidth is-hoverable is-striped" style="table-layout:fixed;">
+            <thead>
+              <tr>
+                <th style="width:3rem;">#</th>
+                <th style="width:14%;">Cliente</th>
+                <th style="width:10%;">Pet</th>
+                <th style="width:18%;">Serviço</th>
+                <th style="width:10rem;">Data / Hora</th>
+                <th style="width:7rem;">Status</th>
+                <th style="width:9rem;">Ações</th>
               </tr>
             </thead>
             <tbody id="tabela-agendamentos"></tbody>
           </table>
           <p id="agendamentos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
+          <nav id="pag-agendamentos" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
-      <!-- Seção: Usuários -->
-      <div id="section-usuarios" class="mb-6">
-        <h2 class="title is-5 mb-3">Usuários</h2>
+      <!-- Seção: Clientes -->
+      <div id="section-clientes" class="mb-6 is-hidden">
+        <h2 class="title is-5 mb-3">Clientes</h2>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
@@ -119,24 +130,24 @@
                 <th>#</th>
                 <th>Nome</th>
                 <th>E-mail</th>
-                <th>Perfil</th>
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="tabela-usuarios"></tbody>
+            <tbody id="tabela-clientes"></tbody>
           </table>
-          <p id="usuarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum usuário encontrado.</p>
+          <p id="clientes-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum cliente encontrado.</p>
+          <nav id="pag-clientes" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
       <!-- Seção: Funcionários -->
-      <div id="section-funcionarios" class="mb-6">
+      <div id="section-funcionarios" class="mb-6 is-hidden">
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
           <h2 class="title is-5 mb-0">Funcionários</h2>
-          <a href="cadastro-funcionario.html" class="button is-primary is-small has-text-weight-bold">
+          <button id="btn-abrir-modal-func" class="button is-primary has-text-weight-bold">
             <span class="icon"><i class="fas fa-plus"></i></span>
             <span>Novo funcionário</span>
-          </a>
+          </button>
         </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
@@ -152,11 +163,46 @@
             <tbody id="tabela-funcionarios"></tbody>
           </table>
           <p id="funcionarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum funcionário cadastrado.</p>
+          <nav id="pag-funcionarios" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
+        </div>
+      </div>
+
+      <!-- Seção: Serviços -->
+      <div id="section-servicos" class="mb-6 is-hidden">
+        <h2 class="title is-5 mb-3">Serviços</h2>
+        <div class="box mb-4">
+          <div class="field has-addons">
+            <div class="control is-expanded">
+              <input class="input" type="text" id="novo-servico-nome" placeholder="Nome do novo serviço..." />
+            </div>
+            <div class="control">
+              <input class="input" type="number" id="novo-servico-duracao" placeholder="Min." min="1" style="width:80px;" title="Duração em minutos" />
+            </div>
+            <div class="control">
+              <button class="button is-primary" id="btn-add-servico">
+                <span class="icon"><i class="fas fa-plus"></i></span>
+                <span>Adicionar</span>
+              </button>
+            </div>
+          </div>
+          <div class="field mt-2">
+            <label class="checkbox">
+              <input type="checkbox" id="novo-servico-isvet" />
+              Serviço Veterinário
+            </label>
+          </div>
+        </div>
+        <div class="box p-0">
+          <table class="table is-fullwidth is-hoverable is-striped">
+            <thead><tr><th>#</th><th>Nome</th><th>Duração</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <tbody id="tabela-servicos"></tbody>
+          </table>
+          <p id="servicos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum serviço cadastrado.</p>
         </div>
       </div>
 
       <!-- Seção: Pets -->
-      <div id="section-pets" class="mb-6">
+      <div id="section-pets" class="mb-6 is-hidden">
         <h2 class="title is-5 mb-3">Pets</h2>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
@@ -173,6 +219,7 @@
             <tbody id="tabela-pets"></tbody>
           </table>
           <p id="pets-admin-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum pet cadastrado.</p>
+          <nav id="pag-pets" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
@@ -192,6 +239,22 @@
         <div class="field">
           <label class="label is-small">Nome</label>
           <input class="input" type="text" id="modal-u-nome" />
+        </div>
+        <div id="campos-readonly-cliente" style="display:none;">
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label is-small has-text-grey">CPF <span class="tag is-light is-small ml-1">somente leitura</span></label>
+                <input class="input" type="text" id="modal-u-cpf" readonly />
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label is-small has-text-grey">Data de Nascimento <span class="tag is-light is-small ml-1">somente leitura</span></label>
+                <input class="input" type="text" id="modal-u-nascimento" readonly />
+              </div>
+            </div>
+          </div>
         </div>
         <div class="columns">
           <div class="column">
@@ -224,9 +287,12 @@
           </div>
         </div>
       </section>
-      <footer class="modal-card-foot" style="gap: 0.5rem;">
-        <button class="button is-primary" id="btn-salvar-modal-usuario">Salvar</button>
-        <button class="button" id="cancelar-modal-u">Cancelar</button>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
+        <button class="button is-danger is-outlined" id="btn-excluir-usuario">Excluir</button>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="button" id="cancelar-modal-u">Cancelar</button>
+          <button class="button is-primary" id="btn-salvar-modal-usuario">Salvar</button>
+        </div>
       </footer>
     </div>
   </div>
@@ -279,9 +345,231 @@
           <input class="input" type="text" id="modal-p-observacao" />
         </div>
       </section>
-      <footer class="modal-card-foot" style="gap: 0.5rem;">
-        <button class="button is-primary" id="btn-salvar-modal-pet">Salvar</button>
-        <button class="button" id="cancelar-modal-p">Cancelar</button>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
+        <button class="button is-danger is-outlined" id="btn-excluir-pet">Excluir</button>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="button" id="cancelar-modal-p">Cancelar</button>
+          <button class="button is-primary" id="btn-salvar-modal-pet">Salvar</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal: Detalhe / Edição de Agendamento -->
+  <div id="modal-ag-detalhe" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id="modal-ag-det-titulo">Agendamento</p>
+        <button class="delete" id="fechar-modal-ag-det"></button>
+      </header>
+      <section class="modal-card-body">
+
+        <!-- Tela principal -->
+        <div id="ag-detalhe-form">
+          <div class="columns mb-2">
+            <div class="column">
+              <p class="is-size-7 has-text-grey">Cliente</p>
+              <p id="ag-det-cliente" class="has-text-weight-bold"></p>
+            </div>
+            <div class="column">
+              <p class="is-size-7 has-text-grey">Pet</p>
+              <p id="ag-det-pet" class="has-text-weight-bold"></p>
+            </div>
+          </div>
+          <div class="field">
+            <div id="ag-det-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label is-small">Data</label>
+                <input class="input" type="date" id="ag-det-data" />
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label is-small">Horário</label>
+                <div class="select is-fullwidth">
+                  <select id="ag-det-hora">
+                    <option>08:00</option><option>09:00</option><option>10:00</option>
+                    <option>11:00</option><option>12:00</option><option>13:00</option>
+                    <option>14:00</option><option>15:00</option><option>16:00</option>
+                    <option>17:00</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">Observação</label>
+            <textarea class="textarea is-small" id="ag-det-obs" rows="3"></textarea>
+          </div>
+          <div class="field" id="ag-det-motivo-section" style="display:none;">
+            <label class="label is-small has-text-danger">Motivo do cancelamento</label>
+            <p id="ag-det-motivo" class="has-text-grey-dark is-size-6"></p>
+          </div>
+        </div>
+
+        <!-- Tela de confirmação de cancelamento -->
+        <div id="ag-cancel-confirm" class="is-hidden">
+          <p class="has-text-weight-bold mb-3">Tem certeza que deseja cancelar este agendamento?</p>
+          <div class="field">
+            <label class="label is-small">Motivo do cancelamento <span class="has-text-danger">*</span></label>
+            <textarea class="textarea is-small" id="ag-cancel-motivo" rows="3" placeholder="Descreva o motivo..."></textarea>
+          </div>
+        </div>
+
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap:0.5rem;">
+        <div id="ag-footer-esq" style="display:none;">
+          <button class="button is-danger is-outlined" id="btn-ag-cancelar-inicio">Cancelar Agendamento</button>
+        </div>
+        <div id="ag-footer-dir" style="margin-left:auto;">
+          <button class="button is-primary" id="btn-ag-det-salvar" style="display:none;">Salvar</button>
+          <button class="button" id="btn-ag-det-fechar" style="display:none;">Fechar</button>
+        </div>
+        <div id="ag-det-footer-confirm" style="display:none; width:100%; justify-content:space-between;">
+          <button class="button" id="btn-ag-voltar-form">Voltar</button>
+          <button class="button is-danger" id="btn-ag-confirmar-cancel">Confirmar Cancelamento</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Agendamento -->
+  <div id="modal-novo-agendamento" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Novo Agendamento</p>
+        <button class="delete" id="fechar-modal-ag"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label is-small">Cliente</label>
+          <div class="select is-fullwidth">
+            <select id="modal-ag-cliente"><option value="">Selecione o cliente...</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Pet</label>
+          <div class="select is-fullwidth">
+            <select id="modal-ag-pet" disabled><option value="">Selecione o cliente primeiro</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Serviços</label>
+          <div id="modal-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Data</label>
+              <input class="input" type="date" id="modal-ag-data" />
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Horário</label>
+              <div class="select is-fullwidth">
+                <select id="modal-ag-hora">
+                  <option value="">Selecione...</option>
+                  <option>08:00</option><option>09:00</option><option>10:00</option>
+                  <option>11:00</option><option>12:00</option><option>13:00</option>
+                  <option>14:00</option><option>15:00</option><option>16:00</option>
+                  <option>17:00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Observação</label>
+          <textarea class="textarea is-small" id="modal-ag-observacao" rows="2"></textarea>
+        </div>
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
+        <button class="button" id="cancelar-modal-ag">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-modal-ag">Agendar</button>
+      </footer>
+    </div>
+  </div>
+
+
+  <!-- Modal: Novo Funcionário -->
+  <div id="modal-novo-funcionario" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Novo Funcionário</p>
+        <button class="delete" id="fechar-modal-func"></button>
+      </header>
+      <section class="modal-card-body">
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Nome Completo</label>
+              <div class="control"><input id="func-nome" class="input" type="text" placeholder="Nome do funcionário" /></div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">CPF</label>
+              <div class="control"><input id="func-cpf" class="input" type="text" placeholder="000.000.000-00" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Cargo</label>
+              <div class="control">
+                <div class="select is-fullwidth" id="wrap-func-cargo">
+                  <select id="func-cargo">
+                    <option value="">Selecione o cargo</option>
+                    <option value="Esteticista">Esteticista</option>
+                    <option value="Veterinário">Veterinário</option>
+                    <option value="Atendente">Atendente</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Data de Nascimento</label>
+              <div class="control"><input id="func-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label is-small has-text-primary">E-mail</label>
+          <div class="control"><input id="func-email" class="input" type="email" placeholder="funcionario@petgo.com" /></div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Senha</label>
+              <div class="control"><input id="func-senha" class="input" type="password" placeholder="*********" /></div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Confirmar Senha</label>
+              <div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" /></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
+        <button class="button" id="cancelar-modal-func">Cancelar</button>
+        <button class="button is-primary has-text-weight-bold" id="btn-cadastrar-funcionario">Cadastrar</button>
       </footer>
     </div>
   </div>

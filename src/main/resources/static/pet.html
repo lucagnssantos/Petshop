@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Pet</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item has-text-weight-bold" id="nav-voltar" href="admin.html">Voltar</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="index.html">
+          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+        </a>
+      </div>
+      <div class="navbar-end"></div>
+    </div>
+  </nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 560px;">
+
+      <div class="box">
+        <div class="has-text-centered mb-5">
+          <figure class="image is-128x128 mx-auto mb-3">
+            <img id="pet-foto" class="is-rounded" src="https://placehold.co/128x128?text=?" alt="Foto do pet"
+              style="height:128px;width:128px;object-fit:cover;border-radius:50%;" />
+          </figure>
+          <h1 class="title is-4 mb-1" id="pet-nome">—</h1>
+          <p class="is-size-6 has-text-grey" id="pet-raca">—</p>
+        </div>
+
+        <div class="columns is-multiline">
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">PORTE</p>
+            <p id="pet-porte">—</p>
+          </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">SEXO</p>
+            <p id="pet-sexo">—</p>
+          </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">IDADE</p>
+            <p id="pet-idade">—</p>
+          </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">TUTOR</p>
+            <p id="pet-tutor">—</p>
+          </div>
+        </div>
+
+        <hr />
+
+        <div id="pet-obs-section">
+          <p class="is-size-7 has-text-grey has-text-weight-bold mb-1">OBSERVAÇÕES</p>
+          <p id="pet-obs" class="has-text-grey-dark">—</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold">
+          <p>PetGO Serviços de Petshop</p>
+        </div>
+        <div class="column has-text-centered has-text-weight-bold">
+          <p>Rua Maria da Silva Santos, 8888</p>
+        </div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script>
+  const BASE_URL = "http://localhost:8080";
+  const params = new URLSearchParams(window.location.search);
+  const petId = params.get("id");
+
+  if (!petId) { window.location.href = "admin.html"; }
+
+  fetch(`${BASE_URL}/api/pets/${petId}`, {
+    headers: { "Authorization": "Bearer " + (localStorage.getItem("petgo_token") || "") }
+  })
+  .then(r => r.ok ? r.json() : null)
+  .then(pet => {
+    if (!pet) return;
+    document.title = `PetGO - ${pet.nome}`;
+    document.getElementById("pet-nome").textContent = pet.nome || "—";
+    document.getElementById("pet-raca").textContent = pet.raca || "—";
+    document.getElementById("pet-porte").textContent = pet.porte || "—";
+    document.getElementById("pet-sexo").textContent = pet.sexo || "—";
+    document.getElementById("pet-idade").textContent = pet.idade || "—";
+    document.getElementById("pet-obs").textContent = pet.observacao || "Nenhuma observação registrada.";
+
+    const foto = document.getElementById("pet-foto");
+    foto.src = `${BASE_URL}/api/pets/${petId}/imagem`;
+    foto.onerror = function() { this.onerror = null; this.src = `https://placehold.co/128x128?text=${(pet.nome||"?")[0].toUpperCase()}`; };
+
+    if (pet.usuarioId) {
+      fetch(`${BASE_URL}/api/usuarios/${pet.usuarioId}`, {
+        headers: { "Authorization": "Bearer " + (localStorage.getItem("petgo_token") || "") }
+      })
+      .then(r => r.ok ? r.json() : null)
+      .then(u => { if (u) document.getElementById("pet-tutor").textContent = u.nome; });
+    }
+  });
+</script>
+</body>
+</html>
