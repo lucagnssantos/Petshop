@@ -197,8 +197,10 @@
     .then(ags => {
       const tbody = document.getElementById("cli-ags-tbody");
       const vazio = document.getElementById("cli-ags-vazio");
-      if (!ags || ags.length === 0) { vazio.classList.remove("is-hidden"); return; }
-      ags.sort((a, b) => b.data.localeCompare(a.data)).forEach(ag => {
+      const hoje = new Date().toLocaleDateString("en-CA");
+      const futuros = (ags || []).filter(ag => ag.data >= hoje);
+      if (futuros.length === 0) { vazio.classList.remove("is-hidden"); return; }
+      futuros.sort((a, b) => a.data.localeCompare(b.data) || (a.hora || "").localeCompare(b.hora || "")).forEach(ag => {
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
         tbody.appendChild(tr);

@@ -16,6 +16,7 @@ public class AgendamentoResponseDTO {
     private String motivo;
     private Integer duracaoMinutos;
     private Integer funcionarioId;
+    private Boolean isVet;
     private String usuarioNome;
     private String petNome;
 

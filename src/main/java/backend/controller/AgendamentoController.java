@@ -33,6 +33,14 @@ public class AgendamentoController {
             usuarioRepository.findById(ag.getUsuarioId()).ifPresent(u -> dto.setUsuarioNome(u.getNome()));
         if (ag.getPetId() != null)
             petRepository.findById(ag.getPetId()).ifPresent(p -> dto.setPetNome(p.getNome()));
+        if (ag.getServico() != null) {
+            boolean vet = Arrays.stream(ag.getServico().split(","))
+                .map(String::trim)
+                .anyMatch(nome -> servicoRepository.findByNome(nome)
+                    .map(s -> Boolean.TRUE.equals(s.getIsVet()))
+                    .orElse(false));
+            dto.setIsVet(vet);
+        }
         return dto;
     }
 

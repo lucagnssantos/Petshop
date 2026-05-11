@@ -23,6 +23,130 @@ document.addEventListener("DOMContentLoaded", () => {
         return `<span class="tag ${cor} is-light">${status || "Agendado"}</span>`;
     }
 
+    function checados(name) {
+        const els = [...document.querySelectorAll(`input[name="${name}"]:checked`)];
+        return els.length ? els.map(e => e.value) : null;
+    }
+
+    function filtrarAgendamentos(lista, filtroId, statusName, dataId) {
+        const q = (document.getElementById(filtroId)?.value || "").toLowerCase();
+        const status = checados(statusName);
+        const dataFiltro = document.getElementById(dataId)?.value;
+        return lista.filter(ag => {
+            if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
+            if (status && !status.includes(ag.status || "Agendado")) return false;
+            if (dataFiltro && ag.data !== dataFiltro) return false;
+            return true;
+        }).sort((a, b) => (b.data + (b.hora || "")).localeCompare(a.data + (a.hora || "")));
+    }
+
+    const _paginaAtual = {};
+
+    function paginar(items, renderRow, tbodyId, vazioId, navId, porPagina = 10) {
+        const tbody = document.getElementById(tbodyId);
+        const vazio = document.getElementById(vazioId);
+        const nav   = document.getElementById(navId);
+        tbody.innerHTML = "";
+        vazio.classList.add("is-hidden");
+        if (!items || items.length === 0) { vazio.classList.remove("is-hidden"); return; }
+
+        const total = () => Math.ceil(items.length / porPagina);
+        let pagina = Math.min(_paginaAtual[navId] || 1, total() || 1);
+
+        function renderPagina() {
+            _paginaAtual[navId] = pagina;
+            tbody.innerHTML = "";
+            const inicio = (pagina - 1) * porPagina;
+            items.slice(inicio, inicio + porPagina).forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = renderRow(item);
+                tbody.appendChild(tr);
+            });
+            renderNav();
+        }
+
+        function getJanela(p, t) {
+            if (t <= 7) return Array.from({length: t}, (_, i) => i + 1);
+            if (p <= 4)      return [1, 2, 3, 4, 5, "…", t];
+            if (p >= t - 3)  return [1, "…", t-4, t-3, t-2, t-1, t];
+            return [1, "…", p - 1, p, p + 1, "…", t];
+        }
+
+        function renderNav() {
+            const t = total();
+            if (t <= 1) { nav.classList.add("is-hidden"); return; }
+            nav.classList.remove("is-hidden");
+            nav.innerHTML = `
+                <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>Anterior</a>
+                <a class="pagination-next" ${pagina === t ? "disabled" : ""}>Próximo</a>
+                <ul class="pagination-list">
+                  ${getJanela(pagina, t).map(p =>
+                    p === "…"
+                      ? `<li><span class="pagination-ellipsis">&hellip;</span></li>`
+                      : `<li><a class="pagination-link ${p === pagina ? "is-current" : ""}" data-p="${p}">${p}</a></li>`
+                  ).join("")}
+                </ul>`;
+            nav.querySelector(".pagination-previous").addEventListener("click", () => {
+                if (pagina > 1) { pagina--; renderPagina(); }
+            });
+            nav.querySelector(".pagination-next").addEventListener("click", () => {
+                if (pagina < t) { pagina++; renderPagina(); }
+            });
+            nav.querySelectorAll(".pagination-link[data-p]").forEach(a => {
+                a.addEventListener("click", () => { pagina = +a.dataset.p; renderPagina(); });
+            });
+        }
+
+        renderPagina();
+    }
+
+    function renderCheckboxes(containerId, servicos, selecionados, disabled) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = "";
+
+        let lista = servicos;
+        if (selecionados.length > 0) {
+            const selObj = selecionados.map(n => servicos.find(s => s.nome === n)).filter(Boolean);
+            if (selObj.length > 0) {
+                const isVetSel = selObj.some(s => s.isVet);
+                lista = servicos.filter(s => Boolean(s.isVet) === isVetSel);
+            }
+        }
+
+        const normais = lista.filter(s => !s.isVet);
+        const vets    = lista.filter(s =>  s.isVet);
+
+        const renderGrupo = (titulo, grupo) => {
+            if (grupo.length === 0) return;
+            if (titulo) {
+                const header = document.createElement("div");
+                header.className = "column is-full pb-0 pt-2";
+                header.innerHTML = `<p class="has-text-weight-semibold is-size-7 has-text-grey-dark">${titulo}</p>`;
+                container.appendChild(header);
+            }
+            grupo.forEach(s => {
+                const div = document.createElement("div");
+                div.className = "column is-half py-1";
+                const label = document.createElement("label");
+                label.className = "checkbox";
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.value = s.nome;
+                cb.dataset.isVet = s.isVet ? "true" : "false";
+                cb.checked = selecionados.includes(s.nome);
+                cb.disabled = !!disabled;
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(" " + s.nome));
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        };
+
+        renderGrupo("Serviços Gerais:", normais);
+        renderGrupo("Serviços Veterinários:", vets);
+    }
+
     // ================= AUTH FETCH =================
 
     function authFetch(url, options = {}) {
@@ -593,11 +717,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const loaded = new Set();
         let _agsDash = [], _ags = [], _clientes = [], _funcionarios = [], _pets = [], _servicos = [];
 
-        function checados(name) {
-            const els = [...document.querySelectorAll(`input[name="${name}"]:checked`)];
-            return els.length ? els.map(e => e.value) : null;
-        }
-
         let abaAtiva = "dashboard";
 
         function mostrarAba(id) {
@@ -674,66 +793,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        const _paginaAtual = {};
-
-        function paginar(items, renderRow, tbodyId, vazioId, navId, porPagina = 10) {
-            const tbody = document.getElementById(tbodyId);
-            const vazio = document.getElementById(vazioId);
-            const nav   = document.getElementById(navId);
-            tbody.innerHTML = "";
-            vazio.classList.add("is-hidden");
-            if (!items || items.length === 0) { vazio.classList.remove("is-hidden"); return; }
-
-            const total = () => Math.ceil(items.length / porPagina);
-            let pagina = Math.min(_paginaAtual[navId] || 1, total() || 1);
-
-            function renderPagina() {
-                _paginaAtual[navId] = pagina;
-                tbody.innerHTML = "";
-                const inicio = (pagina - 1) * porPagina;
-                items.slice(inicio, inicio + porPagina).forEach(item => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = renderRow(item);
-                    tbody.appendChild(tr);
-                });
-                renderNav();
-            }
-
-            function getJanela(p, t) {
-                if (t <= 7) return Array.from({length: t}, (_, i) => i + 1);
-                if (p <= 4)      return [1, 2, 3, 4, 5, "…", t];
-                if (p >= t - 3)  return [1, "…", t-4, t-3, t-2, t-1, t];
-                return [1, "…", p - 1, p, p + 1, "…", t];
-            }
-
-            function renderNav() {
-                const t = total();
-                if (t <= 1) { nav.classList.add("is-hidden"); return; }
-                nav.classList.remove("is-hidden");
-                nav.innerHTML = `
-                    <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>Anterior</a>
-                    <a class="pagination-next" ${pagina === t ? "disabled" : ""}>Próximo</a>
-                    <ul class="pagination-list">
-                      ${getJanela(pagina, t).map(p =>
-                        p === "…"
-                          ? `<li><span class="pagination-ellipsis">&hellip;</span></li>`
-                          : `<li><a class="pagination-link ${p === pagina ? "is-current" : ""}" data-p="${p}">${p}</a></li>`
-                      ).join("")}
-                    </ul>`;
-                nav.querySelector(".pagination-previous").addEventListener("click", () => {
-                    if (pagina > 1) { pagina--; renderPagina(); }
-                });
-                nav.querySelector(".pagination-next").addEventListener("click", () => {
-                    if (pagina < t) { pagina++; renderPagina(); }
-                });
-                nav.querySelectorAll(".pagination-link[data-p]").forEach(a => {
-                    a.addEventListener("click", () => { pagina = +a.dataset.p; renderPagina(); });
-                });
-            }
-
-            renderPagina();
-        }
-
         function carregarAgendamentos() {
             authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
@@ -742,15 +801,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function renderAgendamentos() {
-            const q = (document.getElementById("filtro-ag")?.value || "").toLowerCase();
-            const status = checados("chk-ag-status");
-            const dataFiltro = document.getElementById("filtro-ag-data")?.value;
-            const dados = _ags.filter(ag => {
-                if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
-                if (status && !status.includes(ag.status || "Agendado")) return false;
-                if (dataFiltro && ag.data !== dataFiltro) return false;
-                return true;
-            }).sort((a, b) => (b.data + (b.hora || "")).localeCompare(a.data + (a.hora || "")));
+            const dados = filtrarAgendamentos(_ags, "filtro-ag", "chk-ag-status", "filtro-ag-data");
             paginar(dados, ag => `
                 <td>${ag.id}</td>
                 <td>${ag.usuarioNome || "—"}</td>
@@ -1015,54 +1066,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const r = await authFetch(`${BASE_URL}/api/servicos`);
             servicosCache = r.ok ? await r.json() : [];
             return servicosCache;
-        }
-
-        function renderCheckboxes(containerId, servicos, selecionados, disabled) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.innerHTML = "";
-
-            // No modal de edição (há selecionados), exibe só serviços do mesmo tipo
-            let lista = servicos;
-            if (selecionados.length > 0) {
-                const selObj = selecionados.map(n => servicos.find(s => s.nome === n)).filter(Boolean);
-                if (selObj.length > 0) {
-                    const isVetSel = selObj.some(s => s.isVet);
-                    lista = servicos.filter(s => Boolean(s.isVet) === isVetSel);
-                }
-            }
-
-            const normais = lista.filter(s => !s.isVet);
-            const vets    = lista.filter(s =>  s.isVet);
-
-            const renderGrupo = (titulo, grupo) => {
-                if (grupo.length === 0) return;
-                if (titulo) {
-                    const header = document.createElement("div");
-                    header.className = "column is-full pb-0 pt-2";
-                    header.innerHTML = `<p class="has-text-weight-semibold is-size-7 has-text-grey-dark">${titulo}</p>`;
-                    container.appendChild(header);
-                }
-                grupo.forEach(s => {
-                    const div = document.createElement("div");
-                    div.className = "column is-half py-1";
-                    const label = document.createElement("label");
-                    label.className = "checkbox";
-                    const cb = document.createElement("input");
-                    cb.type = "checkbox";
-                    cb.value = s.nome;
-                    cb.dataset.isVet = s.isVet ? "true" : "false";
-                    cb.checked = selecionados.includes(s.nome);
-                    cb.disabled = !!disabled;
-                    label.appendChild(cb);
-                    label.appendChild(document.createTextNode(" " + s.nome));
-                    div.appendChild(label);
-                    container.appendChild(div);
-                });
-            };
-
-            renderGrupo("Serviços Gerais:", normais);
-            renderGrupo("Serviços Veterinários:", vets);
         }
 
         function carregarServicos() {
@@ -1569,9 +1572,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // ================= FUNCIONÁRIO =================
 
     if (document.getElementById("funcionario-dashboard")) {
-        const funcId   = localStorage.getItem("petgo_id");
-        const funcRole = Number(localStorage.getItem("petgo_role"));
+        const funcId    = localStorage.getItem("petgo_id");
+        const funcRole  = Number(localStorage.getItem("petgo_role"));
+        const funcCargo = localStorage.getItem("petgo_cargo") || "";
         if (!funcId || funcRole !== 3) { window.location.href = "index.html"; }
+
+        const isAtendente = funcCargo === "Atendente";
+
+        if (isAtendente) {
+            document.getElementById("btn-func-novo-ag")?.classList.remove("is-hidden");
+            document.getElementById("func-agenda-filtro-data")?.classList.remove("is-hidden");
+            const sub = document.getElementById("func-agenda-subtitulo");
+            if (sub) sub.textContent = "Todos os agendamentos";
+        }
 
         // Navegação entre seções
         const secoes = { agenda: "section-func-agenda", perfil: "section-func-perfil" };
@@ -1637,9 +1650,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("btn-salvar-func-perfil")?.addEventListener("click", async () => {
             const body = {
-                nome:     document.getElementById("modal-func-nome").value.trim()     || null,
-                email:    document.getElementById("modal-func-email").value.trim()    || null,
-                telefone: document.getElementById("modal-func-telefone").value.trim() || null,
+                nome:            document.getElementById("modal-func-nome").value.trim()            || null,
+                email:           document.getElementById("modal-func-email").value.trim()           || null,
+                telefone:        document.getElementById("modal-func-telefone").value.trim()        || null,
+                cpf:             document.getElementById("modal-func-cpf").value.trim()             || null,
+                dataNascimento:  document.getElementById("modal-func-dataNascimento").value.trim()  || null,
             };
             const r = await authFetch(`${BASE_URL}/api/usuarios/${funcId}`, {
                 method: "PUT", headers: { "Content-Type": "application/json" },
@@ -1661,11 +1676,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(u => { if (u) preencherPerfil(u); });
         });
 
-        // Carrega agenda
+        // Agenda
         const tbodyFunc = document.getElementById("tabela-func-agenda");
         const vazioFunc = document.getElementById("func-agenda-vazio");
 
+        // Read-only detail modal (Vet/Esteticista)
+        const modalFuncAgDet = document.getElementById("modal-func-ag-det");
+        const fecharModalFuncAgDet = () => modalFuncAgDet?.classList.remove("is-active");
+        document.getElementById("fechar-modal-func-ag-det")?.addEventListener("click", fecharModalFuncAgDet);
+        document.getElementById("btn-func-ag-det-fechar")?.addEventListener("click", fecharModalFuncAgDet);
+
+        function abrirDetalheAgFunc(ag) {
+            document.getElementById("func-ag-det-titulo").textContent  = `Agendamento #${ag.id}`;
+            document.getElementById("func-ag-det-cliente").textContent = ag.usuarioNome || "—";
+            document.getElementById("func-ag-det-pet").textContent     = ag.petNome     || "—";
+            document.getElementById("func-ag-det-servico").textContent = ag.servico     || "—";
+            document.getElementById("func-ag-det-data").textContent    = fmtData(ag.data);
+            document.getElementById("func-ag-det-hora").textContent    = ag.hora        || "—";
+            document.getElementById("func-ag-det-status").innerHTML    = tagStatus(ag.status);
+            document.getElementById("func-ag-det-obs").textContent     = ag.observacao  || "Nenhuma observação.";
+            const motivoSection = document.getElementById("func-ag-det-motivo-section");
+            if (ag.status === "Cancelado" && ag.motivo) {
+                document.getElementById("func-ag-det-motivo").textContent = ag.motivo;
+                motivoSection.style.display = "block";
+            } else {
+                motivoSection.style.display = "none";
+            }
+            modalFuncAgDet?.classList.add("is-active");
+        }
+
+        let abrirModalFuncAgEdit = null;
+
         tbodyFunc.addEventListener("click", async e => {
+            const btnDetEdit = e.target.closest("[data-ag-func-edit]");
+            if (btnDetEdit && abrirModalFuncAgEdit) { await abrirModalFuncAgEdit(JSON.parse(btnDetEdit.dataset.agFuncEdit)); return; }
+            const btnDet = e.target.closest("[data-ag-func]");
+            if (btnDet) { abrirDetalheAgFunc(JSON.parse(btnDet.dataset.agFunc)); return; }
             const btn = e.target.closest("[data-concluir-func]");
             if (!btn) return;
             if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
@@ -1673,45 +1719,73 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "PUT", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: "Concluído" })
             });
-            if (r.ok) {
-                toast("Agendamento concluído.");
-                btn.closest("tr").querySelector("td:nth-last-child(2)").innerHTML = tagStatus("Concluído");
-                btn.closest("td").innerHTML = "";
-            } else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
+            if (r.ok) { toast("Agendamento concluído."); carregarAgendaFunc(); }
+            else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
         });
 
         let _agsFunc = [];
 
         function renderAgendaFunc() {
-            const q = (document.getElementById("filtro-func-ag")?.value || "").toLowerCase();
-            const status = checados("chk-func-ag-status");
-            const dataFiltro = document.getElementById("filtro-func-ag-data")?.value;
-            const dados = _agsFunc.filter(ag => {
-                if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
-                if (status && !status.includes(ag.status || "Agendado")) return false;
-                if (dataFiltro && ag.data !== dataFiltro) return false;
-                return true;
-            }).sort((a, b) => (b.data + (b.hora || "")).localeCompare(a.data + (a.hora || "")));
+            const hoje = new Date().toLocaleDateString("en-CA");
+            let dados;
 
-            tbodyFunc.innerHTML = "";
-            if (!dados.length) { vazioFunc.classList.remove("is-hidden"); return; }
-            vazioFunc.classList.add("is-hidden");
-            dados.forEach(ag => {
-                        const tr = document.createElement("tr");
-                        tr.innerHTML = `
-                            <td>${fmtData(ag.data)}</td>
-                            <td>${ag.hora || "—"}</td>
-                            <td>${ag.usuarioNome || "—"}</td>
-                            <td>${ag.petNome || "—"}</td>
-                            <td>${ag.servico || "—"}</td>
-                            <td>${tagStatus(ag.status)}</td>
-                            <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}</td>`;
-                        tbodyFunc.appendChild(tr);
-                    });
+            if (isAtendente) {
+                dados = filtrarAgendamentos(_agsFunc, "filtro-func-ag", "chk-func-ag-status", "filtro-func-ag-data");
+            } else {
+                const q = (document.getElementById("filtro-func-ag")?.value || "").toLowerCase();
+                const status = checados("chk-func-ag-status");
+                dados = _agsFunc.filter(ag => {
+                    if (ag.data !== hoje) return false;
+                    if (funcCargo === "Veterinário" && !ag.isVet) return false;
+                    if (funcCargo === "Esteticista" && ag.isVet) return false;
+                    if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
+                    if (status && !status.includes(ag.status || "Agendado")) return false;
+                    return true;
+                }).sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
+            }
+
+            if (isAtendente) {
+                paginar(dados, ag => `
+                    <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
+                    <td>${ag.usuarioNome || "—"}</td>
+                    <td>${ag.petNome || "—"}</td>
+                    <td>${ag.servico || "—"}</td>
+                    <td>${tagStatus(ag.status)}</td>
+                    <td>
+                      <div class="buttons are-small mb-0">
+                        <button class="button is-light" title="Detalhes" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
+                      </div>
+                    </td>`,
+                "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
+            } else {
+                tbodyFunc.innerHTML = "";
+                if (!dados.length) { vazioFunc.classList.remove("is-hidden"); return; }
+                vazioFunc.classList.add("is-hidden");
+                dados.forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${fmtData(ag.data)} ${ag.hora || "—"}</td>
+                        <td>${ag.usuarioNome || "—"}</td>
+                        <td>${ag.petNome || "—"}</td>
+                        <td>${ag.servico || "—"}</td>
+                        <td>${tagStatus(ag.status)}</td>
+                        <td>
+                          <div class="buttons are-small mb-0">
+                            <button class="button is-light" title="Detalhes" data-ag-func='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                            <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="Ver cliente" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
+                            <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                            ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}
+                          </div>
+                        </td>`;
+                    tbodyFunc.appendChild(tr);
+                });
+            }
         }
 
         function carregarAgendaFunc() {
-            authFetch(`${BASE_URL}/api/agendamentos/funcionario/${funcId}`)
+            authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
                 .then(ags => { _agsFunc = ags; renderAgendaFunc(); })
                 .catch(() => {});
@@ -1719,109 +1793,253 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("filtro-func-ag")?.addEventListener("input", renderAgendaFunc);
         document.querySelectorAll("[name^='chk-func-ag-']").forEach(el => el.addEventListener("change", renderAgendaFunc));
-        document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
-            const hoje = new Date().toLocaleDateString("en-CA");
-            const chk = document.getElementById("chk-func-ag-hoje");
-            if (chk) chk.checked = (e.target.value === hoje);
-            renderAgendaFunc();
-        });
-        document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
-            const input = document.getElementById("filtro-func-ag-data");
-            if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
-            renderAgendaFunc();
-        });
+
+        if (isAtendente) {
+            document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
+                const hoje = new Date().toLocaleDateString("en-CA");
+                const chk = document.getElementById("chk-func-ag-hoje");
+                if (chk) chk.checked = (e.target.value === hoje);
+                renderAgendaFunc();
+            });
+            document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
+                const input = document.getElementById("filtro-func-ag-data");
+                if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
+                renderAgendaFunc();
+            });
+
+            let servicosCacheFunc = null;
+            async function getServicosFunc() {
+                if (servicosCacheFunc) return servicosCacheFunc;
+                const r = await authFetch(`${BASE_URL}/api/servicos`);
+                servicosCacheFunc = r.ok ? await r.json() : [];
+                return servicosCacheFunc;
+            }
+
+            // Editable detail modal
+            const modalFuncAgEdit = document.getElementById("modal-func-ag-edit");
+            let agAtivoFunc = null;
+
+            const fecharModalFuncAgEdit = () => {
+                modalFuncAgEdit.classList.remove("is-active");
+                document.getElementById("func-ag-edit-form").classList.remove("is-hidden");
+                document.getElementById("func-ag-edit-cancel-confirm").classList.add("is-hidden");
+                document.getElementById("func-ag-footer-esq").style.display = "none";
+                document.getElementById("func-ag-footer-dir").style.display = "flex";
+                document.getElementById("btn-func-ag-edit-salvar").style.display = "none";
+                document.getElementById("btn-func-ag-edit-fechar").style.display = "none";
+                document.getElementById("func-ag-edit-footer-confirm").style.display = "none";
+                document.getElementById("func-ag-cancel-motivo").value = "";
+                document.getElementById("func-ag-edit-motivo-section").style.display = "none";
+            };
+
+            document.getElementById("fechar-modal-func-ag-edit")?.addEventListener("click", fecharModalFuncAgEdit);
+            document.getElementById("btn-func-ag-edit-fechar")?.addEventListener("click", fecharModalFuncAgEdit);
+
+            abrirModalFuncAgEdit = async function(ag) {
+                agAtivoFunc = ag;
+                const editavel = ag.status === "Agendado";
+                document.getElementById("func-ag-edit-titulo").textContent = `Agendamento #${ag.id}`;
+                document.getElementById("func-ag-edit-cliente").textContent = ag.usuarioNome || "—";
+                document.getElementById("func-ag-edit-pet").textContent = ag.petNome || "—";
+                const servicos = await getServicosFunc();
+                const servList = (ag.servico || "").split(",").map(s => s.trim());
+                renderCheckboxes("func-ag-edit-servicos", servicos, servList, !editavel);
+                const inputData = document.getElementById("func-ag-edit-data");
+                inputData.value = ag.data || "";
+                inputData.disabled = !editavel;
+                const selHora = document.getElementById("func-ag-edit-hora");
+                selHora.value = ag.hora || "";
+                selHora.disabled = !editavel;
+                const txtObs = document.getElementById("func-ag-edit-obs");
+                txtObs.value = ag.observacao || "";
+                txtObs.disabled = !editavel;
+                const motivoSection = document.getElementById("func-ag-edit-motivo-section");
+                if (ag.status === "Cancelado" && ag.motivo) {
+                    document.getElementById("func-ag-edit-motivo").textContent = ag.motivo;
+                    motivoSection.style.display = "block";
+                } else {
+                    motivoSection.style.display = "none";
+                }
+                if (editavel) {
+                    document.getElementById("func-ag-footer-esq").style.display = "flex";
+                    document.getElementById("btn-func-ag-edit-salvar").style.display = "inline-flex";
+                    document.getElementById("btn-func-ag-edit-fechar").style.display = "none";
+                } else {
+                    document.getElementById("func-ag-footer-esq").style.display = "none";
+                    document.getElementById("btn-func-ag-edit-salvar").style.display = "none";
+                    document.getElementById("btn-func-ag-edit-fechar").style.display = "inline-flex";
+                }
+                modalFuncAgEdit.classList.add("is-active");
+            };
+
+            document.getElementById("btn-func-ag-edit-salvar")?.addEventListener("click", async () => {
+                if (!agAtivoFunc) return;
+                const body = {
+                    servico: [...document.querySelectorAll("#func-ag-edit-servicos input[type=checkbox]:checked")].map(c => c.value).join(", "),
+                    data: document.getElementById("func-ag-edit-data").value,
+                    hora: document.getElementById("func-ag-edit-hora").value,
+                    observacao: document.getElementById("func-ag-edit-obs").value,
+                };
+                const r = await authFetch(`${BASE_URL}/api/agendamentos/${agAtivoFunc.id}`, {
+                    method: "PUT", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                if (r.ok) { toast("Agendamento atualizado!"); fecharModalFuncAgEdit(); carregarAgendaFunc(); }
+                else toast("Erro ao salvar.", "danger");
+            });
+
+            document.getElementById("btn-func-ag-cancelar-inicio")?.addEventListener("click", () => {
+                document.getElementById("func-ag-edit-form").classList.add("is-hidden");
+                document.getElementById("func-ag-edit-cancel-confirm").classList.remove("is-hidden");
+                document.getElementById("func-ag-footer-esq").style.display = "none";
+                document.getElementById("func-ag-footer-dir").style.display = "none";
+                document.getElementById("func-ag-edit-footer-confirm").style.display = "flex";
+            });
+
+            document.getElementById("btn-func-ag-voltar-form")?.addEventListener("click", () => {
+                document.getElementById("func-ag-edit-form").classList.remove("is-hidden");
+                document.getElementById("func-ag-edit-cancel-confirm").classList.add("is-hidden");
+                document.getElementById("func-ag-edit-footer-confirm").style.display = "none";
+                document.getElementById("func-ag-footer-esq").style.display = "flex";
+                document.getElementById("func-ag-footer-dir").style.display = "flex";
+                document.getElementById("btn-func-ag-edit-salvar").style.display = "inline-flex";
+                document.getElementById("btn-func-ag-edit-fechar").style.display = "none";
+            });
+
+            document.getElementById("btn-func-ag-confirmar-cancel")?.addEventListener("click", async () => {
+                const motivo = document.getElementById("func-ag-cancel-motivo").value.trim();
+                if (!motivo) { toast("Informe o motivo do cancelamento.", "warning"); return; }
+                if (!agAtivoFunc) return;
+                const r = await authFetch(`${BASE_URL}/api/agendamentos/${agAtivoFunc.id}`, {
+                    method: "PUT", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "Cancelado", motivo })
+                });
+                if (r.ok) { toast("Agendamento cancelado."); fecharModalFuncAgEdit(); carregarAgendaFunc(); }
+                else toast("Erro ao cancelar.", "danger");
+            });
+
+            // Novo Agendamento modal
+            const modalFuncNovoAg = document.getElementById("modal-func-novo-ag");
+            const fecharModalFuncNovoAg = () => {
+                modalFuncNovoAg.classList.remove("is-active");
+                document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]").forEach(cb => cb.checked = false);
+                const horaSelect = document.getElementById("func-novo-ag-hora");
+                [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+            };
+
+            document.getElementById("fechar-modal-func-novo-ag")?.addEventListener("click", fecharModalFuncNovoAg);
+            document.getElementById("cancelar-modal-func-novo-ag")?.addEventListener("click", fecharModalFuncNovoAg);
+
+            document.getElementById("func-novo-ag-servicos")?.addEventListener("change", e => {
+                if (!e.target.matches("input[type=checkbox]")) return;
+                const cbs = [...document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]")];
+                const checked = cbs.filter(cb => cb.checked);
+                if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
+                const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
+                cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+            });
+
+            async function verificarDisponibilidadeFuncAg() {
+                const data = document.getElementById("func-novo-ag-data")?.value;
+                const horaSelect = document.getElementById("func-novo-ag-hora");
+                if (!horaSelect) return;
+                [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+                const selecionados = [...document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]:checked")].map(cb => cb.value);
+                if (!data || selecionados.length === 0) return;
+                const todosServicos = await getServicosFunc();
+                const isVetAp = selecionados.some(n => todosServicos.find(sv => sv.nome === n)?.isVet);
+                const tipo = isVetAp ? "vet" : "normal";
+                const totalDuracao = selecionados.reduce((sum, nome) => {
+                    const s = todosServicos.find(sv => sv.nome === nome);
+                    return sum + (s?.duracao || 60);
+                }, 0);
+                const slotsNeeded = Math.ceil(totalDuracao / 60);
+                try {
+                    const resp = await authFetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
+                    if (!resp.ok) return;
+                    const { slots } = await resp.json();
+                    [...horaSelect.options].forEach(opt => {
+                        if (!opt.value) return;
+                        const startH = parseInt(opt.value.split(":")[0]);
+                        let blocked = false;
+                        for (let i = 0; i < slotsNeeded; i++) {
+                            const key = String(startH + i).padStart(2, "0") + ":00";
+                            if ((slots[key] || 0) <= 0) { blocked = true; break; }
+                        }
+                        opt.disabled = blocked;
+                        opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
+                    });
+                } catch (e) {}
+            }
+
+            document.getElementById("func-novo-ag-data")?.addEventListener("change", verificarDisponibilidadeFuncAg);
+            document.getElementById("func-novo-ag-servicos")?.addEventListener("change", verificarDisponibilidadeFuncAg);
+
+            document.getElementById("btn-func-novo-ag")?.addEventListener("click", async () => {
+                const selectCliente = document.getElementById("func-novo-ag-cliente");
+                if (selectCliente.options.length === 1) {
+                    authFetch(`${BASE_URL}/api/usuarios`)
+                        .then(r => r.ok ? r.json() : [])
+                        .then(usuarios => {
+                            usuarios.filter(u => u.idRole === 2).forEach(u => {
+                                const opt = document.createElement("option");
+                                opt.value = u.id;
+                                opt.textContent = u.nome;
+                                selectCliente.appendChild(opt);
+                            });
+                        });
+                }
+                const servicos = await getServicosFunc();
+                renderCheckboxes("func-novo-ag-servicos", servicos, [], false);
+                document.getElementById("func-novo-ag-data").min = new Date().toISOString().split("T")[0];
+                modalFuncNovoAg.classList.add("is-active");
+                verificarDisponibilidadeFuncAg();
+            });
+
+            document.getElementById("func-novo-ag-cliente")?.addEventListener("change", function() {
+                const selectPet = document.getElementById("func-novo-ag-pet");
+                selectPet.innerHTML = "<option value=''>Carregando...</option>";
+                selectPet.disabled = true;
+                if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
+                authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
+                    .then(r => r.ok ? r.json() : [])
+                    .then(pets => {
+                        selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
+                        pets.forEach(p => {
+                            const opt = document.createElement("option");
+                            opt.value = p.id;
+                            opt.textContent = p.nome;
+                            selectPet.appendChild(opt);
+                        });
+                        selectPet.disabled = pets.length === 0;
+                        if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
+                    });
+            });
+
+            document.getElementById("btn-salvar-func-novo-ag")?.addEventListener("click", async () => {
+                const usuarioId = document.getElementById("func-novo-ag-cliente").value;
+                const petId = document.getElementById("func-novo-ag-pet").value;
+                const servico = [...document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]:checked")].map(c => c.value).join(", ");
+                const data = document.getElementById("func-novo-ag-data").value;
+                const hora = document.getElementById("func-novo-ag-hora").value;
+                const observacao = document.getElementById("func-novo-ag-observacao").value;
+                if (!usuarioId || !petId || !servico || !data || !hora) {
+                    toast("Selecione pelo menos um serviço e preencha todos os campos.", "warning"); return;
+                }
+                const r = await authFetch(`${BASE_URL}/api/agendamentos`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ usuarioId: Number(usuarioId), petId: Number(petId), servico, data, hora, observacao })
+                });
+                if (r.ok) { toast("Agendamento criado com sucesso!"); fecharModalFuncNovoAg(); carregarAgendaFunc(); }
+                else { const err = await r.json().catch(() => ({})); toast(err.mensagem || "Erro ao agendar.", "danger"); }
+            });
+        }
 
         carregarAgendaFunc();
         setInterval(carregarAgendaFunc, 15000);
 
         document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
             ["petgo_id","petgo_nome","petgo_role","petgo_cargo","petgo_token"].forEach(k => localStorage.removeItem(k));
-            window.location.href = "index.html";
-        });
-    }
-
-    // ================= CADASTRO FUNCIONÁRIO =================
-
-    // ================= FUNCIONÁRIO DASHBOARD =================
-
-    if (document.getElementById("funcionario-dashboard")) {
-        const role = localStorage.getItem("petgo_role");
-        const usuarioId = localStorage.getItem("petgo_id");
-
-        if (!usuarioId || Number(role) !== 3) {
-            window.location.href = "index.html";
-        }
-
-        const nomeLocal = localStorage.getItem("petgo_nome") || "";
-        const cargoLocal = localStorage.getItem("petgo_cargo") || "";
-        const inicial = nomeLocal[0]?.toUpperCase() || "?";
-
-        document.getElementById("func-nome-nav").textContent = nomeLocal.split(" ")[0];
-        document.getElementById("func-cargo-nav").textContent = cargoLocal;
-        const funcAvatarEl = document.getElementById("func-avatar");
-        if (funcAvatarEl && usuarioId) {
-            funcAvatarEl.src = `${BASE_URL}/api/usuarios/${usuarioId}/imagem`;
-            funcAvatarEl.onerror = function() { this.onerror = null; this.src = `https://placehold.co/64x64?text=${inicial}`; };
-        }
-
-        document.querySelectorAll("[data-secao-func]").forEach(link => {
-            link.addEventListener("click", (e) => {
-                e.preventDefault();
-                const id = link.dataset.secaoFunc;
-                document.querySelectorAll("[id^='section-func-']").forEach(s => s.classList.add("is-hidden"));
-                document.querySelectorAll("[data-secao-func]").forEach(l => l.classList.remove("is-active", "has-text-weight-bold"));
-                document.getElementById(`section-func-${id}`).classList.remove("is-hidden");
-                link.classList.add("is-active", "has-text-weight-bold");
-            });
-        });
-
-        // Endpoint esperado: GET /api/usuarios/{id}
-        authFetch(`${BASE_URL}/api/usuarios/${usuarioId}`)
-            .then(r => r.ok ? r.json() : null)
-            .then(f => {
-                if (!f) return;
-                document.getElementById("func-nome-nav").textContent = f.nome?.split(" ")[0] || "";
-                document.getElementById("func-cargo-nav").textContent = f.cargo || "";
-                document.getElementById("fp-nome").textContent = f.nome || "—";
-                document.getElementById("fp-cargo").textContent = f.cargo || "—";
-                document.getElementById("fp-cpf").textContent = f.cpf || "—";
-                document.getElementById("fp-dataNascimento").textContent = f.dataNascimento || "—";
-                document.getElementById("fp-email").textContent = f.email || "—";
-            })
-            .catch(() => {});
-
-        // Endpoint esperado: GET /api/agendamentos/funcionario/{id}
-        authFetch(`${BASE_URL}/api/agendamentos/funcionario/${usuarioId}`)
-            .then(r => r.ok ? r.json() : [])
-            .then(agendamentos => {
-                const lista = document.getElementById("lista-agenda-funcionario");
-                const vazio = document.getElementById("agenda-vazio");
-                if (!agendamentos || agendamentos.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
-                agendamentos.forEach(ag => {
-                    const item = document.createElement("div");
-                    item.className = "box mb-3 is-flex is-align-items-center";
-                    item.style.gap = "1rem";
-                    item.innerHTML = `
-                        <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
-                        <div>
-                          <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
-                          <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"} · Cliente: ${ag.usuarioNome || "-"}</p>
-                        </div>
-                        ${tagStatus(ag.status)}`;
-                    lista.appendChild(item);
-                });
-            })
-            .catch(() => {});
-
-        document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
-            localStorage.removeItem("petgo_id");
-            localStorage.removeItem("petgo_nome");
-            localStorage.removeItem("petgo_role");
-            localStorage.removeItem("petgo_cargo");
-            localStorage.removeItem("petgo_token");
             window.location.href = "index.html";
         });
     }

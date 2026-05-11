@@ -135,13 +135,15 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody UsuarioRequestDTO dto) {
         return repository.findById(id).map(u -> {
-            if (dto.getNome() != null)      u.setNome(dto.getNome());
-            if (dto.getEmail() != null)     u.setEmail(dto.getEmail());
-            if (dto.getCep() != null)       u.setCep(dto.getCep());
-            if (dto.getEndereco() != null)  u.setEndereco(dto.getEndereco());
-            if (dto.getNumero() != null)    u.setNumero(dto.getNumero());
-            if (dto.getCargo() != null)     u.setCargo(dto.getCargo());
-            if (dto.getTelefone() != null)  u.setTelefone(dto.getTelefone());
+            if (dto.getNome() != null)            u.setNome(dto.getNome());
+            if (dto.getEmail() != null)           u.setEmail(dto.getEmail());
+            if (dto.getCpf() != null)             u.setCpf(dto.getCpf());
+            if (dto.getDataNascimento() != null)  u.setDataNascimento(dto.getDataNascimento());
+            if (dto.getCep() != null)             u.setCep(dto.getCep());
+            if (dto.getEndereco() != null)        u.setEndereco(dto.getEndereco());
+            if (dto.getNumero() != null)          u.setNumero(dto.getNumero());
+            if (dto.getCargo() != null)           u.setCargo(dto.getCargo());
+            if (dto.getTelefone() != null)        u.setTelefone(dto.getTelefone());
             repository.save(u);
             return ResponseEntity.ok(Map.of("mensagem", "Usuário atualizado com sucesso!"));
         }).orElse(ResponseEntity.notFound().build());

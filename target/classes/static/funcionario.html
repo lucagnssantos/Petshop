@@ -43,14 +43,34 @@
 
       <!-- Seção: Agenda -->
       <div id="section-func-agenda">
-        <h1 class="title is-4 mb-1">Minha Agenda</h1>
-        <p class="has-text-grey mb-5">Agendamentos atribuídos a você</p>
+        <div class="is-flex is-justify-content-space-between is-align-items-center mb-1">
+          <h1 class="title is-4 mb-0">Minha Agenda</h1>
+          <button id="btn-func-novo-ag" class="button is-primary has-text-weight-bold is-hidden">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Novo agendamento</span>
+          </button>
+        </div>
+        <p class="has-text-grey mb-4" id="func-agenda-subtitulo">Agendamentos do dia</p>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-func-ag" placeholder="Buscar por cliente, pet, serviço ou status..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap is-align-items-center mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Agendado"> Agendado</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Concluído"> Concluído</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Cancelado"> Cancelado</label>
+            <div id="func-agenda-filtro-data" class="is-flex is-align-items-center is-hidden" style="gap:0.5rem;border-left:1px solid #dbdbdb;padding-left:0.75rem;">
+              <input class="input is-small" type="date" id="filtro-func-ag-data" style="width:auto;" autocomplete="off">
+              <label class="checkbox is-size-7"><input type="checkbox" id="chk-func-ag-hoje"> Hoje</label>
+            </div>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
               <tr>
-                <th>Data</th>
-                <th>Horário</th>
+                <th>Data / Hora</th>
                 <th>Cliente</th>
                 <th>Pet</th>
                 <th>Serviço</th>
@@ -61,6 +81,7 @@
             <tbody id="tabela-func-agenda"></tbody>
           </table>
           <p id="func-agenda-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
+          <nav id="pag-func-agenda" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
@@ -155,14 +176,14 @@
         <div class="columns">
           <div class="column">
             <div class="field">
-              <label class="label is-small has-text-grey">CPF <span class="tag is-light is-small ml-1">somente leitura</span></label>
-              <input class="input" type="text" id="modal-func-cpf" readonly />
+              <label class="label is-small">CPF</label>
+              <input class="input" type="text" id="modal-func-cpf" placeholder="000.000.000-00" />
             </div>
           </div>
           <div class="column">
             <div class="field">
-              <label class="label is-small has-text-grey">Data de Nascimento <span class="tag is-light is-small ml-1">somente leitura</span></label>
-              <input class="input" type="text" id="modal-func-dataNascimento" readonly />
+              <label class="label is-small">Data de Nascimento</label>
+              <input class="input" type="text" id="modal-func-dataNascimento" placeholder="DD/MM/AAAA" />
             </div>
           </div>
         </div>
@@ -186,6 +207,195 @@
       <footer class="modal-card-foot is-flex is-justify-content-flex-end" style="gap: 0.5rem;">
         <button class="button" id="cancelar-modal-editar-func">Cancelar</button>
         <button class="button is-primary" id="btn-salvar-func-perfil">Salvar</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal: Detalhe de Agendamento -->
+  <div id="modal-func-ag-det" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id="func-ag-det-titulo">Agendamento</p>
+        <button class="delete" id="fechar-modal-func-ag-det"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="columns mb-3">
+          <div class="column">
+            <p class="is-size-7 has-text-grey">Cliente</p>
+            <p id="func-ag-det-cliente" class="has-text-weight-bold">—</p>
+          </div>
+          <div class="column">
+            <p class="is-size-7 has-text-grey">Pet</p>
+            <p id="func-ag-det-pet" class="has-text-weight-bold">—</p>
+          </div>
+        </div>
+        <div class="field mb-3">
+          <p class="is-size-7 has-text-grey">Serviço</p>
+          <p id="func-ag-det-servico" class="has-text-weight-bold">—</p>
+        </div>
+        <div class="columns mb-3">
+          <div class="column">
+            <p class="is-size-7 has-text-grey">Data</p>
+            <p id="func-ag-det-data" class="has-text-weight-bold">—</p>
+          </div>
+          <div class="column">
+            <p class="is-size-7 has-text-grey">Horário</p>
+            <p id="func-ag-det-hora" class="has-text-weight-bold">—</p>
+          </div>
+          <div class="column">
+            <p class="is-size-7 has-text-grey">Status</p>
+            <p id="func-ag-det-status">—</p>
+          </div>
+        </div>
+        <div class="field mb-3">
+          <p class="is-size-7 has-text-grey">Observação</p>
+          <p id="func-ag-det-obs" class="has-text-grey-dark">—</p>
+        </div>
+        <div class="field" id="func-ag-det-motivo-section" style="display:none;">
+          <p class="is-size-7 has-text-danger">Motivo do cancelamento</p>
+          <p id="func-ag-det-motivo" class="has-text-grey-dark">—</p>
+        </div>
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-flex-end">
+        <button class="button" id="btn-func-ag-det-fechar">Fechar</button>
+      </footer>
+    </div>
+  </div>
+
+
+  <!-- Modal: Detalhe / Edição de Agendamento (Atendente) -->
+  <div id="modal-func-ag-edit" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title" id="func-ag-edit-titulo">Agendamento</p>
+        <button class="delete" id="fechar-modal-func-ag-edit"></button>
+      </header>
+      <section class="modal-card-body">
+        <div id="func-ag-edit-form">
+          <div class="columns mb-2">
+            <div class="column">
+              <p class="is-size-7 has-text-grey">Cliente</p>
+              <p id="func-ag-edit-cliente" class="has-text-weight-bold"></p>
+            </div>
+            <div class="column">
+              <p class="is-size-7 has-text-grey">Pet</p>
+              <p id="func-ag-edit-pet" class="has-text-weight-bold"></p>
+            </div>
+          </div>
+          <div class="field">
+            <div id="func-ag-edit-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label is-small">Data</label>
+                <input class="input" type="date" id="func-ag-edit-data" />
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label is-small">Horário</label>
+                <div class="select is-fullwidth">
+                  <select id="func-ag-edit-hora">
+                    <option>08:00</option><option>09:00</option><option>10:00</option>
+                    <option>11:00</option><option>12:00</option><option>13:00</option>
+                    <option>14:00</option><option>15:00</option><option>16:00</option>
+                    <option>17:00</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label is-small">Observação</label>
+            <textarea class="textarea is-small" id="func-ag-edit-obs" rows="3"></textarea>
+          </div>
+          <div class="field" id="func-ag-edit-motivo-section" style="display:none;">
+            <label class="label is-small has-text-danger">Motivo do cancelamento</label>
+            <p id="func-ag-edit-motivo" class="has-text-grey-dark is-size-6"></p>
+          </div>
+        </div>
+        <div id="func-ag-edit-cancel-confirm" class="is-hidden">
+          <p class="has-text-weight-bold mb-3">Tem certeza que deseja cancelar este agendamento?</p>
+          <div class="field">
+            <label class="label is-small">Motivo do cancelamento <span class="has-text-danger">*</span></label>
+            <textarea class="textarea is-small" id="func-ag-cancel-motivo" rows="3" placeholder="Descreva o motivo..."></textarea>
+          </div>
+        </div>
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap:0.5rem;">
+        <div id="func-ag-footer-esq" style="display:none;">
+          <button class="button is-danger is-outlined" id="btn-func-ag-cancelar-inicio">Cancelar Agendamento</button>
+        </div>
+        <div id="func-ag-footer-dir" style="margin-left:auto;">
+          <button class="button is-primary" id="btn-func-ag-edit-salvar" style="display:none;">Salvar</button>
+          <button class="button" id="btn-func-ag-edit-fechar" style="display:none;">Fechar</button>
+        </div>
+        <div id="func-ag-edit-footer-confirm" style="display:none; width:100%; justify-content:space-between;">
+          <button class="button" id="btn-func-ag-voltar-form">Voltar</button>
+          <button class="button is-danger" id="btn-func-ag-confirmar-cancel">Confirmar Cancelamento</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Agendamento (Atendente) -->
+  <div id="modal-func-novo-ag" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Novo Agendamento</p>
+        <button class="delete" id="fechar-modal-func-novo-ag"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label is-small">Cliente</label>
+          <div class="select is-fullwidth">
+            <select id="func-novo-ag-cliente"><option value="">Selecione o cliente...</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Pet</label>
+          <div class="select is-fullwidth">
+            <select id="func-novo-ag-pet" disabled><option value="">Selecione o cliente primeiro</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Serviços</label>
+          <div id="func-novo-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div>
+        </div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Data</label>
+              <input class="input" type="date" id="func-novo-ag-data" />
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Horário</label>
+              <div class="select is-fullwidth">
+                <select id="func-novo-ag-hora">
+                  <option value="">Selecione...</option>
+                  <option>08:00</option><option>09:00</option><option>10:00</option>
+                  <option>11:00</option><option>12:00</option><option>13:00</option>
+                  <option>14:00</option><option>15:00</option><option>16:00</option>
+                  <option>17:00</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label is-small">Observação</label>
+          <textarea class="textarea is-small" id="func-novo-ag-observacao" rows="2"></textarea>
+        </div>
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
+        <button class="button" id="cancelar-modal-func-novo-ag">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-func-novo-ag">Agendar</button>
       </footer>
     </div>
   </div>
