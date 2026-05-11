@@ -229,6 +229,13 @@ document.addEventListener("DOMContentLoaded", () => {
         setOk(id); return true;
     }
 
+    function validarTelefone(id) {
+        const val = (document.getElementById(id)?.value || "").replace(/\D/g, "");
+        if (!val) { setErro(id, "Telefone obrigatório."); return false; }
+        if (val.length < 10) { setErro(id, "Telefone inválido."); return false; }
+        setOk(id); return true;
+    }
+
     function validarConfirmacaoSenha(idSenha, idConf) {
         const s = document.getElementById(idSenha)?.value || "";
         const c = document.getElementById(idConf)?.value || "";
@@ -247,12 +254,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ["cpf",                  "000.000.000-00"],
         ["dataNascimento",       "00/00/0000"],
         ["cep",                  "00000-000"],
+        ["telefone",             "(00) 00000-0000"],
         ["func-cpf",             "000.000.000-00"],
         ["func-dataNascimento",  "00/00/0000"],
+        ["func-telefone",        "(00) 00000-0000"],
         ["pet-idade",            "00/00/0000"],
     ].forEach(([id, mask]) => {
         const el = document.getElementById(id);
-        if (el) IMask(el, { mask });
+        if (el && window.IMask) IMask(el, { mask });
     });
 
     const blurRules = [
@@ -263,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["endereco",           () => validarObrigatorio("endereco", "Endereço")],
         ["numero",             () => validarObrigatorio("numero", "Número")],
         ["email",              () => validarEmail("email")],
+        ["telefone",           () => validarTelefone("telefone")],
         ["senha",              () => !document.getElementById("btnLogin") && validarSenha("senha")],
         ["senhaRepetida",      () => validarConfirmacaoSenha("senha", "senhaRepetida")],
         ["func-nome",          () => validarNome("func-nome")],
@@ -302,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 validarObrigatorio("endereco", "Endereço"),
                 validarObrigatorio("numero", "Número"),
                 validarEmail("email"),
+                validarTelefone("telefone"),
                 validarSenha("senha"),
                 validarConfirmacaoSenha("senha", "senhaRepetida"),
             ].every(Boolean);
@@ -316,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 endereco: document.getElementById("endereco").value,
                 numero: document.getElementById("numero").value,
                 email: document.getElementById("email").value,
+                telefone: document.getElementById("telefone").value,
                 senha: document.getElementById("senha").value
             };
 
@@ -457,30 +469,37 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => {});
 
         // Endpoint esperado: GET /api/agendamentos/usuario/{id}
-        authFetch(`${BASE_URL}/api/agendamentos/usuario/${usuarioId}`)
-            .then(r => r.ok ? r.json() : [])
-            .then(agendamentos => {
-                const lista = document.getElementById("lista-agendamentos");
-                const vazio = document.getElementById("agendamentos-vazio");
-                if (!agendamentos || agendamentos.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
-                agendamentos.forEach(ag => {
-                    const item = document.createElement("div");
-                    item.className = "box mb-3 is-flex is-align-items-center";
-                    item.style.gap = "1rem";
-                    item.innerHTML = `
-                        <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
-                        <div>
-                          <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
-                          <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
-                        </div>
-                        ${tagStatus(ag.status)}`;
-                    lista.appendChild(item);
-                });
-            })
-            .catch(() => {});
+        function carregarMeusAgs() {
+            authFetch(`${BASE_URL}/api/agendamentos/usuario/${usuarioId}`)
+                .then(r => r.ok ? r.json() : [])
+                .then(agendamentos => {
+                    const lista = document.getElementById("lista-agendamentos");
+                    const vazio = document.getElementById("agendamentos-vazio");
+                    lista.innerHTML = "";
+                    vazio.classList.add("is-hidden");
+                    if (!agendamentos || agendamentos.length === 0) {
+                        vazio.classList.remove("is-hidden");
+                        return;
+                    }
+                    agendamentos.forEach(ag => {
+                        const item = document.createElement("div");
+                        item.className = "box mb-3 is-flex is-align-items-center";
+                        item.style.gap = "1rem";
+                        item.innerHTML = `
+                            <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
+                            <div>
+                              <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
+                              <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
+                            </div>
+                            ${tagStatus(ag.status)}`;
+                        lista.appendChild(item);
+                    });
+                })
+                .catch(() => {});
+        }
+
+        carregarMeusAgs();
+        setInterval(carregarMeusAgs, 15000);
 
         document.querySelectorAll(".tabs li[data-tab]").forEach(tab => {
             tab.addEventListener("click", () => {
@@ -572,8 +591,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const loaded = new Set();
+        let _agsDash = [], _ags = [], _clientes = [], _funcionarios = [], _pets = [], _servicos = [];
+
+        function checados(name) {
+            const els = [...document.querySelectorAll(`input[name="${name}"]:checked`)];
+            return els.length ? els.map(e => e.value) : null;
+        }
+
+        let abaAtiva = "dashboard";
 
         function mostrarAba(id) {
+            abaAtiva = id;
             document.querySelectorAll("[id^='section-']").forEach(s => s.classList.add("is-hidden"));
             document.getElementById(`section-${id}`)?.classList.remove("is-hidden");
             document.querySelectorAll("[data-aba]").forEach(l => l.classList.remove("is-active"));
@@ -587,68 +615,80 @@ document.addEventListener("DOMContentLoaded", () => {
         function carregarDashboard() {
             authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
-                .then(todos => {
-                    const hoje = new Date().toISOString().split("T")[0];
-
-                    // Agenda de hoje
-                    const tbodyHoje = document.getElementById("tabela-hoje");
-                    const vazioHoje = document.getElementById("hoje-vazio");
-                    tbodyHoje.innerHTML = "";
-                    vazioHoje.classList.add("is-hidden");
-                    const deHoje = todos.filter(ag => ag.data === hoje)
-                        .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
-                    if (deHoje.length === 0) {
-                        vazioHoje.classList.remove("is-hidden");
-                    } else {
-                        deHoje.forEach(ag => {
-                            const tr = document.createElement("tr");
-                            tr.innerHTML = `
-                                <td>${ag.hora || "—"}</td>
-                                <td>${ag.usuarioNome || "—"}</td>
-                                <td>${ag.petNome || "—"}</td>
-                                <td>${ag.servico || "—"}</td>
-                                <td>${tagStatus(ag.status)}</td>`;
-                            tbodyHoje.appendChild(tr);
-                        });
-                    }
-
-                    // Próximos agendamentos
-                    const tbodyProx = document.getElementById("tabela-proximos");
-                    const vazioProx = document.getElementById("proximos-vazio");
-                    tbodyProx.innerHTML = "";
-                    vazioProx.classList.add("is-hidden");
-                    const proximos = todos.filter(ag => ag.data > hoje && ag.status === "Agendado").sort((a, b) => {
-                        const cmp = (a.data || "").localeCompare(b.data || "");
-                        return cmp !== 0 ? cmp : (a.hora || "").localeCompare(b.hora || "");
-                    });
-                    if (proximos.length === 0) {
-                        vazioProx.classList.remove("is-hidden");
-                    } else {
-                        proximos.forEach(ag => {
-                            const tr = document.createElement("tr");
-                            tr.innerHTML = `
-                                <td>${fmtData(ag.data)}</td>
-                                <td>${ag.hora || "—"}</td>
-                                <td>${ag.usuarioNome || "—"}</td>
-                                <td>${ag.petNome || "—"}</td>
-                                <td>${ag.servico || "—"}</td>
-                                <td>${tagStatus(ag.status)}</td>`;
-                            tbodyProx.appendChild(tr);
-                        });
-                    }
-                }).catch(() => {});
+                .then(todos => { _agsDash = todos; renderDashboard(); })
+                .catch(() => {});
         }
+
+        function renderDashboard() {
+            const q = (document.getElementById("filtro-dashboard")?.value || "").toLowerCase();
+            const hoje = new Date().toLocaleDateString("en-CA");
+
+            const tbodyHoje = document.getElementById("tabela-hoje");
+            const vazioHoje = document.getElementById("hoje-vazio");
+            tbodyHoje.innerHTML = "";
+            vazioHoje.classList.add("is-hidden");
+            const deHoje = _agsDash
+                .filter(ag => ag.data === hoje)
+                .sort((a, b) => (a.hora || "").localeCompare(b.hora || ""))
+                .filter(ag => !q || [ag.hora, ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q)));
+            if (deHoje.length === 0) {
+                vazioHoje.classList.remove("is-hidden");
+            } else {
+                deHoje.forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${ag.hora || "—"}</td>
+                        <td>${ag.usuarioNome || "—"}</td>
+                        <td>${ag.petNome || "—"}</td>
+                        <td>${ag.servico || "—"}</td>
+                        <td>${tagStatus(ag.status)}</td>`;
+                    tbodyHoje.appendChild(tr);
+                });
+            }
+
+            const tbodyProx = document.getElementById("tabela-proximos");
+            const vazioProx = document.getElementById("proximos-vazio");
+            tbodyProx.innerHTML = "";
+            vazioProx.classList.add("is-hidden");
+            const proximos = _agsDash
+                .filter(ag => ag.data > hoje && ag.status === "Agendado")
+                .sort((a, b) => {
+                    const cmp = (a.data || "").localeCompare(b.data || "");
+                    return cmp !== 0 ? cmp : (a.hora || "").localeCompare(b.hora || "");
+                })
+                .filter(ag => !q || [ag.data, ag.hora, ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q)));
+            if (proximos.length === 0) {
+                vazioProx.classList.remove("is-hidden");
+            } else {
+                proximos.forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${fmtData(ag.data)}</td>
+                        <td>${ag.hora || "—"}</td>
+                        <td>${ag.usuarioNome || "—"}</td>
+                        <td>${ag.petNome || "—"}</td>
+                        <td>${ag.servico || "—"}</td>
+                        <td>${tagStatus(ag.status)}</td>`;
+                    tbodyProx.appendChild(tr);
+                });
+            }
+        }
+
+        const _paginaAtual = {};
 
         function paginar(items, renderRow, tbodyId, vazioId, navId, porPagina = 10) {
             const tbody = document.getElementById(tbodyId);
             const vazio = document.getElementById(vazioId);
             const nav   = document.getElementById(navId);
+            tbody.innerHTML = "";
+            vazio.classList.add("is-hidden");
             if (!items || items.length === 0) { vazio.classList.remove("is-hidden"); return; }
 
-            let pagina = 1;
-            const totalPaginas = () => Math.ceil(items.length / porPagina);
+            const total = () => Math.ceil(items.length / porPagina);
+            let pagina = Math.min(_paginaAtual[navId] || 1, total() || 1);
 
             function renderPagina() {
+                _paginaAtual[navId] = pagina;
                 tbody.innerHTML = "";
                 const inicio = (pagina - 1) * porPagina;
                 items.slice(inicio, inicio + porPagina).forEach(item => {
@@ -659,25 +699,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 renderNav();
             }
 
+            function getJanela(p, t) {
+                if (t <= 7) return Array.from({length: t}, (_, i) => i + 1);
+                if (p <= 4)      return [1, 2, 3, 4, 5, "…", t];
+                if (p >= t - 3)  return [1, "…", t-4, t-3, t-2, t-1, t];
+                return [1, "…", p - 1, p, p + 1, "…", t];
+            }
+
             function renderNav() {
-                const total = totalPaginas();
-                if (total <= 1) { nav.classList.add("is-hidden"); return; }
+                const t = total();
+                if (t <= 1) { nav.classList.add("is-hidden"); return; }
                 nav.classList.remove("is-hidden");
                 nav.innerHTML = `
                     <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>Anterior</a>
-                    <a class="pagination-next" ${pagina === total ? "disabled" : ""}>Próximo</a>
+                    <a class="pagination-next" ${pagina === t ? "disabled" : ""}>Próximo</a>
                     <ul class="pagination-list">
-                      ${Array.from({length: total}, (_, i) => i + 1).map(p =>
-                        `<li><a class="pagination-link ${p === pagina ? "is-current" : ""}" data-p="${p}">${p}</a></li>`
+                      ${getJanela(pagina, t).map(p =>
+                        p === "…"
+                          ? `<li><span class="pagination-ellipsis">&hellip;</span></li>`
+                          : `<li><a class="pagination-link ${p === pagina ? "is-current" : ""}" data-p="${p}">${p}</a></li>`
                       ).join("")}
                     </ul>`;
                 nav.querySelector(".pagination-previous").addEventListener("click", () => {
                     if (pagina > 1) { pagina--; renderPagina(); }
                 });
                 nav.querySelector(".pagination-next").addEventListener("click", () => {
-                    if (pagina < total) { pagina++; renderPagina(); }
+                    if (pagina < t) { pagina++; renderPagina(); }
                 });
-                nav.querySelectorAll(".pagination-link").forEach(a => {
+                nav.querySelectorAll(".pagination-link[data-p]").forEach(a => {
                     a.addEventListener("click", () => { pagina = +a.dataset.p; renderPagina(); });
                 });
             }
@@ -688,25 +737,35 @@ document.addEventListener("DOMContentLoaded", () => {
         function carregarAgendamentos() {
             authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
-                .then(ags => {
-                    const tbody = document.getElementById("tabela-agendamentos");
-                    paginar(ags, ag => `
-                        <td>${ag.id}</td>
-                        <td>${ag.usuarioNome || "—"}</td>
-                        <td>${ag.petNome || "—"}</td>
-                        <td>${ag.servico || "—"}</td>
-                        <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
-                        <td>${tagStatus(ag.status)}</td>
-                        <td>
-                          <div class="buttons are-small mb-0">
-                            <button class="button is-light" title="Detalhes" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
-                            <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                            ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="Marcar como Concluído" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
-                          </div>
-                        </td>`,
-                    "tabela-agendamentos", "agendamentos-vazio", "pag-agendamentos");
-                })
+                .then(ags => { _ags = ags; renderAgendamentos(); })
                 .catch(() => {});
+        }
+
+        function renderAgendamentos() {
+            const q = (document.getElementById("filtro-ag")?.value || "").toLowerCase();
+            const status = checados("chk-ag-status");
+            const dataFiltro = document.getElementById("filtro-ag-data")?.value;
+            const dados = _ags.filter(ag => {
+                if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
+                if (status && !status.includes(ag.status || "Agendado")) return false;
+                if (dataFiltro && ag.data !== dataFiltro) return false;
+                return true;
+            }).sort((a, b) => (b.data + (b.hora || "")).localeCompare(a.data + (a.hora || "")));
+            paginar(dados, ag => `
+                <td>${ag.id}</td>
+                <td>${ag.usuarioNome || "—"}</td>
+                <td>${ag.petNome || "—"}</td>
+                <td>${ag.servico || "—"}</td>
+                <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
+                <td>${tagStatus(ag.status)}</td>
+                <td>
+                  <div class="buttons are-small mb-0">
+                    <button class="button is-light" title="Detalhes" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                    <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                    ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="Marcar como Concluído" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
+                  </div>
+                </td>`,
+            "tabela-agendamentos", "agendamentos-vazio", "pag-agendamentos");
         }
 
         document.getElementById("tabela-agendamentos")?.addEventListener("click", async e => {
@@ -720,7 +779,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify({ status: "Concluído" })
                 });
                 if (r.ok) { toast("Agendamento concluído."); loaded.delete("agendamentos"); loaded.delete("dashboard"); carregarAgendamentos(); }
-                else toast("Erro ao concluir.", "danger");
+                else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
             }
         });
 
@@ -774,6 +833,19 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("modal-p-observacao").value = p.observacao || "";
             modalPet.classList.add("is-active");
         };
+
+        document.getElementById("tabela-clientes")?.addEventListener("click", e => {
+            const btn = e.target.closest("[data-edit-u]");
+            if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
+        });
+        document.getElementById("tabela-funcionarios")?.addEventListener("click", e => {
+            const btn = e.target.closest("[data-edit-u]");
+            if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
+        });
+        document.getElementById("tabela-pets")?.addEventListener("click", e => {
+            const btn = e.target.closest("[data-edit-p]");
+            if (btn) abrirModalPet(JSON.parse(btn.dataset.editP));
+        });
 
         document.getElementById("btn-salvar-modal-usuario")?.addEventListener("click", async () => {
             const id = document.getElementById("modal-u-id").value;
@@ -853,76 +925,87 @@ document.addEventListener("DOMContentLoaded", () => {
         function carregarClientes() {
             authFetch(`${BASE_URL}/api/usuarios/clientes`)
                 .then(r => r.ok ? r.json() : [])
-                .then(clientes => {
-                    const tbody = document.getElementById("tabela-clientes");
-                    paginar(clientes, u => `
-                        <td>${u.id}</td>
-                        <td>${u.nome || "—"}</td>
-                        <td>${u.email || "—"}</td>
-                        <td>
-                          <div class="buttons are-small mb-0">
-                            <a class="button is-light" href="cliente.html?id=${u.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                            <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
-                          </div>
-                        </td>`,
-                    "tabela-clientes", "clientes-vazio", "pag-clientes");
-                    tbody.addEventListener("click", e => {
-                        const btn = e.target.closest("[data-edit-u]");
-                        if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
-                    });
-                })
+                .then(clientes => { _clientes = clientes; renderClientes(); })
                 .catch(() => {});
+        }
+
+        function renderClientes() {
+            const q = (document.getElementById("filtro-cl")?.value || "").toLowerCase();
+            const dados = q ? _clientes.filter(u =>
+                [u.nome, u.email].some(v => (v || "").toLowerCase().includes(q))
+            ) : _clientes;
+            paginar(dados, u => `
+                <td>${u.nome || "—"}</td>
+                <td>${u.email || "—"}</td>
+                <td>${u.telefone || "—"}</td>
+                <td>
+                  <div class="buttons are-small mb-0">
+                    <a class="button is-light" href="cliente.html?id=${u.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                  </div>
+                </td>`,
+            "tabela-clientes", "clientes-vazio", "pag-clientes");
         }
 
         function carregarFuncionarios() {
             authFetch(`${BASE_URL}/api/usuarios/funcionarios`)
                 .then(r => r.ok ? r.json() : [])
-                .then(funcionarios => {
-                    const tbody = document.getElementById("tabela-funcionarios");
-                    paginar(funcionarios, f => `
-                        <td>${f.id}</td>
-                        <td>${f.nome || "—"}</td>
-                        <td>${f.cargo || "—"}</td>
-                        <td>${f.email || "—"}</td>
-                        <td>
-                          <div class="buttons are-small mb-0">
-                            <a class="button is-light" href="func-detalhe.html?id=${f.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                            <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
-                          </div>
-                        </td>`,
-                    "tabela-funcionarios", "funcionarios-vazio", "pag-funcionarios");
-                    tbody.addEventListener("click", e => {
-                        const btn = e.target.closest("[data-edit-u]");
-                        if (btn) abrirModalUsuario(JSON.parse(btn.dataset.editU));
-                    });
-                })
+                .then(funcionarios => { _funcionarios = funcionarios; renderFuncionarios(); })
                 .catch(() => {});
+        }
+
+        function renderFuncionarios() {
+            const q = (document.getElementById("filtro-func")?.value || "").toLowerCase();
+            const cargos = checados("chk-func-cargo");
+            const dados = _funcionarios.filter(f => {
+                if (q && ![f.nome, f.cargo, f.email].some(v => (v || "").toLowerCase().includes(q))) return false;
+                if (cargos && !cargos.includes(f.cargo || "")) return false;
+                return true;
+            });
+            paginar(dados, f => `
+                <td>${f.nome || "—"}</td>
+                <td>${f.cargo || "—"}</td>
+                <td>${f.telefone || "—"}</td>
+                <td>${f.email || "—"}</td>
+                <td>
+                  <div class="buttons are-small mb-0">
+                    <a class="button is-light" href="func-detalhe.html?id=${f.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                  </div>
+                </td>`,
+            "tabela-funcionarios", "funcionarios-vazio", "pag-funcionarios");
         }
 
         function carregarPets() {
             authFetch(`${BASE_URL}/api/pets`)
                 .then(r => r.ok ? r.json() : [])
-                .then(pets => {
-                    const tbody = document.getElementById("tabela-pets");
-                    paginar(pets, p => `
-                        <td>${p.id}</td>
-                        <td>${p.nome || "—"}</td>
-                        <td>${p.raca || "—"}</td>
-                        <td>${p.porte || "—"}</td>
-                        <td>${p.sexo || "—"}</td>
-                        <td>
-                          <div class="buttons are-small mb-0">
-                            <a class="button is-light" href="pet.html?id=${p.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                            <button class="button is-light" title="Editar" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
-                          </div>
-                        </td>`,
-                    "tabela-pets", "pets-admin-vazio", "pag-pets");
-                    tbody.addEventListener("click", e => {
-                        const btn = e.target.closest("[data-edit-p]");
-                        if (btn) abrirModalPet(JSON.parse(btn.dataset.editP));
-                    });
-                })
+                .then(pets => { _pets = pets; renderPets(); })
                 .catch(() => {});
+        }
+
+        function renderPets() {
+            const q = (document.getElementById("filtro-pets")?.value || "").toLowerCase();
+            const portes = checados("chk-pet-porte");
+            const sexos  = checados("chk-pet-sexo");
+            const dados = _pets.filter(p => {
+                if (q && ![p.nome, p.raca, p.porte, p.sexo].some(v => (v || "").toLowerCase().includes(q))) return false;
+                if (portes && !portes.includes(p.porte || "")) return false;
+                if (sexos  && !sexos.includes(p.sexo || ""))  return false;
+                return true;
+            });
+            paginar(dados, p => `
+                <td>${p.id}</td>
+                <td>${p.nome || "—"}</td>
+                <td>${p.raca || "—"}</td>
+                <td>${p.porte || "—"}</td>
+                <td>${p.sexo || "—"}</td>
+                <td>
+                  <div class="buttons are-small mb-0">
+                    <a class="button is-light" href="pet.html?id=${p.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="Editar" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                  </div>
+                </td>`,
+            "tabela-pets", "pets-admin-vazio", "pag-pets");
         }
 
         // Cache de serviços (invalida ao criar/deletar na aba Serviços)
@@ -983,26 +1066,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function carregarServicos() {
-            const tbody = document.getElementById("tabela-servicos");
-            const vazio = document.getElementById("servicos-vazio");
             authFetch(`${BASE_URL}/api/servicos`)
                 .then(r => r.ok ? r.json() : [])
-                .then(servicos => {
-                    tbody.innerHTML = "";
-                    if (!servicos || servicos.length === 0) { vazio.classList.remove("is-hidden"); return; }
-                    vazio.classList.add("is-hidden");
-                    servicos.forEach(s => {
-                        const tr = document.createElement("tr");
-                        tr.innerHTML = `
-                            <td>${s.id}</td>
-                            <td>${s.nome}</td>
-                            <td>${s.duracao ? s.duracao + ' min' : '—'}</td>
-                            <td>${s.isVet ? '<span class="tag is-info is-light is-small">Veterinário</span>' : '<span class="tag is-light is-small">Geral</span>'}</td>
-                            <td><button class="button is-small is-danger is-outlined" data-del-serv="${s.id}" title="Excluir"><span class="icon"><i class="fas fa-trash"></i></span></button></td>`;
-                        tbody.appendChild(tr);
-                    });
-                })
+                .then(servicos => { _servicos = servicos; renderServicos(); })
                 .catch(() => {});
+        }
+
+        function renderServicos() {
+            const q = (document.getElementById("filtro-serv")?.value || "").toLowerCase();
+            const tipos = checados("chk-serv-tipo");
+            const dados = _servicos.filter(s => {
+                if (q && !(s.nome || "").toLowerCase().includes(q) && !(s.isVet ? "veterinário" : "geral").includes(q)) return false;
+                if (tipos && !tipos.includes(s.isVet ? "Veterinário" : "Geral")) return false;
+                return true;
+            });
+            const tbody = document.getElementById("tabela-servicos");
+            const vazio = document.getElementById("servicos-vazio");
+            tbody.innerHTML = "";
+            if (!dados || dados.length === 0) { vazio.classList.remove("is-hidden"); return; }
+            vazio.classList.add("is-hidden");
+            dados.forEach(s => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${s.id}</td>
+                    <td>${s.nome}</td>
+                    <td>${s.duracao ? s.duracao + ' min' : '—'}</td>
+                    <td>${s.isVet ? '<span class="tag is-info is-light is-small">Veterinário</span>' : '<span class="tag is-light is-small">Geral</span>'}</td>
+                    <td><button class="button is-small is-danger is-outlined" data-del-serv="${s.id}" title="Excluir"><span class="icon"><i class="fas fa-trash"></i></span></button></td>`;
+                tbody.appendChild(tr);
+            });
         }
 
         document.getElementById("tabela-servicos")?.addEventListener("click", async e => {
@@ -1053,6 +1145,28 @@ document.addEventListener("DOMContentLoaded", () => {
             pets:         carregarPets,
             servicos:     carregarServicos,
         };
+
+        document.getElementById("filtro-dashboard")?.addEventListener("input", renderDashboard);
+        document.getElementById("filtro-ag")?.addEventListener("input", renderAgendamentos);
+        document.getElementById("filtro-cl")?.addEventListener("input", renderClientes);
+        document.getElementById("filtro-func")?.addEventListener("input", renderFuncionarios);
+        document.getElementById("filtro-pets")?.addEventListener("input", renderPets);
+        document.getElementById("filtro-serv")?.addEventListener("input", renderServicos);
+        document.querySelectorAll("[name^='chk-ag-']").forEach(el => el.addEventListener("change", renderAgendamentos));
+        document.getElementById("filtro-ag-data")?.addEventListener("change", e => {
+            const hoje = new Date().toLocaleDateString("en-CA");
+            const chk = document.getElementById("chk-ag-hoje");
+            if (chk) chk.checked = (e.target.value === hoje);
+            renderAgendamentos();
+        });
+        document.getElementById("chk-ag-hoje")?.addEventListener("change", e => {
+            const input = document.getElementById("filtro-ag-data");
+            if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
+            renderAgendamentos();
+        });
+        document.querySelectorAll("[name^='chk-func-']").forEach(el => el.addEventListener("change", renderFuncionarios));
+        document.querySelectorAll("[name^='chk-pet-']").forEach(el => el.addEventListener("change", renderPets));
+        document.querySelectorAll("[name^='chk-serv-']").forEach(el => el.addEventListener("change", renderServicos));
 
         // Modal: Novo Agendamento
         const modalAg = document.getElementById("modal-novo-agendamento");
@@ -1325,12 +1439,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
         mostrarAba("dashboard");
 
+        setInterval(() => { if (loaders[abaAtiva]) loaders[abaAtiva](); }, 15000);
+
         document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
             localStorage.removeItem("petgo_id");
             localStorage.removeItem("petgo_nome");
             localStorage.removeItem("petgo_role");
             localStorage.removeItem("petgo_token");
             window.location.href = "index.html";
+        });
+
+        // Modal: Novo Funcionário
+        const modalFunc = document.getElementById("modal-novo-funcionario");
+        const fecharModalFunc = () => {
+            modalFunc.classList.remove("is-active");
+            ["func-nome","func-cpf","func-email","func-senha","func-senhaRepetida","func-dataNascimento"].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.value = ""; el.classList.remove("is-danger"); }
+            });
+            const cargo = document.getElementById("func-cargo");
+            const wrapCargo = document.getElementById("wrap-func-cargo");
+            if (cargo) cargo.value = "";
+            if (wrapCargo) wrapCargo.classList.remove("is-danger");
+        };
+        document.getElementById("btn-abrir-modal-func")?.addEventListener("click", () => modalFunc.classList.add("is-active"));
+        document.getElementById("fechar-modal-func")?.addEventListener("click", fecharModalFunc);
+        document.getElementById("cancelar-modal-func")?.addEventListener("click", fecharModalFunc);
+
+        document.getElementById("btn-cadastrar-func-modal")?.addEventListener("click", async () => {
+            const ok = [
+                validarNome("func-nome"),
+                validarCpf("func-cpf"),
+                validarSelect("wrap-func-cargo", "func-cargo", "Cargo"),
+                validarData("func-dataNascimento"),
+                validarEmail("func-email"),
+                validarTelefone("func-telefone"),
+                validarSenha("func-senha"),
+                validarConfirmacaoSenha("func-senha", "func-senhaRepetida"),
+            ].every(Boolean);
+            if (!ok) return;
+
+            const body = {
+                nome: document.getElementById("func-nome").value,
+                cpf: document.getElementById("func-cpf").value,
+                cargo: document.getElementById("func-cargo").value,
+                dataNascimento: document.getElementById("func-dataNascimento").value,
+                email: document.getElementById("func-email").value,
+                telefone: document.getElementById("func-telefone").value,
+                senha: document.getElementById("func-senha").value
+            };
+
+            try {
+                const response = await authFetch(`${BASE_URL}/api/usuarios/funcionario/cadastrar`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    toast("Funcionário cadastrado com sucesso!");
+                    fecharModalFunc();
+                    loaded.delete("funcionarios");
+                    mostrarAba("funcionarios");
+                } else {
+                    toast(data.mensagem || "Erro ao cadastrar.", "danger");
+                }
+            } catch {
+                toast("Erro ao conectar com o servidor.", "danger");
+            }
         });
 
     }
@@ -1411,62 +1587,152 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Carrega dados do funcionário
+        let _funcDados = null;
+        const imgSrc = `${BASE_URL}/api/usuarios/${funcId}/imagem`;
+
+        function preencherPerfil(u) {
+            _funcDados = u;
+            const avatar = document.getElementById("func-avatar");
+            if (avatar) {
+                avatar.src = imgSrc;
+                avatar.onerror = function() { this.onerror = null; this.src = `https://placehold.co/64x64?text=${u.nome[0]}`; };
+            }
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || "—"; };
+            setText("func-nome-nav",    u.nome?.split(" ")[0]);
+            setText("func-cargo-nav",   u.cargo);
+            setText("fp-nome",          u.nome);
+            setText("fp-cargo",         u.cargo);
+            setText("fp-cpf",           u.cpf);
+            setText("fp-dataNascimento",u.dataNascimento);
+            setText("fp-email",         u.email);
+            setText("fp-telefone",      u.telefone);
+        }
+
         authFetch(`${BASE_URL}/api/usuarios/${funcId}`)
             .then(r => r.ok ? r.json() : null)
-            .then(u => {
-                if (!u) return;
-                const avatar = document.getElementById("func-avatar");
-                if (avatar) {
-                    avatar.src = `${BASE_URL}/api/usuarios/${funcId}/imagem`;
-                    avatar.onerror = function() { this.onerror = null; this.src = `https://placehold.co/64x64?text=${u.nome[0]}`; };
-                }
-                const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || "—"; };
-                setText("func-nome-nav",    u.nome?.split(" ")[0]);
-                setText("func-cargo-nav",   u.cargo);
-                setText("fp-nome",          u.nome);
-                setText("fp-cargo",         u.cargo);
-                setText("fp-cpf",           u.cpf);
-                setText("fp-dataNascimento",u.dataNascimento);
-                setText("fp-email",         u.email);
-            }).catch(() => {});
+            .then(u => { if (u) preencherPerfil(u); })
+            .catch(() => {});
+
+        // Modal editar perfil
+        const modalEditarFunc = document.getElementById("modal-editar-func");
+        const fecharModalEditarFunc = () => modalEditarFunc?.classList.remove("is-active");
+
+        document.getElementById("btn-editar-func-perfil")?.addEventListener("click", () => {
+            if (!_funcDados) return;
+            const u = _funcDados;
+            document.getElementById("modal-func-nome").value          = u.nome || "";
+            document.getElementById("modal-func-cargo").value         = u.cargo || "";
+            document.getElementById("modal-func-cpf").value           = u.cpf || "";
+            document.getElementById("modal-func-dataNascimento").value = u.dataNascimento || "";
+            document.getElementById("modal-func-email").value     = u.email    || "";
+            document.getElementById("modal-func-telefone").value = u.telefone || "";
+            const preview = document.getElementById("modal-func-avatar-preview");
+            if (preview) { preview.src = imgSrc; preview.onerror = function() { this.onerror=null; this.src=`https://placehold.co/80x80?text=${u.nome[0]}`; }; }
+            document.getElementById("modal-func-foto").value = "";
+            modalEditarFunc?.classList.add("is-active");
+        });
+
+        document.getElementById("fechar-modal-editar-func")?.addEventListener("click", fecharModalEditarFunc);
+        document.getElementById("cancelar-modal-editar-func")?.addEventListener("click", fecharModalEditarFunc);
+
+        document.getElementById("btn-salvar-func-perfil")?.addEventListener("click", async () => {
+            const body = {
+                nome:     document.getElementById("modal-func-nome").value.trim()     || null,
+                email:    document.getElementById("modal-func-email").value.trim()    || null,
+                telefone: document.getElementById("modal-func-telefone").value.trim() || null,
+            };
+            const r = await authFetch(`${BASE_URL}/api/usuarios/${funcId}`, {
+                method: "PUT", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            if (!r.ok) { toast("Erro ao salvar.", "danger"); return; }
+
+            const foto = document.getElementById("modal-func-foto").files[0];
+            if (foto) {
+                const fd = new FormData();
+                fd.append("imagem", foto);
+                await authFetch(`${BASE_URL}/api/usuarios/${funcId}/imagem`, { method: "POST", body: fd });
+            }
+
+            toast("Perfil atualizado!");
+            fecharModalEditarFunc();
+            authFetch(`${BASE_URL}/api/usuarios/${funcId}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(u => { if (u) preencherPerfil(u); });
+        });
 
         // Carrega agenda
-        authFetch(`${BASE_URL}/api/agendamentos/funcionario/${funcId}`)
-            .then(r => r.ok ? r.json() : [])
-            .then(ags => {
-                const tbody = document.getElementById("tabela-func-agenda");
-                const vazio = document.getElementById("func-agenda-vazio");
-                tbody.innerHTML = "";
-                if (!ags.length) { vazio.classList.remove("is-hidden"); return; }
-                vazio.classList.add("is-hidden");
-                ags.sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora))
-                   .forEach(ag => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>${ag.data || "—"}</td>
-                        <td>${ag.hora || "—"}</td>
-                        <td>${ag.usuarioNome || "—"}</td>
-                        <td>${ag.petNome || "—"}</td>
-                        <td>${ag.servico || "—"}</td>
-                        <td>${tagStatus(ag.status)}</td>
-                        <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}</td>`;
-                    tbody.appendChild(tr);
-                });
-                tbody.addEventListener("click", async e => {
-                    const btn = e.target.closest("[data-concluir-func]");
-                    if (!btn) return;
-                    if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
-                    const r = await authFetch(`${BASE_URL}/api/agendamentos/${btn.dataset.concluirFunc}`, {
-                        method: "PUT", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ status: "Concluído" })
+        const tbodyFunc = document.getElementById("tabela-func-agenda");
+        const vazioFunc = document.getElementById("func-agenda-vazio");
+
+        tbodyFunc.addEventListener("click", async e => {
+            const btn = e.target.closest("[data-concluir-func]");
+            if (!btn) return;
+            if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
+            const r = await authFetch(`${BASE_URL}/api/agendamentos/${btn.dataset.concluirFunc}`, {
+                method: "PUT", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "Concluído" })
+            });
+            if (r.ok) {
+                toast("Agendamento concluído.");
+                btn.closest("tr").querySelector("td:nth-last-child(2)").innerHTML = tagStatus("Concluído");
+                btn.closest("td").innerHTML = "";
+            } else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
+        });
+
+        let _agsFunc = [];
+
+        function renderAgendaFunc() {
+            const q = (document.getElementById("filtro-func-ag")?.value || "").toLowerCase();
+            const status = checados("chk-func-ag-status");
+            const dataFiltro = document.getElementById("filtro-func-ag-data")?.value;
+            const dados = _agsFunc.filter(ag => {
+                if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
+                if (status && !status.includes(ag.status || "Agendado")) return false;
+                if (dataFiltro && ag.data !== dataFiltro) return false;
+                return true;
+            }).sort((a, b) => (b.data + (b.hora || "")).localeCompare(a.data + (a.hora || "")));
+
+            tbodyFunc.innerHTML = "";
+            if (!dados.length) { vazioFunc.classList.remove("is-hidden"); return; }
+            vazioFunc.classList.add("is-hidden");
+            dados.forEach(ag => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${fmtData(ag.data)}</td>
+                            <td>${ag.hora || "—"}</td>
+                            <td>${ag.usuarioNome || "—"}</td>
+                            <td>${ag.petNome || "—"}</td>
+                            <td>${ag.servico || "—"}</td>
+                            <td>${tagStatus(ag.status)}</td>
+                            <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}</td>`;
+                        tbodyFunc.appendChild(tr);
                     });
-                    if (r.ok) {
-                        toast("Agendamento concluído.");
-                        btn.closest("tr").querySelector("td:nth-last-child(2)").innerHTML = tagStatus("Concluído");
-                        btn.closest("td").innerHTML = "";
-                    } else toast("Erro ao concluir.", "danger");
-                });
-            }).catch(() => {});
+        }
+
+        function carregarAgendaFunc() {
+            authFetch(`${BASE_URL}/api/agendamentos/funcionario/${funcId}`)
+                .then(r => r.ok ? r.json() : [])
+                .then(ags => { _agsFunc = ags; renderAgendaFunc(); })
+                .catch(() => {});
+        }
+
+        document.getElementById("filtro-func-ag")?.addEventListener("input", renderAgendaFunc);
+        document.querySelectorAll("[name^='chk-func-ag-']").forEach(el => el.addEventListener("change", renderAgendaFunc));
+        document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
+            const hoje = new Date().toLocaleDateString("en-CA");
+            const chk = document.getElementById("chk-func-ag-hoje");
+            if (chk) chk.checked = (e.target.value === hoje);
+            renderAgendaFunc();
+        });
+        document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
+            const input = document.getElementById("filtro-func-ag-data");
+            if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
+            renderAgendaFunc();
+        });
+
+        carregarAgendaFunc();
+        setInterval(carregarAgendaFunc, 15000);
 
         document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
             ["petgo_id","petgo_nome","petgo_role","petgo_cargo","petgo_token"].forEach(k => localStorage.removeItem(k));

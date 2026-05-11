@@ -54,6 +54,13 @@
       <!-- Seção: Dashboard (agenda de hoje + próximos) -->
       <div id="section-dashboard" class="mb-6">
 
+        <div class="field mb-4">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-dashboard" placeholder="Buscar na agenda de hoje e próximos..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+        </div>
+
         <h2 class="title is-5 mb-3">Agenda de Hoje</h2>
         <div class="box p-0 mb-5">
           <table class="table is-fullwidth is-hoverable is-striped">
@@ -100,6 +107,21 @@
             <span>Novo agendamento</span>
           </button>
         </div>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-ag" placeholder="Buscar por cliente, pet, serviço ou status..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap is-align-items-center mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Agendado"> Agendado</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Concluído"> Concluído</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Cancelado"> Cancelado</label>
+            <div class="is-flex is-align-items-center" style="gap:0.5rem;border-left:1px solid #dbdbdb;padding-left:0.75rem;">
+              <input class="input is-small" type="date" id="filtro-ag-data" style="width:auto;" autocomplete="off">
+              <label class="checkbox is-size-7"><input type="checkbox" id="chk-ag-hoje"> Hoje</label>
+            </div>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped" style="table-layout:fixed;">
             <thead>
@@ -123,13 +145,19 @@
       <!-- Seção: Clientes -->
       <div id="section-clientes" class="mb-6 is-hidden">
         <h2 class="title is-5 mb-3">Clientes</h2>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-cl" placeholder="Buscar por nome ou e-mail..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
               <tr>
-                <th>#</th>
                 <th>Nome</th>
                 <th>E-mail</th>
+                <th>Telefone</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -149,13 +177,24 @@
             <span>Novo funcionário</span>
           </button>
         </div>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-func" placeholder="Buscar por nome, cargo ou e-mail..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Veterinário"> Veterinário</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Esteticista"> Esteticista</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Atendente"> Atendente</label>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
               <tr>
-                <th>#</th>
                 <th>Nome</th>
                 <th>Cargo</th>
+                <th>Telefone</th>
                 <th>E-mail</th>
                 <th>Ações</th>
               </tr>
@@ -192,6 +231,16 @@
             </label>
           </div>
         </div>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-serv" placeholder="Buscar por nome ou tipo..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Geral"> Geral</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Veterinário"> Veterinário</label>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>#</th><th>Nome</th><th>Duração</th><th>Tipo</th><th>Ações</th></tr></thead>
@@ -204,6 +253,20 @@
       <!-- Seção: Pets -->
       <div id="section-pets" class="mb-6 is-hidden">
         <h2 class="title is-5 mb-3">Pets</h2>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-pets" placeholder="Buscar por nome, raça, porte ou sexo..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Pequeno"> Pequeno</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Médio"> Médio</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Grande"> Grande</label>
+            <span class="is-size-7 has-text-grey mx-1">|</span>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Macho"> Macho</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Fêmea"> Fêmea</label>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
@@ -280,9 +343,8 @@
             <select id="modal-u-cargo">
               <option value="">Selecione...</option>
               <option value="Veterinário">Veterinário</option>
-              <option value="Tosador">Tosador</option>
-              <option value="Recepcionista">Recepcionista</option>
-              <option value="Banhista">Banhista</option>
+              <option value="Esteticista">Esteticista</option>
+              <option value="Atendente">Atendente</option>
             </select>
           </div>
         </div>
@@ -506,7 +568,6 @@
         <button class="delete" id="fechar-modal-func"></button>
       </header>
       <section class="modal-card-body">
-
         <div class="columns">
           <div class="column">
             <div class="field">
@@ -521,7 +582,6 @@
             </div>
           </div>
         </div>
-
         <div class="columns">
           <div class="column">
             <div class="field">
@@ -530,8 +590,8 @@
                 <div class="select is-fullwidth" id="wrap-func-cargo">
                   <select id="func-cargo">
                     <option value="">Selecione o cargo</option>
-                    <option value="Esteticista">Esteticista</option>
                     <option value="Veterinário">Veterinário</option>
+                    <option value="Esteticista">Esteticista</option>
                     <option value="Atendente">Atendente</option>
                   </select>
                 </div>
@@ -545,31 +605,38 @@
             </div>
           </div>
         </div>
-
-        <div class="field">
-          <label class="label is-small has-text-primary">E-mail</label>
-          <div class="control"><input id="func-email" class="input" type="email" placeholder="funcionario@petgo.com" /></div>
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">E-mail</label>
+              <div class="control"><input id="func-email" class="input" type="email" placeholder="funcionario@petgo.com" autocomplete="off" /></div>
+            </div>
+          </div>
+          <div class="column is-4">
+            <div class="field">
+              <label class="label is-small has-text-primary">Telefone</label>
+              <div class="control"><input id="func-telefone" class="input" type="text" placeholder="(00) 00000-0000" autocomplete="off" /></div>
+            </div>
+          </div>
         </div>
-
         <div class="columns">
           <div class="column">
             <div class="field">
               <label class="label is-small has-text-primary">Senha</label>
-              <div class="control"><input id="func-senha" class="input" type="password" placeholder="*********" /></div>
+              <div class="control"><input id="func-senha" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div>
             </div>
           </div>
           <div class="column">
             <div class="field">
               <label class="label is-small has-text-primary">Confirmar Senha</label>
-              <div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" /></div>
+              <div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div>
             </div>
           </div>
         </div>
-
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
         <button class="button" id="cancelar-modal-func">Cancelar</button>
-        <button class="button is-primary has-text-weight-bold" id="btn-cadastrar-funcionario">Cadastrar</button>
+        <button class="button is-primary has-text-weight-bold" id="btn-cadastrar-func-modal">Cadastrar</button>
       </footer>
     </div>
   </div>

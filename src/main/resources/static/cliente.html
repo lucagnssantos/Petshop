@@ -67,6 +67,10 @@
             <p class="is-size-7 has-text-grey has-text-weight-bold">ENDEREÇO</p>
             <p id="cli-endereco">—</p>
           </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">TELEFONE</p>
+            <p id="cli-telefone">—</p>
+          </div>
         </div>
       </div>
 
@@ -151,6 +155,7 @@
       document.getElementById("cli-cep").textContent = u.cep || "—";
       document.getElementById("cli-numero").textContent = u.numero || "—";
       document.getElementById("cli-endereco").textContent = u.endereco || "—";
+      document.getElementById("cli-telefone").textContent = u.telefone || "—";
 
       const foto = document.getElementById("cli-foto");
       foto.src = `${BASE_URL}/api/usuarios/${clienteId}/imagem`;

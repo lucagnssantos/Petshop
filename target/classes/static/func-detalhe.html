@@ -56,6 +56,10 @@
             <p class="is-size-7 has-text-grey has-text-weight-bold">DATA DE NASCIMENTO</p>
             <p id="func-nascimento">—</p>
           </div>
+          <div class="column is-half">
+            <p class="is-size-7 has-text-grey has-text-weight-bold">TELEFONE</p>
+            <p id="func-telefone">—</p>
+          </div>
         </div>
       </div>
 
@@ -131,6 +135,7 @@
       document.getElementById("func-email").textContent = u.email || "—";
       document.getElementById("func-cpf").textContent = u.cpf || "—";
       document.getElementById("func-nascimento").textContent = u.dataNascimento || "—";
+      document.getElementById("func-telefone").textContent = u.telefone || "—";
 
       const foto = document.getElementById("func-foto");
       foto.src = `${BASE_URL}/api/usuarios/${funcId}/imagem`;

@@ -15,6 +15,7 @@ public class UsuarioResponseDTO {
     private String email;
     private Integer idRole;
     private String cargo;
+    private String telefone;
 
     public static UsuarioResponseDTO from(Usuario u) {
         UsuarioResponseDTO dto = new UsuarioResponseDTO();
@@ -28,6 +29,7 @@ public class UsuarioResponseDTO {
         dto.email = u.getEmail();
         dto.idRole = u.getIdRole();
         dto.cargo = u.getCargo();
+        dto.telefone = u.getTelefone();
         return dto;
     }
 }

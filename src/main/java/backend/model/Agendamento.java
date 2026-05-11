@@ -23,6 +23,9 @@ public class Agendamento {
     private String hora;
     private String observacao;
     private String status = "Agendado";
+
+    @Version
+    private Integer versao;
     private String motivo;
 
     @Column(name = "duracao_minutos")

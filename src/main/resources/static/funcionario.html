@@ -45,6 +45,21 @@
       <div id="section-func-agenda">
         <h1 class="title is-4 mb-1">Minha Agenda</h1>
         <p class="has-text-grey mb-5">Agendamentos atribuídos a você</p>
+        <div class="field mb-3">
+          <div class="control has-icons-left">
+            <input class="input is-small" type="text" id="filtro-func-ag" placeholder="Buscar por cliente, pet, serviço ou status..." autocomplete="off">
+            <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="is-flex is-flex-wrap-wrap is-align-items-center mt-2" style="gap:0.75rem;">
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Agendado"> Agendado</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Concluído"> Concluído</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Cancelado"> Cancelado</label>
+            <div class="is-flex is-align-items-center" style="gap:0.5rem;border-left:1px solid #dbdbdb;padding-left:0.75rem;">
+              <input class="input is-small" type="date" id="filtro-func-ag-data" style="width:auto;" autocomplete="off">
+              <label class="checkbox is-size-7"><input type="checkbox" id="chk-func-ag-hoje"> Hoje</label>
+            </div>
+          </div>
+        </div>
         <div class="box p-0">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead>
@@ -90,12 +105,104 @@
             </div>
           </div>
           <hr class="my-3" />
-          <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p>
-          <p id="fp-email">—</p>
+          <div class="columns">
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p>
+              <p id="fp-email">—</p>
+            </div>
+            <div class="column">
+              <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Telefone</p>
+              <p id="fp-telefone">—</p>
+            </div>
+          </div>
+          <div class="mt-5">
+            <button id="btn-editar-func-perfil" class="button is-primary is-outlined">
+              <span class="icon"><i class="fas fa-pen"></i></span>
+              <span>Editar dados</span>
+            </button>
+          </div>
         </div>
       </div>
 
     </main>
+  </div>
+
+  <!-- Modal: Editar Perfil -->
+  <div id="modal-editar-func" class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Editar Perfil</p>
+        <button class="delete" id="fechar-modal-editar-func"></button>
+      </header>
+      <section class="modal-card-body">
+
+        <div class="is-flex is-align-items-center mb-5" style="gap: 1.5rem;">
+          <figure class="image" style="width:80px;height:80px;flex-shrink:0;">
+            <img id="modal-func-avatar-preview" class="is-rounded" src="" alt="Foto" style="width:80px;height:80px;object-fit:cover;border-radius:50%;" />
+          </figure>
+          <div class="file is-small">
+            <label class="file-label">
+              <input class="file-input" type="file" id="modal-func-foto" accept="image/*">
+              <span class="file-cta">
+                <span class="file-icon"><i class="fas fa-upload"></i></span>
+                <span class="file-label">Alterar foto</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Nome Completo</label>
+              <input class="input" type="text" id="modal-func-nome" autocomplete="off" />
+            </div>
+          </div>
+          <div class="column is-4">
+            <div class="field">
+              <label class="label is-small has-text-grey">Cargo <span class="tag is-light is-small ml-1">somente leitura</span></label>
+              <input class="input" type="text" id="modal-func-cargo" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-grey">CPF <span class="tag is-light is-small ml-1">somente leitura</span></label>
+              <input class="input" type="text" id="modal-func-cpf" readonly />
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-grey">Data de Nascimento <span class="tag is-light is-small ml-1">somente leitura</span></label>
+              <input class="input" type="text" id="modal-func-dataNascimento" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">E-mail</label>
+              <input class="input" type="email" id="modal-func-email" autocomplete="off" />
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small">Telefone</label>
+              <input class="input" type="text" id="modal-func-telefone" autocomplete="off" placeholder="(00) 00000-0000" />
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <footer class="modal-card-foot is-flex is-justify-content-flex-end" style="gap: 0.5rem;">
+        <button class="button" id="cancelar-modal-editar-func">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-func-perfil">Salvar</button>
+      </footer>
+    </div>
   </div>
 
 </div>

@@ -56,7 +56,12 @@
           </div>
           <div class="column is-half">
             <p class="is-size-7 has-text-grey has-text-weight-bold">TUTOR</p>
-            <p id="pet-tutor">—</p>
+            <div class="is-flex is-align-items-center" style="gap:0.5rem;">
+              <p id="pet-tutor">—</p>
+              <a id="pet-tutor-link" class="button is-small is-light is-hidden" title="Ver perfil do tutor" target="_blank">
+                <span class="icon"><i class="fas fa-eye"></i></span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -128,7 +133,14 @@
         headers: { "Authorization": "Bearer " + (localStorage.getItem("petgo_token") || "") }
       })
       .then(r => r.ok ? r.json() : null)
-      .then(u => { if (u) document.getElementById("pet-tutor").textContent = u.nome; });
+      .then(u => {
+        if (u) {
+          document.getElementById("pet-tutor").textContent = u.nome;
+          const link = document.getElementById("pet-tutor-link");
+          link.href = `cliente.html?id=${pet.usuarioId}`;
+          link.classList.remove("is-hidden");
+        }
+      });
     }
   });
 </script>
