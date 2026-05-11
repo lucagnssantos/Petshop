@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +42,19 @@ public class UsuarioController {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @PostMapping("/funcionario/cadastrar")
-    public ResponseEntity<?> cadastrarFuncionario(@RequestBody UsuarioRequestDTO dto) {
-        if (repository.findByEmail(dto.getEmail()).isPresent()) {
+    public ResponseEntity<?> cadastrarFuncionario(@RequestBody UsuarioRequestDTO dto,
+                                                   HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer "))
+            return ResponseEntity.status(403).body(Map.of("mensagem", "Acesso negado."));
+        Integer role = jwtUtil.extractClaims(header.substring(7)).get("role", Integer.class);
+        if (!Integer.valueOf(1).equals(role))
+            return ResponseEntity.status(403).body(Map.of("mensagem", "Apenas administradores podem cadastrar funcionários."));
+
+        if (repository.findByEmail(dto.getEmail()).isPresent())
             return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail já cadastrado!"));
-        }
+        if (dto.getCpf() != null && repository.findByCpf(dto.getCpf()).isPresent())
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "CPF já cadastrado!"));
         Usuario funcionario = new Usuario();
         funcionario.setNome(dto.getNome());
         funcionario.setCpf(dto.getCpf());
@@ -51,16 +62,22 @@ public class UsuarioController {
         funcionario.setEmail(dto.getEmail());
         funcionario.setSenha(encoder.encode(dto.getSenha()));
         funcionario.setCargo(dto.getCargo());
+        funcionario.setTelefone(dto.getTelefone());
         funcionario.setIdRole(3);
-        Usuario salvo = repository.save(funcionario);
-        return ResponseEntity.ok(Map.of("mensagem", "Funcionário cadastrado com sucesso!", "id", salvo.getId()));
+        try {
+            Usuario salvo = repository.save(funcionario);
+            return ResponseEntity.ok(Map.of("mensagem", "Funcionário cadastrado com sucesso!", "id", salvo.getId()));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail ou CPF já cadastrado!"));
+        }
     }
 
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody UsuarioRequestDTO dto) {
-        if (repository.findByEmail(dto.getEmail()).isPresent()) {
+        if (repository.findByEmail(dto.getEmail()).isPresent())
             return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail já cadastrado!"));
-        }
+        if (dto.getCpf() != null && repository.findByCpf(dto.getCpf()).isPresent())
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "CPF já cadastrado!"));
         Usuario usuario = new Usuario();
         usuario.setNome(dto.getNome());
         usuario.setCpf(dto.getCpf());
@@ -69,9 +86,14 @@ public class UsuarioController {
         usuario.setEndereco(dto.getEndereco());
         usuario.setNumero(dto.getNumero());
         usuario.setEmail(dto.getEmail());
+        usuario.setTelefone(dto.getTelefone());
         usuario.setSenha(encoder.encode(dto.getSenha()));
-        Usuario salvo = repository.save(usuario);
-        return ResponseEntity.ok(Map.of("mensagem", "Usuário cadastrado com sucesso!", "id", salvo.getId()));
+        try {
+            Usuario salvo = repository.save(usuario);
+            return ResponseEntity.ok(Map.of("mensagem", "Usuário cadastrado com sucesso!", "id", salvo.getId()));
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "E-mail ou CPF já cadastrado!"));
+        }
     }
 
     @PostMapping("/login")
@@ -113,11 +135,13 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody UsuarioRequestDTO dto) {
         return repository.findById(id).map(u -> {
-            if (dto.getNome() != null) u.setNome(dto.getNome());
-            if (dto.getCep() != null) u.setCep(dto.getCep());
-            if (dto.getEndereco() != null) u.setEndereco(dto.getEndereco());
-            if (dto.getNumero() != null) u.setNumero(dto.getNumero());
-            if (dto.getCargo() != null) u.setCargo(dto.getCargo());
+            if (dto.getNome() != null)      u.setNome(dto.getNome());
+            if (dto.getEmail() != null)     u.setEmail(dto.getEmail());
+            if (dto.getCep() != null)       u.setCep(dto.getCep());
+            if (dto.getEndereco() != null)  u.setEndereco(dto.getEndereco());
+            if (dto.getNumero() != null)    u.setNumero(dto.getNumero());
+            if (dto.getCargo() != null)     u.setCargo(dto.getCargo());
+            if (dto.getTelefone() != null)  u.setTelefone(dto.getTelefone());
             repository.save(u);
             return ResponseEntity.ok(Map.of("mensagem", "Usuário atualizado com sucesso!"));
         }).orElse(ResponseEntity.notFound().build());

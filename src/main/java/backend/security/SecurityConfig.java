@@ -32,7 +32,6 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/usuarios/login",
                     "/api/usuarios/cadastrar",
-                    "/api/usuarios/funcionario/cadastrar",
                     "/api/usuarios/*/imagem",
                     "/api/pets/*/imagem",
                     "/api/servicos",

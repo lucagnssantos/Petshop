@@ -103,8 +103,12 @@ hr {
   color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
 
-#admin-dashboard aside .navbar-item.is-active {
+#admin-dashboard aside .navbar-item.is-active,
+#funcionario-dashboard aside .navbar-item.is-active {
   font-weight: 700;
+  background-color: hsla(var(--color-tertiary-h), var(--color-tertiary-s), var(--color-tertiary-l), 0.25);
+  border-radius: 6px;
+  border-left: 3px solid hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
 
 #admin-dashboard main .title,
@@ -135,6 +139,10 @@ hr {
 
 .toast-saindo {
   animation: toast-fade-out 0.3s ease forwards;
+}
+
+input[type="checkbox"] {
+  accent-color: hsl(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l));
 }
 
 @keyframes toast-fade-out {

@@ -13,4 +13,5 @@ public class UsuarioRequestDTO {
     private String email;
     private String senha;
     private String cargo;
+    private String telefone;
 }

@@ -52,72 +52,72 @@ public class DataLoader implements ApplicationRunner {
 
         // ===================== ADMIN =====================
         Usuario admin = usuario("Administrador PetGO", "000.000.000-00", "01/01/1990",
-                "01310-100", "Av. Paulista", "1000", "admin@petgo.com", "Admin@123", 1, null);
+                "01310-100", "Av. Paulista", "1000", "admin@petgo.com", "Admin@123", 1, null, null);
 
         // ===================== FUNCIONÁRIOS =====================
         Usuario vet = usuario("Carlos Eduardo Souza", "111.111.111-11", "15/03/1988",
-                null, null, null, "carlos.vet@petgo.com", "Func@123", 3, "Veterinário");
+                null, null, null, "carlos.vet@petgo.com", "Func@123", 3, "Veterinário", "(11) 99111-1111");
 
         Usuario esteticista1 = usuario("Fernanda Lima", "222.222.222-22", "22/07/1995",
-                null, null, null, "fernanda.est@petgo.com", "Func@123", 3, "Esteticista");
+                null, null, null, "fernanda.est@petgo.com", "Func@123", 3, "Esteticista", "(11) 99222-2222");
 
         Usuario esteticista2 = usuario("Ricardo Alves", "333.333.333-33", "10/11/1992",
-                null, null, null, "ricardo.est@petgo.com", "Func@123", 3, "Esteticista");
+                null, null, null, "ricardo.est@petgo.com", "Func@123", 3, "Esteticista", "(11) 99333-3333");
 
         Usuario atendente = usuario("Juliana Martins", "444.444.444-44", "05/06/1997",
-                null, null, null, "juliana.at@petgo.com", "Func@123", 3, "Atendente");
+                null, null, null, "juliana.at@petgo.com", "Func@123", 3, "Atendente", "(11) 99444-4444");
 
         // ===================== CLIENTES =====================
         Usuario ana = usuario("Ana Paula Ferreira", "555.555.555-55", "14/02/1990",
-                "04538-133", "Rua Funchal", "129", "ana.paula@email.com", "Cliente@123", 2, null);
+                "04538-133", "Rua Funchal", "129", "ana.paula@email.com", "Cliente@123", 2, null, "(11) 98501-1001");
 
         Usuario joao = usuario("João Vitor Santos", "666.666.666-66", "30/08/1985",
-                "01401-000", "Rua Augusta", "800", "joao.vitor@email.com", "Cliente@123", 2, null);
+                "01401-000", "Rua Augusta", "800", "joao.vitor@email.com", "Cliente@123", 2, null, "(11) 97602-2002");
 
         Usuario mariana = usuario("Mariana Costa", "777.777.777-77", "19/12/1998",
-                "05001-100", "Av. Rebouças", "3970", "mariana.costa@email.com", "Cliente@123", 2, null);
+                "05001-100", "Av. Rebouças", "3970", "mariana.costa@email.com", "Cliente@123", 2, null, "(11) 96703-3003");
 
         Usuario pedro = usuario("Pedro Henrique Gomes", "888.888.888-88", "07/04/1993",
-                "02010-000", "Rua do Triunfo", "45", "pedro.gomes@email.com", "Cliente@123", 2, null);
+                "02010-000", "Rua do Triunfo", "45", "pedro.gomes@email.com", "Cliente@123", 2, null, "(11) 95804-4004");
 
         Usuario lucia = usuario("Lúcia Oliveira Nunes", "999.999.999-99", "25/09/1975",
-                "03101-000", "Av. Rangel Pestana", "220", "lucia.nunes@email.com", "Cliente@123", 2, null);
+                "03101-000", "Av. Rangel Pestana", "220", "lucia.nunes@email.com", "Cliente@123", 2, null, "(11) 94905-5005");
 
         Usuario rafael = usuario("Rafael Mendes Carvalho", "101.010.101-01", "12/05/1994",
-                "01310-200", "Av. Paulista", "500", "rafael.mendes@email.com", "Cliente@123", 2, null);
+                "01310-200", "Av. Paulista", "500", "rafael.mendes@email.com", "Cliente@123", 2, null, "(11) 93106-6006");
 
         Usuario camila = usuario("Camila Torres Braga", "202.020.202-02", "08/11/1996",
-                "04551-060", "Rua Leopoldo Couto", "308", "camila.torres@email.com", "Cliente@123", 2, null);
+                "04551-060", "Rua Leopoldo Couto", "308", "camila.torres@email.com", "Cliente@123", 2, null, "(11) 92207-7007");
 
         Usuario felipe = usuario("Felipe Rocha Andrade", "303.030.303-03", "21/03/1988",
-                "05424-020", "Av. Sumaré", "1420", "felipe.rocha@email.com", "Cliente@123", 2, null);
+                "05424-020", "Av. Sumaré", "1420", "felipe.rocha@email.com", "Cliente@123", 2, null, "(11) 91308-8008");
 
         Usuario beatriz = usuario("Beatriz Nascimento Silva", "404.040.404-04", "03/07/2000",
-                "09520-070", "Rua Marechal Deodoro", "77", "beatriz.nasc@email.com", "Cliente@123", 2, null);
+                "09520-070", "Rua Marechal Deodoro", "77", "beatriz.nasc@email.com", "Cliente@123", 2, null, "(11) 98409-9009");
 
         Usuario gustavo = usuario("Gustavo Lima Pereira", "505.050.505-05", "17/09/1991",
-                "01414-001", "Rua Oscar Freire", "900", "gustavo.lima@email.com", "Cliente@123", 2, null);
+                "01414-001", "Rua Oscar Freire", "900", "gustavo.lima@email.com", "Cliente@123", 2, null, "(11) 97510-0010");
 
         Usuario isabela = usuario("Isabela Rodrigues Pinto", "606.060.606-06", "29/01/1997",
-                "04571-010", "Rua das Olimpíadas", "200", "isabela.rod@email.com", "Cliente@123", 2, null);
+                "04571-010", "Rua das Olimpíadas", "200", "isabela.rod@email.com", "Cliente@123", 2, null, "(11) 96611-1011");
 
         Usuario thiago = usuario("Thiago Barbosa Correia", "707.070.707-07", "14/06/1983",
-                "01244-020", "Rua Consolação", "2300", "thiago.barb@email.com", "Cliente@123", 2, null);
+                "01244-020", "Rua Consolação", "2300", "thiago.barb@email.com", "Cliente@123", 2, null, "(11) 95712-2012");
 
         Usuario natalia = usuario("Natália Souza Freitas", "808.080.808-08", "05/10/1999",
-                "03303-000", "Av. Celso Garcia", "850", "natalia.souza@email.com", "Cliente@123", 2, null);
+                "03303-000", "Av. Celso Garcia", "850", "natalia.souza@email.com", "Cliente@123", 2, null, "(11) 94813-3013");
 
         Usuario lucas = usuario("Lucas Ferreira Matos", "909.090.909-09", "22/04/1995",
-                "05009-000", "Rua Cardoso de Almeida", "1100", "lucas.ferreira@email.com", "Cliente@123", 2, null);
+                "05009-000", "Rua Cardoso de Almeida", "1100", "lucas.ferreira@email.com", "Cliente@123", 2, null, "(11) 93914-4014");
 
         Usuario juliana = usuario("Juliana Pires Vieira", "110.110.110-10", "11/12/1992",
-                "04711-130", "Av. João Dias", "640", "juliana.pires@email.com", "Cliente@123", 2, null);
+                "04711-130", "Av. João Dias", "640", "juliana.pires@email.com", "Cliente@123", 2, null, "(11) 92015-5015");
 
         Usuario marcos = usuario("Marcos Antônio Ribeiro", "220.220.220-20", "28/02/1980",
-                "03047-000", "Rua do Gasômetro", "400", "marcos.ribeiro@email.com", "Cliente@123", 2, null);
+                "03047-000", "Rua do Gasômetro", "400", "marcos.ribeiro@email.com", "Cliente@123", 2, null, "(11) 91116-6016");
 
         Usuario carolina = usuario("Carolina Duarte Monteiro", "330.330.330-30", "16/08/2001",
-                "05305-902", "Rua Butantã", "370", "carolina.duarte@email.com", "Cliente@123", 2, null);
+                "05305-902", "Rua Butantã", "370", "carolina.duarte@email.com", "Cliente@123", 2, null, "(11) 98217-7017");
 
         // ===================== PETS =====================
         Pet mel      = pet("Mel",      "Golden Retriever", "Grande",  "Fêmea", "3 anos", "Dócil, adora banho",                     ana.getId());
@@ -151,8 +151,13 @@ public class DataLoader implements ApplicationRunner {
 
         // Agendamentos de hoje (data dinâmica)
         String hoje = LocalDate.now().toString();
-        agendamento(gustavo.getId(), caramelo.getId(), "Banho, Tosa",  hoje, "09:00", null,                 "Agendado", null);
-        agendamento(juliana.getId(), duke.getId(),     "Corte de unha", hoje, "10:00", "Unhas bem compridas", "Agendado", null);
+        agendamento(gustavo.getId(), caramelo.getId(), "Banho, Tosa",  hoje, "09:00", null,                    "Agendado",  null);
+        agendamento(juliana.getId(), duke.getId(),     "Corte de unha", hoje, "10:00", "Unhas bem compridas",  "Agendado",  null);
+        agendamento(ana.getId(),     mel.getId(),      "Consulta",      hoje, "08:00", "Check-up de rotina",        "Concluído", null);
+        agendamento(joao.getId(),   thor.getId(),     "Vacinação",     hoje, "11:00", "Reforço antirrábica",       "Cancelado", "Tutor não pôde comparecer no horário.");
+        agendamento(beatriz.getId(),mia.getId(),      "Consulta",      hoje, "12:00", "Gata agitada, usar luvas",  "Agendado",  null);
+        agendamento(lucas.getId(),  lola.getId(),     "Vacinação",     hoje, "13:00", "Reforço anual",             "Agendado",  null);
+        agendamento(mariana.getId(),simba.getId(),    "Consulta",      hoje, "14:00", "Primeiro check-up do Simba","Agendado",  null);
 
         // Agendamentos agendados (futuros)
         agendamento(ana.getId(), bolinha.getId(), "Banho, Tosa", "2026-05-15", "09:00", null, "Agendado", null);
@@ -191,15 +196,22 @@ public class DataLoader implements ApplicationRunner {
         agendamento(marcos.getId(),  amendoim.getId(), "Banho, Tosa",   "2026-05-30", "09:00", "Cuidado extra por ser idoso",     "Agendado", null);
         agendamento(carolina.getId(),aurora.getId(),   "Tosa",           "2026-06-02", "10:00", null,                             "Agendado", null);
 
+        // Agendamentos veterinários
+        agendamento(pedro.getId(),   bob.getId(),      "Consulta",       "2026-04-23", "09:00", "Check-up anual",                  "Concluído", null);
+        agendamento(beatriz.getId(), mia.getId(),      "Vacinação",      "2026-05-31", "11:00", "Reforço anual de vacinas",        "Agendado",  null);
+        agendamento(lucas.getId(),   lola.getId(),     "Consulta",       "2026-04-30", "14:00", "Suspeita de alergia alimentar",   "Cancelado", "Tutora não pôde comparecer, reagendamento necessário.");
+
         System.out.println("=== DataLoader: banco populado com sucesso! ===");
-        System.out.println("Admin:       admin@petgo.com       / Admin@123");
-        System.out.println("Funcionário: carlos.vet@petgo.com  / Func@123");
-        System.out.println("Cliente:     ana.paula@email.com   / Cliente@123");
+        System.out.println("Admin:            admin@petgo.com        / Admin@123");
+        System.out.println("Veterinário:      carlos.vet@petgo.com   / Func@123");
+        System.out.println("Esteticista:      fernanda.est@petgo.com / Func@123");
+        System.out.println("Atendente:        juliana.at@petgo.com   / Func@123");
+        System.out.println("Cliente:          ana.paula@email.com    / Cliente@123");
     }
 
     private Usuario usuario(String nome, String cpf, String dataNascimento,
                              String cep, String endereco, String numero,
-                             String email, String senha, int role, String cargo) {
+                             String email, String senha, int role, String cargo, String telefone) {
         Usuario u = new Usuario();
         u.setNome(nome);
         u.setCpf(cpf);
@@ -211,6 +223,7 @@ public class DataLoader implements ApplicationRunner {
         u.setSenha(encoder.encode(senha));
         u.setIdRole(role);
         u.setCargo(cargo);
+        u.setTelefone(telefone);
         return usuarioRepository.save(u);
     }
 
