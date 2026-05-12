@@ -5,19 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa302a97-dde0-42e9-9d96-bf579d8b2688" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/backend/controller/AgendamentoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/backend/controller/AgendamentoController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/backend/controller/UsuarioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/backend/controller/UsuarioController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/backend/dto/AgendamentoResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/backend/dto/AgendamentoResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/cliente.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/cliente.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/static/funcionario.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/funcionario.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/agendar.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/agendar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/cadastro-pet.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/cadastro-pet.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/static/editar-perfil.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/editar-perfil.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/static/scripts.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/static/scripts.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/controller/AgendamentoController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/controller/AgendamentoController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/controller/UsuarioController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/controller/UsuarioController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/backend/dto/AgendamentoResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/backend/dto/AgendamentoResponseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/cliente.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/cliente.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/static/funcionario.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/funcionario.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/agendar.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/agendar.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/cadastro-pet.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/cadastro-pet.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/static/editar-perfil.html" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/editar-perfil.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/static/scripts.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/static/scripts.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

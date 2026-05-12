@@ -17,10 +17,7 @@
   <nav class="navbar" role="navigation">
     <div class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item has-text-weight-bold" href="index.html">Home</a>
-        <a class="navbar-item" href="servicos.html">Serviços</a>
-        <a class="navbar-item" href="sobre.html">Sobre nós</a>
-        <a class="navbar-item" href="contatos.html">Contatos</a>
+        <a class="navbar-item" href="perfil.html">Voltar ao perfil</a>
       </div>
       <div class="nav-logo">
         <a class="navbar-item" href="index.html">
@@ -44,13 +41,15 @@
   <main class="section">
     <div class="container" style="max-width: 600px;">
 
-      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-5">Cadastre seu Pet!</h1>
+      <h1 class="title is-4 has-text-centered has-text-weight-bold has-text-primary mb-5">Cadastre seu Pet!</h1>
+
+      <div class="box">
 
       <div class="columns">
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="Rex" />
+              <input id="pet-nome" class="input" type="text" placeholder="Rex" />
             </div>
             <label class="label is-small has-text-primary">Nome Completo</label>
           </div>
@@ -58,7 +57,7 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="Rotweiller" />
+              <input id="pet-raca" class="input" type="text" placeholder="Rottweiler" />
             </div>
             <label class="label is-small has-text-primary">Raça</label>
           </div>
@@ -68,10 +67,10 @@
       <div class="columns">
         <div class="column">
           <div class="field">
-            <div class="control">
+            <div id="wrap-pet-porte" class="control">
               <div class="select is-fullwidth">
-                <select>
-                  <option>Tamanho do pet?</option>
+                <select id="pet-porte">
+                  <option value="">Tamanho do pet?</option>
                   <option>Pequeno</option>
                   <option>Médio</option>
                   <option>Grande</option>
@@ -83,10 +82,10 @@
         </div>
         <div class="column">
           <div class="field">
-            <div class="control">
+            <div id="wrap-pet-sexo" class="control">
               <div class="select is-fullwidth">
-                <select>
-                  <option>Escolha o sexo</option>
+                <select id="pet-sexo">
+                  <option value="">Escolha o sexo</option>
                   <option>Macho</option>
                   <option>Fêmea</option>
                 </select>
@@ -98,16 +97,16 @@
         <div class="column">
           <div class="field">
             <div class="control">
-              <input class="input" type="text" placeholder="01/01/2018" />
+              <input id="pet-idade" class="input" type="text" placeholder="DD/MM/AAAA" />
             </div>
-            <label class="label is-small has-text-primary">Idade Aproximada</label>
+            <label class="label is-small has-text-primary">Data de Nascimento <span class="has-text-grey has-text-weight-normal">(Aprox.)</span></label>
           </div>
         </div>
       </div>
 
       <div class="field">
         <div class="control">
-          <input class="input" type="text" placeholder="Não gosta do secador" />
+          <input id="pet-observacao" class="input" type="text" placeholder="Não gosta do secador" />
         </div>
         <label class="label is-small has-text-primary">Observação</label>
       </div>
@@ -127,8 +126,11 @@
         </label>
       </div>
 
-      <div class="has-text-centered mt-5">
-        <button id="btn-cadastrar-pet" class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+      <div class="is-flex is-justify-content-space-between mt-5">
+        <a href="perfil.html" class="button is-light">Cancelar</a>
+        <button id="btn-cadastrar-pet" class="button is-primary has-text-weight-bold">Cadastrar</button>
+      </div>
+
       </div>
 
     </div>

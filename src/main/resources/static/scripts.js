@@ -586,6 +586,9 @@ document.addEventListener("DOMContentLoaded", () => {
                           </figure>
                           <p class="has-text-weight-bold">${pet.nome}</p>
                           <p class="is-size-7 has-text-grey">${pet.raca || ""} · ${pet.porte || ""}</p>
+                          <a href="cadastro-pet.html?id=${pet.id}" class="button is-small is-light is-fullwidth mt-3">
+                            <span class="icon"><i class="fas fa-pen"></i></span><span>Editar</span>
+                          </a>
                         </div>`;
                     lista.appendChild(col);
                 });
@@ -611,11 +614,12 @@ document.addEventListener("DOMContentLoaded", () => {
                         item.style.gap = "1rem";
                         item.innerHTML = `
                             <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
-                            <div>
+                            <div class="is-flex-grow-1">
                               <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
                               <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
                             </div>
-                            ${tagStatus(ag.status)}`;
+                            ${tagStatus(ag.status)}
+                            ${ag.status === "Agendado" ? `<a href="agendar.html?id=${ag.id}" class="button is-small is-light ml-2"><span class="icon"><i class="fas fa-pen"></i></span></a>` : ""}`;
                         lista.appendChild(item);
                     });
                 })
@@ -681,6 +685,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("btn-salvar")?.addEventListener("click", async () => {
             const body = {
                 nome: document.getElementById("edit-nome").value,
+                cpf: document.getElementById("edit-cpf").value,
+                dataNascimento: document.getElementById("edit-dataNascimento").value,
+                email: document.getElementById("edit-email").value,
                 cep: document.getElementById("edit-cep").value,
                 endereco: document.getElementById("edit-endereco").value,
                 numero: document.getElementById("edit-numero").value
@@ -2048,9 +2055,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (document.getElementById("btn-cadastrar-pet")) {
         const usuarioId = localStorage.getItem("petgo_id");
+        if (!usuarioId) { window.location.href = "login.html"; }
 
-        if (!usuarioId) {
-            window.location.href = "login.html";
+        const petEditId = new URLSearchParams(window.location.search).get("id");
+
+        if (petEditId) {
+            document.querySelector("h1.title").textContent = "Editar Pet";
+            document.getElementById("btn-cadastrar-pet").textContent = "Salvar alterações";
+
+            authFetch(`${BASE_URL}/api/pets/${petEditId}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(pet => {
+                    if (!pet) return;
+                    document.getElementById("pet-nome").value = pet.nome || "";
+                    document.getElementById("pet-raca").value = pet.raca || "";
+                    document.getElementById("pet-porte").value = pet.porte || "";
+                    document.getElementById("pet-sexo").value = pet.sexo || "";
+                    document.getElementById("pet-idade").value = pet.idade || "";
+                    document.getElementById("pet-observacao").value = pet.observacao || "";
+                })
+                .catch(() => {});
+
+            const btnExcluirPet = document.createElement("button");
+            btnExcluirPet.type = "button";
+            btnExcluirPet.className = "button is-danger is-outlined";
+            btnExcluirPet.textContent = "Excluir pet";
+            const footerPet = document.getElementById("btn-cadastrar-pet").closest(".is-flex");
+            footerPet.insertBefore(btnExcluirPet, document.getElementById("btn-cadastrar-pet"));
+
+            btnExcluirPet.addEventListener("click", async () => {
+                if (!confirm("Tem certeza que deseja excluir este pet?\nEsta ação não pode ser desfeita.")) return;
+                try {
+                    const r = await authFetch(`${BASE_URL}/api/pets/${petEditId}`, { method: "DELETE" });
+                    if (r.ok) {
+                        toast("Pet excluído com sucesso!");
+                        setTimeout(() => window.location.href = "perfil.html#pets", 1500);
+                    } else {
+                        const err = await r.json().catch(() => ({}));
+                        toast(err.mensagem || "Erro ao excluir pet.", "danger");
+                    }
+                } catch { toast("Erro ao conectar com o servidor.", "danger"); }
+            });
         }
 
         document.getElementById("btn-cadastrar-pet").addEventListener("click", async () => {
@@ -2074,25 +2119,27 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             try {
-                const response = await authFetch(`${BASE_URL}/api/pets`, {
-                    method: "POST",
+                const url = petEditId ? `${BASE_URL}/api/pets/${petEditId}` : `${BASE_URL}/api/pets`;
+                const method = petEditId ? "PUT" : "POST";
+                const response = await authFetch(url, {
+                    method,
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 });
 
-                const petData = await response.json();
-
                 if (response.ok) {
+                    const petId = petEditId ? Number(petEditId) : (await response.json()).id;
                     const arquivo = document.getElementById("pet-inputImagem")?.files[0];
-                    if (arquivo && petData.id) {
+                    if (arquivo && petId) {
                         const fd = new FormData();
                         fd.append("imagem", arquivo);
-                        await authFetch(`${BASE_URL}/api/pets/${petData.id}/imagem`, { method: "POST", body: fd });
+                        await authFetch(`${BASE_URL}/api/pets/${petId}/imagem`, { method: "POST", body: fd });
                     }
-                    toast("Pet cadastrado com sucesso!");
+                    toast(petEditId ? "Pet atualizado com sucesso!" : "Pet cadastrado com sucesso!");
                     setTimeout(() => window.location.href = "perfil.html#pets", 1500);
                 } else {
-                    toast(petData.mensagem || "Erro ao cadastrar pet. Tente novamente.", "danger");
+                    const err = await response.json().catch(() => ({}));
+                    toast(err.mensagem || "Erro ao salvar pet. Tente novamente.", "danger");
                 }
             } catch {
                 toast("Erro ao conectar com o servidor.", "danger");
@@ -2104,34 +2151,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (document.getElementById("agendar-pet")) {
         const usuarioId = localStorage.getItem("petgo_id");
+        if (!usuarioId) { window.location.href = "login.html"; }
 
-        if (!usuarioId) {
-            window.location.href = "login.html";
+        const agEditId = new URLSearchParams(window.location.search).get("id");
+
+        if (agEditId) {
+            document.querySelector("h1.title").textContent = "Editar Agendamento";
+            document.getElementById("btn-agendar").textContent = "Salvar alterações";
+
+            const btnCancelarAg = document.createElement("button");
+            btnCancelarAg.type = "button";
+            btnCancelarAg.className = "button is-danger is-outlined";
+            btnCancelarAg.textContent = "Cancelar agendamento";
+            const footerAg = document.getElementById("btn-agendar").closest(".is-flex");
+            footerAg.insertBefore(btnCancelarAg, document.getElementById("btn-agendar"));
+
+            btnCancelarAg.addEventListener("click", async () => {
+                const motivo = prompt("Informe o motivo do cancelamento:");
+                if (motivo === null) return;
+                if (!motivo.trim()) { toast("Informe o motivo do cancelamento.", "warning"); return; }
+                try {
+                    const r = await authFetch(`${BASE_URL}/api/agendamentos/${agEditId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ status: "Cancelado", motivo: motivo.trim() })
+                    });
+                    if (r.ok) {
+                        toast("Agendamento cancelado.");
+                        setTimeout(() => window.location.href = "perfil.html#agendamentos", 1500);
+                    } else {
+                        const err = await r.json().catch(() => ({}));
+                        toast(err.mensagem || "Erro ao cancelar.", "danger");
+                    }
+                } catch { toast("Erro ao conectar com o servidor.", "danger"); }
+            });
         }
-
-        // Endpoint esperado: GET /api/pets/usuario/{id}
-        authFetch(`${BASE_URL}/api/pets/usuario/${usuarioId}`)
-            .then(r => r.ok ? r.json() : [])
-            .then(pets => {
-                const select = document.getElementById("agendar-pet");
-                pets.forEach(pet => {
-                    const opt = document.createElement("option");
-                    opt.value = pet.id;
-                    opt.textContent = pet.nome;
-                    select.appendChild(opt);
-                });
-            })
-            .catch(() => {});
 
         document.getElementById("agendar-data").min = new Date().toISOString().split("T")[0];
 
         let servicosAgendar = [];
-        fetch(`${BASE_URL}/api/servicos`)
-            .then(r => r.ok ? r.json() : [])
-            .then(servicos => {
-                servicosAgendar = servicos;
-                const container = document.getElementById("agendar-servicos");
-                if (!container) return;
+
+        const petsP     = authFetch(`${BASE_URL}/api/pets/usuario/${usuarioId}`).then(r => r.ok ? r.json() : []).catch(() => []);
+        const servicosP = fetch(`${BASE_URL}/api/servicos`).then(r => r.ok ? r.json() : []).catch(() => []);
+        const agP       = agEditId
+            ? authFetch(`${BASE_URL}/api/agendamentos/usuario/${usuarioId}`).then(r => r.ok ? r.json() : []).catch(() => [])
+            : Promise.resolve(null);
+
+        Promise.all([petsP, servicosP, agP]).then(([pets, servicos, ags]) => {
+            const select = document.getElementById("agendar-pet");
+            pets.forEach(pet => {
+                const opt = document.createElement("option");
+                opt.value = pet.id;
+                opt.textContent = pet.nome;
+                select.appendChild(opt);
+            });
+
+            servicosAgendar = servicos;
+            const container = document.getElementById("agendar-servicos");
+            if (container) {
                 const normais = servicos.filter(s => !s.isVet);
                 const vets    = servicos.filter(s =>  s.isVet);
                 const addGrupo = (titulo, grupo) => {
@@ -2159,8 +2236,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
                 addGrupo("Serviços Gerais:", normais);
                 addGrupo("Serviços Veterinários:", vets);
-            })
-            .catch(() => {});
+            }
+
+            if (agEditId && ags) {
+                const ag = ags.find(a => a.id === Number(agEditId));
+                if (ag) {
+                    select.value = ag.petId;
+                    (ag.servico || "").split(",").map(s => s.trim()).forEach(nome => {
+                        const cb = document.querySelector(`#agendar-servicos input[value="${nome}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                    const cbs = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]")];
+                    const checked = cbs.filter(cb => cb.checked);
+                    if (checked.length > 0) {
+                        const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
+                        cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+                    }
+                    document.getElementById("agendar-data").value = ag.data;
+                    document.getElementById("agendar-hora").value = ag.hora;
+                    document.getElementById("agendar-observacao").value = ag.observacao || "";
+                    verificarDisponibilidadeAgendar();
+                }
+            }
+        });
 
         async function verificarDisponibilidadeAgendar() {
             const data = document.getElementById("agendar-data")?.value;
@@ -2194,7 +2292,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (e) {}
         }
 
-        // Impede mistura de serviços vet + não-vet no agendar.html
         document.getElementById("agendar-servicos")?.addEventListener("change", e => {
             if (!e.target.matches("input[type=checkbox]")) return;
             const cbs = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]")];
@@ -2221,9 +2318,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const body = { usuarioId: Number(usuarioId), petId: Number(petId), servico, data, hora, observacao };
 
             try {
-                // Endpoint esperado: POST /api/agendamentos
-                const response = await authFetch(`${BASE_URL}/api/agendamentos`, {
-                    method: "POST",
+                const url = agEditId ? `${BASE_URL}/api/agendamentos/${agEditId}` : `${BASE_URL}/api/agendamentos`;
+                const method = agEditId ? "PUT" : "POST";
+                const response = await authFetch(url, {
+                    method,
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body)
                 });
@@ -2231,7 +2329,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.ok) {
                     window.location.href = "perfil.html#agendamentos";
                 } else {
-                    toast("Erro ao agendar. Tente novamente.", "danger");
+                    const err = await response.json().catch(() => ({}));
+                    toast(err.mensagem || "Erro ao salvar. Tente novamente.", "danger");
                 }
             } catch {
                 toast("Erro ao conectar com o servidor.", "danger");
