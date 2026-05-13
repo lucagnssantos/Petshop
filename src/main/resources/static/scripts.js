@@ -1739,17 +1739,40 @@ document.addEventListener("DOMContentLoaded", () => {
             if (isAtendente) {
                 dados = filtrarAgendamentos(_agsFunc, "filtro-func-ag", "chk-func-ag-status", "filtro-func-ag-data");
             } else {
-                const q = (document.getElementById("filtro-func-ag")?.value || "").toLowerCase();
-                const status = checados("chk-func-ag-status");
-                dados = _agsFunc.filter(ag => {
-                    if (ag.data !== hoje) return false;
-                    if (funcCargo === "Veterinário" && !ag.isVet) return false;
-                    if (funcCargo === "Esteticista" && ag.isVet) return false;
-                    if (q && ![ag.usuarioNome, ag.petNome, ag.servico, ag.status].some(v => (v || "").toLowerCase().includes(q))) return false;
-                    if (status && !status.includes(ag.status || "Agendado")) return false;
-                    return true;
-                }).sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
-            }
+                  const q = (document.getElementById("filtro-func-ag")?.value || "").toLowerCase();
+                  const status = checados("chk-func-ag-status") || [];
+                  const dataFiltro = document.getElementById("filtro-func-ag-data")?.value;
+
+                  dados = _agsFunc.filter(ag => {
+
+                      // converte DD/MM/AAAA -> AAAA-MM-DD
+                      const dataAg = ag.data.includes("/")
+                          ? ag.data.split("/").reverse().join("-")
+                          : ag.data;
+
+                      const dataComparar = dataFiltro || hoje;
+
+                      if (dataAg !== dataComparar) return false;
+
+                      if (funcCargo === "Veterinário" && !ag.isVet) return false;
+
+                      if (funcCargo === "Esteticista" && ag.isVet) return false;
+
+                      if (
+                          q &&
+                          ![ag.usuarioNome, ag.petNome, ag.servico, ag.status]
+                              .some(v => (v || "").toLowerCase().includes(q))
+                      ) return false;
+
+                      if (
+                          status.length > 0 &&
+                          !status.includes(ag.status || "Agendado")
+                      ) return false;
+
+                      return true;
+
+                  }).sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
+              }
 
             if (isAtendente) {
                 paginar(dados, ag => `
@@ -1794,12 +1817,37 @@ document.addEventListener("DOMContentLoaded", () => {
         function carregarAgendaFunc() {
             authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
-                .then(ags => { _agsFunc = ags; renderAgendaFunc(); })
+                .then(ags => {
+                    _agsFunc = ags;
+                    renderAgendaFunc();
+                })
                 .catch(() => {});
         }
 
-        document.getElementById("filtro-func-ag")?.addEventListener("input", renderAgendaFunc);
-        document.querySelectorAll("[name^='chk-func-ag-']").forEach(el => el.addEventListener("change", renderAgendaFunc));
+        document.getElementById("filtro-func-ag")
+            ?.addEventListener("input", renderAgendaFunc);
+
+        document.getElementById("filtro-func-ag-data")
+            ?.addEventListener("change", renderAgendaFunc);
+
+        document.querySelectorAll("[name='chk-func-ag-status']")
+            .forEach(el => el.addEventListener("change", renderAgendaFunc));
+
+        document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
+
+            const input = document.getElementById("filtro-func-ag-data");
+
+            if (!input) return;
+
+            if (e.target.checked) {
+                input.value = new Date().toLocaleDateString("en-CA");
+            } else {
+                input.value = "";
+            }
+
+            renderAgendaFunc();
+        });
+
 
         if (isAtendente) {
             document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
