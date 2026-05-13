@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequestMapping("/api/pets")
 public class PetController {
@@ -27,6 +31,37 @@ public class PetController {
 
     @Autowired
     private AgendamentoRepository agendamentoRepository;
+
+    private String calcularIdade(String dataNascimento) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate nascimento = LocalDate.parse(dataNascimento, formatter);
+
+        LocalDate hoje = LocalDate.now();
+
+        Period periodo = Period.between(nascimento, hoje);
+
+        int anos = periodo.getYears();
+        int meses = periodo.getMonths();
+
+        if (anos == 0) {
+
+            if (meses <= 1) {
+                return meses + " mês";
+            }
+
+            return meses + " meses";
+        }
+
+        // 1 ano
+        if (anos == 1) {
+            return "1 ano";
+        }
+
+        // Mais de 1 ano
+        return anos + " anos";
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<PetResponseDTO> buscarPorId(@PathVariable Integer id) {
@@ -52,7 +87,7 @@ public class PetController {
         pet.setRaca(dto.getRaca());
         pet.setPorte(dto.getPorte());
         pet.setSexo(dto.getSexo());
-        pet.setIdade(dto.getIdade());
+        pet.setIdade(calcularIdade(dto.getIdade()));
         pet.setObservacao(dto.getObservacao());
         pet.setUsuarioId(dto.getUsuarioId());
         Pet salvo = repository.save(pet);
@@ -66,7 +101,7 @@ public class PetController {
             if (dto.getRaca() != null) p.setRaca(dto.getRaca());
             if (dto.getPorte() != null) p.setPorte(dto.getPorte());
             if (dto.getSexo() != null) p.setSexo(dto.getSexo());
-            if (dto.getIdade() != null) p.setIdade(dto.getIdade());
+            if (dto.getIdade() != null) p.setIdade(calcularIdade(dto.getIdade()));
             if (dto.getObservacao() != null) p.setObservacao(dto.getObservacao());
             repository.save(p);
             return ResponseEntity.ok(Map.of("mensagem", "Pet atualizado com sucesso!"));
