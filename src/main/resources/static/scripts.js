@@ -567,9 +567,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => {});
 
         // Endpoint esperado: GET /api/pets/usuario/{id}
+        let todosPets = [];
         authFetch(`${BASE_URL}/api/pets/usuario/${usuarioId}`)
             .then(r => r.ok ? r.json() : [])
             .then(pets => {
+                todosPets = pets;
                 const lista = document.getElementById("lista-pets");
                 const vazio = document.getElementById("pets-vazio");
                 if (!pets || pets.length === 0) {
@@ -590,7 +592,86 @@ document.addEventListener("DOMContentLoaded", () => {
                             <span class="icon"><i class="fas fa-pen"></i></span><span>Editar</span>
                           </a>
                         </div>`;
-                    lista.appendChild(col);
+
+                        function renderizarPets(pets) {
+
+                            const lista = document.getElementById("lista-pets");
+                            const vazio = document.getElementById("pets-vazio");
+
+                            lista.innerHTML = "";
+
+                            if (!pets || pets.length === 0) {
+
+                                vazio.classList.remove("is-hidden");
+                                return;
+                            }
+
+                            vazio.classList.add("is-hidden");
+
+                            pets.forEach(pet => {
+
+                                const col = document.createElement("div");
+
+                                col.className = "column is-one-quarter";
+
+                                col.innerHTML = `
+                                    <div class="box has-text-centered">
+
+                                      <figure class="image is-96x96 mx-auto mb-3">
+                                        <img
+                                          class="is-rounded"
+                                          src="${BASE_URL}/api/pets/${pet.id}/imagem"
+                                          onerror="this.onerror=null;this.src='https://placehold.co/96x96?text=${pet.nome[0]}'"
+                                          alt="${pet.nome}"
+                                          style="height:96px;object-fit:cover;border-radius:50%;"
+                                        />
+                                      </figure>
+
+                                      <p class="has-text-weight-bold">
+                                        ${pet.nome}
+                                      </p>
+
+                                      <p class="is-size-7 has-text-grey">
+                                        ${pet.raca || ""} · ${pet.porte || ""}
+                                      </p>
+
+                                      <a
+                                        href="cadastro-pet.html?id=${pet.id}"
+                                        class="button is-small is-light is-fullwidth mt-3"
+                                      >
+                                        <span class="icon">
+                                          <i class="fas fa-pen"></i>
+                                        </span>
+
+                                        <span>Editar</span>
+                                      </a>
+                                    </div>
+                                `;
+
+                                lista.appendChild(col);
+                            });
+                        }
+                    renderizarPets(pets);
+
+                    document.getElementById("filtro-pets")
+                        .addEventListener("input", function () {
+                            const texto = this.value.toLowerCase();
+                            const petsFiltrados = todosPets.filter(pet => {
+                                return [
+                                    pet.nome,
+                                    pet.raca,
+                                    pet.porte,
+                                    pet.sexo,
+                                    pet.idade
+
+                                ].some(valor =>
+                                    (valor || "")
+                                        .toLowerCase()
+                                        .includes(texto)
+                                );
+                            });
+                            renderizarPets(petsFiltrados);
+                        });
                 });
             })
             .catch(() => {});
