@@ -677,10 +677,77 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => {});
 
         // Endpoint esperado: GET /api/agendamentos/usuario/{id}
+        function renderizarAgendamentos(agendamentos) {
+
+            const lista = document.getElementById("lista-agendamentos");
+
+            const vazio = document.getElementById("agendamentos-vazio");
+
+            lista.innerHTML = "";
+
+            vazio.classList.add("is-hidden");
+
+            if (!agendamentos || agendamentos.length === 0) {
+
+                vazio.classList.remove("is-hidden");
+
+                return;
+            }
+
+            agendamentos.forEach(ag => {
+
+                const item = document.createElement("div");
+
+                item.className =
+                    "box mb-3 is-flex is-align-items-center";
+
+                item.style.gap = "1rem";
+
+                item.innerHTML = `
+                    <span class="icon is-large has-text-primary">
+                      <i class="fas fa-calendar-check fa-2x"></i>
+                    </span>
+
+                    <div class="is-flex-grow-1">
+
+                      <p class="has-text-weight-bold">
+                        ${ag.servico || "Serviço"}
+                      </p>
+
+                      <p class="is-size-7 has-text-grey">
+                        ${fmtData(ag.data)}
+                        ${ag.hora || ""}
+                        · Pet: ${ag.petNome || "-"}
+                      </p>
+
+                    </div>
+
+                    ${tagStatus(ag.status)}
+
+                    ${ag.status === "Agendado"
+                        ? `
+                        <a
+                          href="agendar.html?id=${ag.id}"
+                          class="button is-small is-light ml-2"
+                        >
+                          <span class="icon">
+                            <i class="fas fa-pen"></i>
+                          </span>
+                        </a>
+                        `
+                        : ""
+                    }
+                `;
+
+                lista.appendChild(item);
+            });
+        }
+        let todosAgendamentos = [];
         function carregarMeusAgs() {
             authFetch(`${BASE_URL}/api/agendamentos/usuario/${usuarioId}`)
                 .then(r => r.ok ? r.json() : [])
                 .then(agendamentos => {
+                    todosAgendamentos = agendamentos;
                     const lista = document.getElementById("lista-agendamentos");
                     const vazio = document.getElementById("agendamentos-vazio");
                     lista.innerHTML = "";
@@ -689,23 +756,38 @@ document.addEventListener("DOMContentLoaded", () => {
                         vazio.classList.remove("is-hidden");
                         return;
                     }
-                    agendamentos.forEach(ag => {
-                        const item = document.createElement("div");
-                        item.className = "box mb-3 is-flex is-align-items-center";
-                        item.style.gap = "1rem";
-                        item.innerHTML = `
-                            <span class="icon is-large has-text-primary"><i class="fas fa-calendar-check fa-2x"></i></span>
-                            <div class="is-flex-grow-1">
-                              <p class="has-text-weight-bold">${ag.servico || "Serviço"}</p>
-                              <p class="is-size-7 has-text-grey">${fmtData(ag.data)} ${ag.hora || ""} · Pet: ${ag.petNome || "-"}</p>
-                            </div>
-                            ${tagStatus(ag.status)}
-                            ${ag.status === "Agendado" ? `<a href="agendar.html?id=${ag.id}" class="button is-small is-light ml-2"><span class="icon"><i class="fas fa-pen"></i></span></a>` : ""}`;
-                        lista.appendChild(item);
-                    });
+                    renderizarAgendamentos(agendamentos);
                 })
                 .catch(() => {});
         }
+
+        document.getElementById("filtro-agendamentos")
+            .addEventListener("input", function () {
+
+                const texto =
+                    this.value.toLowerCase();
+
+                const filtrados =
+                    todosAgendamentos.filter(ag => {
+
+                        return [
+
+                            ag.servico,
+                            ag.petNome,
+                            ag.status,
+                            ag.data,
+                            ag.hora
+
+                        ].some(valor =>
+
+                            (valor || "")
+                                .toLowerCase()
+                                .includes(texto)
+                        );
+                    });
+
+                renderizarAgendamentos(filtrados);
+            });
 
         carregarMeusAgs();
         setInterval(carregarMeusAgs, 15000);
