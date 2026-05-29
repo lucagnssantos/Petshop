@@ -2,6 +2,11 @@ body {
   font-family: "Inconsolata", monospace;
 }
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
 :root {
   --bulma-primary-h: 259deg;
   --bulma-primary-s: 93%;
