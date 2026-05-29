@@ -524,32 +524,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const inputSenha =
-        document.getElementById("senha");
-
-    const toggleSenha =
-        document.getElementById("toggleSenha");
-
-    if (inputSenha && toggleSenha) {
-
-        toggleSenha.addEventListener("click", () => {
-
-            if (inputSenha.type === "password") {
-
-                inputSenha.type = "text";
-
-                toggleSenha.innerHTML =
-                    '<i class="fas fa-eye-slash"></i>';
-
+    function setupPasswordToggle(inputId, buttonId) {
+        const input = document.getElementById(inputId);
+        const button = document.getElementById(buttonId);
+        if (!input || !button) return;
+        button.addEventListener("click", () => {
+            if (input.type === "password") {
+                input.type = "text";
+                button.innerHTML = '<i class="fas fa-eye-slash"></i>';
             } else {
-
-                inputSenha.type = "password";
-
-                toggleSenha.innerHTML =
-                    '<i class="fas fa-eye"></i>';
+                input.type = "password";
+                button.innerHTML = '<i class="fas fa-eye"></i>';
             }
         });
     }
+
+    setupPasswordToggle("senha", "toggleSenha");
+    setupPasswordToggle("senhaRepetida", "toggleSenhaRepetida");
+    setupPasswordToggle("func-senha", "toggleFuncSenha");
+    setupPasswordToggle("func-senhaRepetida", "toggleFuncSenhaRepetida");
 
     // ================= PERFIL =================
 

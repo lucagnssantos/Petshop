@@ -1,0 +1,8 @@
+backend\controller\UsuarioControllerTest.class
+backend\security\JwtUtilTest.class
+backend\controller\AgendamentoControllerTest.class
+backend\controller\PetControllerTest.class
+backend\controller\ServicoControllerTest.class
+backend\repository\UsuarioRepositoryTest.class
+backend\controller\AdminControllerTest.class
+backend\security\SecurityRoutesTest.class
