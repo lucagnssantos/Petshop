@@ -33,11 +33,10 @@ DataLoader.java → Popula o banco com seed data na inicialização (só em prod
 Requer Java 21 — usar o JBR do IntelliJ:
 
 ```powershell
-$mvn = "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.2.6.1\plugins\maven\lib\maven3\bin\mvn.cmd"
-$javaHome = "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2025.2.6.1\jbr"
-$env:JAVA_HOME = $javaHome
-$env:PATH = "$javaHome\bin;" + $env:PATH
-Set-Location "C:\Users\fabio\OneDrive\Área de Trabalho\BSI-2026\ExpCriativa\Petshop"
+$mvn = "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2024.2.2\plugins\maven\lib\maven3\bin\mvn.cmd"
+$env:JAVA_HOME = "C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2024.2.2\jbr"
+$env:PATH = "$env:JAVA_HOME\bin;" + $env:PATH
+Set-Location "C:\Users\vinig\OneDrive\Documentos\GitHub\Petshop"
 & $mvn test
 ```
 
@@ -52,7 +51,8 @@ Botão direito em `src/test/java` → **Run All Tests**
 ```
 src/test/java/backend/
 ├── security/
-│   └── JwtUtilTest.java          → Unitário puro (sem Spring)
+│   ├── JwtUtilTest.java          → Unitário puro (sem Spring)
+│   └── SecurityRoutesTest.java   → SpringBootTest + springSecurity() — testa rotas expostas
 ├── controller/
 │   ├── UsuarioControllerTest.java
 │   ├── PetControllerTest.java
@@ -138,6 +138,69 @@ class XRepositoryTest {
 ```
 
 `@Transactional` faz rollback automático após cada teste, mantendo os testes isolados.
+
+### Padrão para testes de segurança de rotas (Spring Boot 4.x)
+
+Usa o contexto completo do Spring com o filtro de segurança aplicado. Requer `spring-security-test` no `pom.xml`.
+
+```java
+@SpringBootTest
+@ActiveProfiles("test")
+class SecurityRoutesTest {
+
+    @MockitoBean
+    private DataLoader dataLoader;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())   // aplica o JwtFilter real
+                .build();
+
+        // Gera tokens reais para cada role
+        adminToken       = "Bearer " + jwtUtil.generateToken(1, "admin@test.com",   1, "");
+        clienteToken     = "Bearer " + jwtUtil.generateToken(2, "cliente@test.com", 2, "");
+        funcionarioToken = "Bearer " + jwtUtil.generateToken(3, "func@test.com",    3, "Atendente");
+    }
+
+    @Test
+    void rotaSensivel_semToken_retorna401() throws Exception {
+        mockMvc.perform(get("/api/admin/stats"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void rotaSensivel_comToken_retorna200() throws Exception {
+        mockMvc.perform(get("/api/admin/stats")
+                        .header("Authorization", adminToken))
+                .andExpect(status().isOk());
+    }
+}
+```
+
+**Imports essenciais:**
+```java
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+```
+
+**Diferença em relação aos testes de controller:**
+- `standaloneSetup` → ignora `SecurityConfig` e `JwtFilter` (testa só a lógica do controller)
+- `webAppContextSetup + springSecurity()` → passa pelo filtro JWT real (testa se a rota está protegida)
 
 ### Padrão para testes unitários (sem Spring)
 
@@ -257,19 +320,23 @@ void findByNomeDeveRetornarServicoQuandoExiste() {
 - Rotas públicas (sem token): `POST /api/usuarios/login`, `POST /api/usuarios/cadastrar`, `GET /api/servicos`, `GET /api/agendamentos/disponibilidade`, `GET /api/usuarios/*/imagem`, `GET /api/pets/*/imagem`.
 - Todas as outras rotas `/api/**` exigem `Authorization: Bearer <token>`.
 - O role é extraído do claim JWT, não do Spring Security context.
+- **`SecurityConfig` usa `HttpMethod` explícito nas rotas públicas** para não expor `POST`/`DELETE` acidentalmente. Ex.: `GET /api/servicos` é público, mas `POST /api/servicos` exige autenticação.
+- **`authenticationEntryPoint`** retorna **401** para requisições sem token (padrão Spring Security seria 403). 403 fica reservado para token válido sem permissão de role.
+- Dependência `spring-security-test` adicionada ao `pom.xml` (scope test) para `SecurityMockMvcConfigurers.springSecurity()`.
 
 ### DataLoader
 - Popula o banco com 1 admin, 4 funcionários, 15 clientes, 20 pets e 30+ agendamentos na inicialização.
 - Nos testes de repositório, é substituído por um mock via `@MockitoBean DataLoader` para evitar conflitos de dados.
 
-## Resumo dos testes existentes (69 no total)
+## Resumo dos testes existentes (97 no total)
 
 | Classe | Qtd | Cobre |
 |---|---|---|
 | `JwtUtilTest` | 8 | geração, validação, extração de claims do JWT |
-| `UsuarioControllerTest` | 16 | cadastro, login, busca, update, delete, role de funcionário |
+| `SecurityRoutesTest` | 28 | rotas públicas acessíveis sem token; rotas sensíveis bloqueadas (401); rotas com token válido retornam 200 |
+| `UsuarioControllerTest` | 18 | cadastro, login, busca, update, delete, role de funcionário |
 | `PetControllerTest` | 12 | CRUD de pets, imagem, agendamento ativo bloqueia exclusão |
-| `AgendamentoControllerTest` | 13 | criação com validações, cancelamento, disponibilidade |
+| `AgendamentoControllerTest` | 12 | criação com validações, cancelamento, disponibilidade |
 | `ServicoControllerTest` | 8 | listar, criar, validar nome, deletar |
 | `AdminControllerTest` | 2 | stats do dashboard |
 | `UsuarioRepositoryTest` | 9 | findByEmail, findByCpf, findByIdRole, unicidade de campos |
