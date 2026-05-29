@@ -41,6 +41,9 @@
       <a class="navbar-item" href="#" data-aba="servicos">
         <span class="icon mr-2"><i class="fas fa-concierge-bell"></i></span> Serviços
       </a>
+      <a class="navbar-item" href="#" data-aba="insights">
+        <span class="icon mr-2"><i class="fas fa-chart-pie"></i></span> Insights
+      </a>
       <button id="btn-sair-admin" class="navbar-item has-text-danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
         <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> Sair
       </button>
@@ -247,6 +250,71 @@
             <tbody id="tabela-servicos"></tbody>
           </table>
           <p id="servicos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum serviço cadastrado.</p>
+        </div>
+      </div>
+
+      <!-- Seção: Insights -->
+      <div id="section-insights" class="mb-6 is-hidden">
+        <h2 class="title is-5 mb-4">Insights</h2>
+
+        <!-- KPI cards -->
+        <div class="columns mb-5">
+          <div class="column">
+            <div class="box has-text-centered py-4">
+              <p class="heading">Total de Agendamentos</p>
+              <p class="title" id="kpi-total-ags">—</p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="box has-text-centered py-4">
+              <p class="heading">Taxa de Conclusão</p>
+              <p class="title has-text-success" id="kpi-taxa-conclusao">—</p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="box has-text-centered py-4">
+              <p class="heading">Serviço Mais Popular</p>
+              <p class="title is-5" id="kpi-servico-top">—</p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="box has-text-centered py-4">
+              <p class="heading">Pet Mais Agendado</p>
+              <p class="title is-5" id="kpi-pet-top">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos linha 1 -->
+        <div class="columns mb-4">
+          <div class="column is-4">
+            <div class="box">
+              <p class="subtitle is-6 mb-3 has-text-weight-semibold">Status dos Agendamentos</p>
+              <canvas id="chart-status"></canvas>
+            </div>
+          </div>
+          <div class="column is-8">
+            <div class="box">
+              <p class="subtitle is-6 mb-3 has-text-weight-semibold">Serviços Mais Populares</p>
+              <canvas id="chart-servicos"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos linha 2 -->
+        <div class="columns">
+          <div class="column is-8">
+            <div class="box">
+              <p class="subtitle is-6 mb-3 has-text-weight-semibold">Agendamentos por Dia da Semana</p>
+              <canvas id="chart-dias"></canvas>
+            </div>
+          </div>
+          <div class="column is-4">
+            <div class="box">
+              <p class="subtitle is-6 mb-3 has-text-weight-semibold">Porte dos Pets</p>
+              <canvas id="chart-porte"></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -642,6 +710,7 @@
   </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="scripts.js"></script>
 </body>
 </html>

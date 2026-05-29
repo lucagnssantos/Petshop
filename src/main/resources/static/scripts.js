@@ -810,7 +810,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
         carregarMeusAgs();
-        setInterval(carregarMeusAgs, 15000);
+        setInterval(carregarMeusAgs, 60000);
 
         document.querySelectorAll(".tabs li[data-tab]").forEach(tab => {
             tab.addEventListener("click", () => {
@@ -906,6 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const loaded = new Set();
         let _agsDash = [], _ags = [], _clientes = [], _funcionarios = [], _pets = [], _servicos = [];
+        let _chartStatus = null, _chartServicos = null, _chartDias = null, _chartPorte = null;
 
         let abaAtiva = "dashboard";
 
@@ -1290,6 +1291,84 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
+        function carregarInsights() {
+            Promise.all([
+                authFetch(`${BASE_URL}/api/agendamentos`).then(r => r.ok ? r.json() : []),
+                authFetch(`${BASE_URL}/api/pets`).then(r => r.ok ? r.json() : [])
+            ]).then(([ags, pets]) => renderInsights(ags, pets)).catch(() => {});
+        }
+
+        function renderInsights(ags, pets) {
+            const total = ags.length;
+            const concluidos = ags.filter(a => a.status === "Concluído").length;
+            const taxa = total > 0 ? Math.round((concluidos / total) * 100) : 0;
+
+            const contServico = {};
+            ags.forEach(a => { if (a.servico) contServico[a.servico] = (contServico[a.servico] || 0) + 1; });
+            const servicoTop = Object.entries(contServico).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+
+            const contPet = {};
+            ags.forEach(a => { if (a.petNome) contPet[a.petNome] = (contPet[a.petNome] || 0) + 1; });
+            const petTop = Object.entries(contPet).sort((a, b) => b[1] - a[1])[0]?.[0] || "—";
+
+            document.getElementById("kpi-total-ags").textContent = total;
+            document.getElementById("kpi-taxa-conclusao").textContent = taxa + "%";
+            document.getElementById("kpi-servico-top").textContent = servicoTop;
+            document.getElementById("kpi-pet-top").textContent = petTop;
+
+            // Donut: status
+            const statusLabels = ["Agendado", "Concluído", "Cancelado"];
+            const statusData = statusLabels.map(s => ags.filter(a => a.status === s).length);
+            _chartStatus?.destroy();
+            _chartStatus = new Chart(document.getElementById("chart-status"), {
+                type: "doughnut",
+                data: {
+                    labels: statusLabels,
+                    datasets: [{ data: statusData, backgroundColor: ["#3273dc", "#48c774", "#ff3860"], borderWidth: 2 }]
+                },
+                options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+            });
+
+            // Bar horizontal: serviços populares (top 6)
+            const servicoEntries = Object.entries(contServico).sort((a, b) => b[1] - a[1]).slice(0, 6);
+            _chartServicos?.destroy();
+            _chartServicos = new Chart(document.getElementById("chart-servicos"), {
+                type: "bar",
+                data: {
+                    labels: servicoEntries.map(e => e[0]),
+                    datasets: [{ label: "Agendamentos", data: servicoEntries.map(e => e[1]), backgroundColor: "#3273dc99", borderColor: "#3273dc", borderWidth: 1 }]
+                },
+                options: { indexAxis: "y", responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { stepSize: 1 } } } }
+            });
+
+            // Bar: dias da semana
+            const diasNomes = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            const diasData = Array(7).fill(0);
+            ags.forEach(a => { if (a.data) diasData[new Date(a.data + "T12:00:00").getDay()]++; });
+            _chartDias?.destroy();
+            _chartDias = new Chart(document.getElementById("chart-dias"), {
+                type: "bar",
+                data: {
+                    labels: diasNomes,
+                    datasets: [{ label: "Agendamentos", data: diasData, backgroundColor: "#209cee99", borderColor: "#209cee", borderWidth: 1 }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { ticks: { stepSize: 1 }, beginAtZero: true } } }
+            });
+
+            // Donut: porte dos pets
+            const porteCont = { "Pequeno": 0, "Médio": 0, "Grande": 0 };
+            pets.forEach(p => { if (p.porte && porteCont[p.porte] !== undefined) porteCont[p.porte]++; });
+            _chartPorte?.destroy();
+            _chartPorte = new Chart(document.getElementById("chart-porte"), {
+                type: "doughnut",
+                data: {
+                    labels: Object.keys(porteCont),
+                    datasets: [{ data: Object.values(porteCont), backgroundColor: ["#ffdd57", "#48c774", "#3273dc"], borderWidth: 2 }]
+                },
+                options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+            });
+        }
+
         document.getElementById("tabela-servicos")?.addEventListener("click", async e => {
             const btn = e.target.closest("[data-del-serv]");
             if (!btn) return;
@@ -1337,6 +1416,7 @@ document.addEventListener("DOMContentLoaded", () => {
             funcionarios: carregarFuncionarios,
             pets:         carregarPets,
             servicos:     carregarServicos,
+            insights:     carregarInsights,
         };
 
         document.getElementById("filtro-dashboard")?.addEventListener("input", renderDashboard);
@@ -1632,7 +1712,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         mostrarAba("dashboard");
 
-        setInterval(() => { if (loaders[abaAtiva]) loaders[abaAtiva](); }, 15000);
+        setInterval(() => { if (loaders[abaAtiva]) loaders[abaAtiva](); }, 60000);
 
         document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
             localStorage.removeItem("petgo_id");
@@ -2274,7 +2354,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         carregarAgendaFunc();
-        setInterval(carregarAgendaFunc, 15000);
+        setInterval(carregarAgendaFunc, 60000);
 
         document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
             ["petgo_id","petgo_nome","petgo_role","petgo_cargo","petgo_token"].forEach(k => localStorage.removeItem(k));
