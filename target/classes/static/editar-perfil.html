@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Editar Perfil</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="index.html">Voltar ao início</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="index.html">
+          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+        </a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item" id="nav-btn-entrar">
+          <a href="login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+        </div>
+        <div class="navbar-item is-flex is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem;">
+          <span class="has-text-grey">Olá, <a href="perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
+          <figure class="image is-40x40">
+            <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="height:40px;object-fit:cover;" />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 640px;">
+
+      <div class="is-flex is-align-items-center mb-5" style="gap: 1rem;">
+        <a href="perfil.html" class="button is-light">
+          <span class="icon"><i class="fas fa-arrow-left"></i></span>
+        </a>
+        <h1 class="title is-4 mb-0">Editar dados</h1>
+      </div>
+
+      <div class="box">
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Nome Completo</label>
+              <div class="control"><input id="edit-nome" class="input" type="text" placeholder="Seu nome completo" /></div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">CPF</label>
+              <div class="control"><input id="edit-cpf" class="input" type="text" placeholder="000.000.000-00" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Data de Nascimento</label>
+              <div class="control"><input id="edit-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">CEP</label>
+              <div class="control"><input id="edit-cep" class="input" type="text" placeholder="00000-000" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column is-8">
+            <div class="field">
+              <label class="label is-small has-text-primary">Endereço</label>
+              <div class="control"><input id="edit-endereco" class="input" type="text" placeholder="Rua, Avenida..." /></div>
+            </div>
+          </div>
+          <div class="column">
+            <div class="field">
+              <label class="label is-small has-text-primary">Número</label>
+              <div class="control"><input id="edit-numero" class="input" type="text" placeholder="123" /></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label is-small has-text-primary">E-mail</label>
+          <div class="control"><input id="edit-email" class="input" type="email" placeholder="seu@email.com" /></div>
+        </div>
+
+        <div class="field">
+          <label class="label is-small has-text-primary">Foto de perfil</label>
+          <div class="control">
+            <input id="edit-inputImagem" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'edit-preview-imagem')" />
+          </div>
+          <img id="edit-preview-imagem" src="" style="display:none; max-height:80px; margin-top:0.5rem; border-radius:50%;" />
+        </div>
+
+        <div class="is-flex is-justify-content-space-between mt-4">
+          <a href="perfil.html" class="button is-light">Cancelar</a>
+          <button id="btn-salvar" class="button is-primary has-text-weight-bold">Salvar alterações</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold">
+          <p>PetGO Serviços de Petshop</p>
+        </div>
+        <div class="column has-text-centered has-text-weight-bold">
+          <p>Rua Maria da Silva Santos, 8888</p>
+        </div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="https://unpkg.com/imask"></script>
+<script src="scripts.js"></script>
+</body>
+</html>

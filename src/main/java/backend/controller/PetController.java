@@ -5,62 +5,43 @@ import backend.dto.PetResponseDTO;
 import backend.model.Pet;
 import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
+import backend.security.JwtUtil;
+import backend.service.R2StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/pets")
 public class PetController {
 
-    @Autowired
-    private PetRepository repository;
+    private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-    @Autowired
-    private AgendamentoRepository agendamentoRepository;
+    @Autowired private PetRepository repository;
+    @Autowired private AgendamentoRepository agendamentoRepository;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private R2StorageService r2;
 
     private String calcularIdade(String dataNascimento) {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         LocalDate nascimento = LocalDate.parse(dataNascimento, formatter);
-
-        LocalDate hoje = LocalDate.now();
-
-        Period periodo = Period.between(nascimento, hoje);
-
+        Period periodo = Period.between(nascimento, LocalDate.now());
         int anos = periodo.getYears();
         int meses = periodo.getMonths();
-
-        if (anos == 0) {
-
-            if (meses <= 1) {
-                return meses + " mês";
-            }
-
-            return meses + " meses";
-        }
-
-        // 1 ano
-        if (anos == 1) {
-            return "1 ano";
-        }
-
-        // Mais de 1 ano
-        return anos + " anos";
+        if (anos == 0) return meses <= 1 ? meses + " mês" : meses + " meses";
+        return anos == 1 ? "1 ano" : anos + " anos";
     }
 
     @GetMapping("/{id}")
@@ -90,18 +71,17 @@ public class PetController {
         pet.setIdade(calcularIdade(dto.getIdade()));
         pet.setObservacao(dto.getObservacao());
         pet.setUsuarioId(dto.getUsuarioId());
-        Pet salvo = repository.save(pet);
-        return ResponseEntity.ok(PetResponseDTO.from(salvo));
+        return ResponseEntity.ok(PetResponseDTO.from(repository.save(pet)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto) {
         return repository.findById(id).map(p -> {
-            if (dto.getNome() != null) p.setNome(dto.getNome());
-            if (dto.getRaca() != null) p.setRaca(dto.getRaca());
-            if (dto.getPorte() != null) p.setPorte(dto.getPorte());
-            if (dto.getSexo() != null) p.setSexo(dto.getSexo());
-            if (dto.getIdade() != null) p.setIdade(calcularIdade(dto.getIdade()));
+            if (dto.getNome() != null)       p.setNome(dto.getNome());
+            if (dto.getRaca() != null)       p.setRaca(dto.getRaca());
+            if (dto.getPorte() != null)      p.setPorte(dto.getPorte());
+            if (dto.getSexo() != null)       p.setSexo(dto.getSexo());
+            if (dto.getIdade() != null)      p.setIdade(calcularIdade(dto.getIdade()));
             if (dto.getObservacao() != null) p.setObservacao(dto.getObservacao());
             repository.save(p);
             return ResponseEntity.ok(Map.of("mensagem", "Pet atualizado com sucesso!"));
@@ -110,34 +90,63 @@ public class PetController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Integer id) {
-        if (!repository.existsById(id))
-            return ResponseEntity.notFound().build();
+        var opt = repository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Pet pet = opt.get();
         if (agendamentoRepository.existsByPetIdAndStatus(id, "Agendado"))
             return ResponseEntity.badRequest().body(Map.of("mensagem", "Não é possível remover o pet pois ele possui agendamentos ativos."));
+        r2.delete(pet.getImagemUrl());
         agendamentoRepository.deleteByPetId(id);
         repository.deleteById(id);
         return ResponseEntity.ok(Map.of("mensagem", "Pet removido com sucesso!"));
     }
 
-    @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/imagem", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadImagem(@PathVariable Integer id,
-                                           @RequestParam("imagem") MultipartFile file) throws IOException {
-        Optional<Pet> opt = repository.findById(id);
+                                           @RequestParam("imagem") MultipartFile file,
+                                           HttpServletRequest request) {
+        // Valida tipo
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType))
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Formato inválido. Envie JPEG, PNG, GIF ou WebP."));
+
+        // Valida tamanho
+        if (file.getSize() > MAX_SIZE)
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Imagem muito grande. Máximo: 5MB."));
+
+        var opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Pet pet = opt.get();
-        pet.setImagem(file.getBytes());
-        repository.save(pet);
-        return ResponseEntity.ok().build();
+
+        // Valida propriedade: apenas o dono do pet ou admin pode alterar
+        String header = request.getHeader("Authorization");
+        var claims = jwtUtil.extractClaims(header.substring(7));
+        Integer tokenId = claims.get("id", Integer.class);
+        Integer role    = claims.get("role", Integer.class);
+        if (!Integer.valueOf(1).equals(role) && !pet.getUsuarioId().equals(tokenId))
+            return ResponseEntity.status(403).body(Map.of("mensagem", "Sem permissão para alterar a imagem deste pet."));
+
+        // Remove imagem antiga do R2
+        r2.delete(pet.getImagemUrl());
+
+        try {
+            String url = r2.upload("pets", id, file.getBytes(), contentType);
+            pet.setImagemUrl(url);
+            repository.save(pet);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("mensagem", "Falha ao processar o arquivo."));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("mensagem", "Falha ao enviar imagem."));
+        }
     }
 
     @GetMapping("/{id}/imagem")
-    public ResponseEntity<byte[]> servirImagem(@PathVariable Integer id) {
-        Optional<Pet> opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.<byte[]>notFound().build();
-        byte[] imagem = opt.get().getImagem();
-        if (imagem == null || imagem.length == 0) return ResponseEntity.<byte[]>notFound().build();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(imagem, headers, HttpStatus.OK);
+    public ResponseEntity<?> servirImagem(@PathVariable Integer id) {
+        var opt = repository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        String url = opt.get().getImagemUrl();
+        if (url == null || url.isBlank()) return ResponseEntity.notFound().build();
+        return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
     }
 }

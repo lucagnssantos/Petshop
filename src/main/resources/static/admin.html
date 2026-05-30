@@ -19,7 +19,7 @@
     <!-- Sidebar -->
     <aside class="has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
-        <img src="https://placehold.co/100x50?text=PetGO" alt="PetGO" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO" style="height:48px;width:auto;" />
         <p class="is-size-7 has-text-grey mt-2">Painel Admin</p>
       </div>
 
@@ -416,6 +416,13 @@
             </select>
           </div>
         </div>
+        <div class="field mt-3">
+          <label class="label is-small">Foto</label>
+          <div class="control">
+            <input id="modal-u-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'modal-u-preview')" />
+          </div>
+          <img id="modal-u-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:50%;" />
+        </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
         <button class="button is-danger is-outlined" id="btn-excluir-usuario">Excluir</button>
@@ -473,6 +480,13 @@
         <div class="field">
           <label class="label is-small">Observação</label>
           <input class="input" type="text" id="modal-p-observacao" />
+        </div>
+        <div class="field mt-3">
+          <label class="label is-small">Foto</label>
+          <div class="control">
+            <input id="modal-p-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'modal-p-preview')" />
+          </div>
+          <img id="modal-p-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:8px;" />
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
@@ -700,6 +714,13 @@
               <div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div>
             </div>
           </div>
+        </div>
+        <div class="field mt-2">
+          <label class="label is-small has-text-primary">Foto do funcionário</label>
+          <div class="control">
+            <input id="func-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'func-preview')" />
+          </div>
+          <img id="func-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:50%;" />
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">

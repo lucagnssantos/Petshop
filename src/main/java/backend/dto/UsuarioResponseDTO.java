@@ -16,6 +16,7 @@ public class UsuarioResponseDTO {
     private Integer idRole;
     private String cargo;
     private String telefone;
+    private String imagemUrl;
 
     public static UsuarioResponseDTO from(Usuario u) {
         UsuarioResponseDTO dto = new UsuarioResponseDTO();
@@ -30,6 +31,7 @@ public class UsuarioResponseDTO {
         dto.idRole = u.getIdRole();
         dto.cargo = u.getCargo();
         dto.telefone = u.getTelefone();
+        dto.imagemUrl = u.getImagemUrl();
         return dto;
     }
 }

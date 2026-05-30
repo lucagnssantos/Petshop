@@ -21,7 +21,7 @@
       </div>
       <div class="nav-logo">
         <a class="navbar-item" href="index.html">
-          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:60px;width:auto;" />
         </a>
       </div>
       <div class="navbar-end"></div>
@@ -79,7 +79,7 @@
   <footer class="footer has-background-white py-5">
     <div class="container">
       <div class="has-text-centered mb-4">
-        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:36px;width:auto;" />
       </div>
       <hr />
       <div class="columns is-vcentered">
@@ -125,8 +125,7 @@
     document.getElementById("pet-obs").textContent = pet.observacao || "Nenhuma observação registrada.";
 
     const foto = document.getElementById("pet-foto");
-    foto.src = `${BASE_URL}/api/pets/${petId}/imagem`;
-    foto.onerror = function() { this.onerror = null; this.src = `https://placehold.co/128x128?text=${(pet.nome||"?")[0].toUpperCase()}`; };
+    foto.src = pet.imagemUrl || `https://placehold.co/128x128?text=${(pet.nome||"?")[0].toUpperCase()}`;
 
     if (pet.usuarioId) {
       fetch(`${BASE_URL}/api/usuarios/${pet.usuarioId}`, {

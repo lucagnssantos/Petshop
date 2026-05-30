@@ -4,6 +4,8 @@ import backend.dto.PetRequestDTO;
 import backend.model.Pet;
 import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
+import backend.security.JwtUtil;
+import backend.service.R2StorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class PetControllerTest {
 
-    @Mock
-    private PetRepository petRepository;
-
-    @Mock
-    private AgendamentoRepository agendamentoRepository;
+    @Mock private PetRepository petRepository;
+    @Mock private AgendamentoRepository agendamentoRepository;
+    @Mock private JwtUtil jwtUtil;
+    @Mock private R2StorageService r2StorageService;
 
     @InjectMocks
     private PetController controller;
@@ -149,7 +150,8 @@ class PetControllerTest {
 
     @Test
     void deletarDeveRetornar200QuandoPetSemAgendamentos() throws Exception {
-        when(petRepository.existsById(1)).thenReturn(true);
+        Pet pet = criarPet(1, "Rex", 5);
+        when(petRepository.findById(1)).thenReturn(Optional.of(pet));
         when(agendamentoRepository.existsByPetIdAndStatus(1, "Agendado")).thenReturn(false);
 
         mockMvc.perform(delete("/api/pets/1"))
@@ -159,7 +161,8 @@ class PetControllerTest {
 
     @Test
     void deletarDeveRetornar400QuandoPetTemAgendamentoAtivo() throws Exception {
-        when(petRepository.existsById(1)).thenReturn(true);
+        Pet pet = criarPet(1, "Rex", 5);
+        when(petRepository.findById(1)).thenReturn(Optional.of(pet));
         when(agendamentoRepository.existsByPetIdAndStatus(1, "Agendado")).thenReturn(true);
 
         mockMvc.perform(delete("/api/pets/1"))
@@ -170,7 +173,7 @@ class PetControllerTest {
 
     @Test
     void deletarDeveRetornar404QuandoPetNaoExiste() throws Exception {
-        when(petRepository.existsById(99)).thenReturn(false);
+        when(petRepository.findById(99)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/api/pets/99"))
                 .andExpect(status().isNotFound());
@@ -181,7 +184,7 @@ class PetControllerTest {
     @Test
     void servirImagemDeveRetornar404QuandoPetSemImagem() throws Exception {
         Pet pet = criarPet(1, "Rex", 5);
-        pet.setImagem(null);
+        pet.setImagemUrl(null);
         when(petRepository.findById(1)).thenReturn(Optional.of(pet));
 
         mockMvc.perform(get("/api/pets/1/imagem"))
@@ -189,13 +192,14 @@ class PetControllerTest {
     }
 
     @Test
-    void servirImagemDeveRetornar200QuandoPetTemImagem() throws Exception {
+    void servirImagemDeveRetornar302QuandoPetTemImagem() throws Exception {
         Pet pet = criarPet(1, "Rex", 5);
-        pet.setImagem(new byte[]{1, 2, 3});
+        pet.setImagemUrl("https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/pets/1/foto.jpg");
         when(petRepository.findById(1)).thenReturn(Optional.of(pet));
 
         mockMvc.perform(get("/api/pets/1/imagem"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Content-Type", "image/jpeg"));
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location",
+                        "https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/pets/1/foto.jpg"));
     }
 }

@@ -7,6 +7,7 @@ import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
 import backend.repository.UsuarioRepository;
 import backend.security.JwtUtil;
+import backend.service.R2StorageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,9 @@ class UsuarioControllerTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private R2StorageService r2StorageService;
 
     @InjectMocks
     private UsuarioController controller;
@@ -201,7 +205,9 @@ class UsuarioControllerTest {
 
     @Test
     void deletarDeveRetornar200QuandoClienteSemPets() throws Exception {
-        when(usuarioRepository.existsById(1)).thenReturn(true);
+        Usuario user = new Usuario();
+        user.setId(1);
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(user));
         when(petRepository.findByUsuarioId(1)).thenReturn(List.of());
 
         mockMvc.perform(delete("/api/usuarios/1"))
@@ -211,7 +217,7 @@ class UsuarioControllerTest {
 
     @Test
     void deletarDeveRetornar404QuandoNaoExiste() throws Exception {
-        when(usuarioRepository.existsById(99)).thenReturn(false);
+        when(usuarioRepository.findById(99)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/api/usuarios/99"))
                 .andExpect(status().isNotFound());
@@ -223,7 +229,9 @@ class UsuarioControllerTest {
         pet.setId(10);
         pet.setNome("Rex");
 
-        when(usuarioRepository.existsById(1)).thenReturn(true);
+        Usuario user = new Usuario();
+        user.setId(1);
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(user));
         when(petRepository.findByUsuarioId(1)).thenReturn(List.of(pet));
         when(agendamentoRepository.existsByPetIdAndStatus(10, "Agendado")).thenReturn(true);
 

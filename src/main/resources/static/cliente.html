@@ -21,7 +21,7 @@
       </div>
       <div class="nav-logo">
         <a class="navbar-item" href="index.html">
-          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:60px;width:auto;" />
         </a>
       </div>
       <div class="navbar-end"></div>
@@ -104,7 +104,7 @@
   <footer class="footer has-background-white py-5">
     <div class="container">
       <div class="has-text-centered mb-4">
-        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:36px;width:auto;" />
       </div>
       <hr />
       <div class="columns is-vcentered">
@@ -158,8 +158,7 @@
       document.getElementById("cli-telefone").textContent = u.telefone || "—";
 
       const foto = document.getElementById("cli-foto");
-      foto.src = `${BASE_URL}/api/usuarios/${clienteId}/imagem`;
-      foto.onerror = function() { this.onerror = null; this.src = `https://placehold.co/96x96?text=${(u.nome||"?")[0].toUpperCase()}`; };
+      foto.src = u.imagemUrl || `https://placehold.co/96x96?text=${(u.nome||"?")[0].toUpperCase()}`;
     });
 
   fetch(`${BASE_URL}/api/pets/usuario/${clienteId}`, { headers: auth() })
@@ -175,8 +174,7 @@
         const img = document.createElement("img");
         img.className = "is-rounded";
         img.style.cssText = "width:40px;height:40px;object-fit:cover;border-radius:50%;flex-shrink:0;";
-        img.src = `${BASE_URL}/api/pets/${p.id}/imagem`;
-        img.onerror = function() { this.onerror = null; this.src = `https://placehold.co/40x40?text=${(p.nome||"?")[0].toUpperCase()}`; };
+        img.src = p.imagemUrl || `https://placehold.co/40x40?text=${(p.nome||"?")[0].toUpperCase()}`;
         const info = document.createElement("span");
         info.innerHTML = `<strong>${p.nome}</strong> <span class="has-text-grey">${p.raca || ""} · ${p.porte || ""} · ${p.sexo || ""}</span>`;
         const link = document.createElement("a");

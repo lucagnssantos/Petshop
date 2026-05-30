@@ -8,10 +8,9 @@ import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
 import backend.repository.UsuarioRepository;
 import backend.security.JwtUtil;
+import backend.service.R2StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -22,22 +21,20 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioRepository repository;
+    private static final Set<String> ALLOWED_TYPES = Set.of("image/jpeg", "image/png", "image/gif", "image/webp");
+    private static final long MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
-    @Autowired
-    private PetRepository petRepository;
-
-    @Autowired
-    private AgendamentoRepository agendamentoRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    @Autowired private UsuarioRepository repository;
+    @Autowired private PetRepository petRepository;
+    @Autowired private AgendamentoRepository agendamentoRepository;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private R2StorageService r2;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -98,23 +95,15 @@ public class UsuarioController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsuarioRequestDTO dto) {
-        if (dto.getEmail() == null || dto.getSenha() == null) {
+        if (dto.getEmail() == null || dto.getSenha() == null)
             return ResponseEntity.badRequest().body(Map.of("mensagem", "Email e senha são obrigatórios"));
-        }
         var usuarioOpt = repository.findByEmail(dto.getEmail());
-
-        if (usuarioOpt.isEmpty()) {
+        if (usuarioOpt.isEmpty())
             return ResponseEntity.status(401).body(Map.of("mensagem", "Email não encontrado"));
-        }
-
         Usuario user = usuarioOpt.get();
-
-        if (!encoder.matches(dto.getSenha(), user.getSenha())) {
+        if (!encoder.matches(dto.getSenha(), user.getSenha()))
             return ResponseEntity.status(401).body(Map.of("mensagem", "Senha incorreta"));
-        }
-
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getIdRole(), user.getCargo());
-
         return ResponseEntity.ok(Map.of(
                 "mensagem", "Login realizado com sucesso",
                 "id", user.getId(),
@@ -135,15 +124,15 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody UsuarioRequestDTO dto) {
         return repository.findById(id).map(u -> {
-            if (dto.getNome() != null)            u.setNome(dto.getNome());
-            if (dto.getEmail() != null)           u.setEmail(dto.getEmail());
-            if (dto.getCpf() != null)             u.setCpf(dto.getCpf());
-            if (dto.getDataNascimento() != null)  u.setDataNascimento(dto.getDataNascimento());
-            if (dto.getCep() != null)             u.setCep(dto.getCep());
-            if (dto.getEndereco() != null)        u.setEndereco(dto.getEndereco());
-            if (dto.getNumero() != null)          u.setNumero(dto.getNumero());
-            if (dto.getCargo() != null)           u.setCargo(dto.getCargo());
-            if (dto.getTelefone() != null)        u.setTelefone(dto.getTelefone());
+            if (dto.getNome() != null)           u.setNome(dto.getNome());
+            if (dto.getEmail() != null)          u.setEmail(dto.getEmail());
+            if (dto.getCpf() != null)            u.setCpf(dto.getCpf());
+            if (dto.getDataNascimento() != null) u.setDataNascimento(dto.getDataNascimento());
+            if (dto.getCep() != null)            u.setCep(dto.getCep());
+            if (dto.getEndereco() != null)       u.setEndereco(dto.getEndereco());
+            if (dto.getNumero() != null)         u.setNumero(dto.getNumero());
+            if (dto.getCargo() != null)          u.setCargo(dto.getCargo());
+            if (dto.getTelefone() != null)       u.setTelefone(dto.getTelefone());
             repository.save(u);
             return ResponseEntity.ok(Map.of("mensagem", "Usuário atualizado com sucesso!"));
         }).orElse(ResponseEntity.notFound().build());
@@ -164,41 +153,69 @@ public class UsuarioController {
         return repository.findByIdRole(2).stream().map(UsuarioResponseDTO::from).toList();
     }
 
-    @PostMapping(value = "/{id}/imagem", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/imagem", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadImagem(@PathVariable Integer id,
-                                           @RequestParam("imagem") MultipartFile file) throws IOException {
-        return repository.findById(id).map(u -> {
-            try {
-                u.setImagem(file.getBytes());
-                repository.save(u);
-                return ResponseEntity.ok().build();
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        }).orElse(ResponseEntity.notFound().build());
+                                           @RequestParam("imagem") MultipartFile file,
+                                           HttpServletRequest request) {
+        // Valida tipo
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType))
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Formato inválido. Envie JPEG, PNG, GIF ou WebP."));
+
+        // Valida tamanho
+        if (file.getSize() > MAX_SIZE)
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Imagem muito grande. Máximo: 5MB."));
+
+        // Valida propriedade: apenas o próprio usuário ou admin pode alterar
+        String header = request.getHeader("Authorization");
+        var claims = jwtUtil.extractClaims(header.substring(7));
+        Integer tokenId = claims.get("id", Integer.class);
+        Integer role    = claims.get("role", Integer.class);
+        if (!Integer.valueOf(1).equals(role) && !id.equals(tokenId))
+            return ResponseEntity.status(403).body(Map.of("mensagem", "Sem permissão para alterar a imagem deste usuário."));
+
+        var opt = repository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Usuario u = opt.get();
+
+        // Remove imagem antiga do R2
+        r2.delete(u.getImagemUrl());
+
+        try {
+            String url = r2.upload("usuarios", id, file.getBytes(), contentType);
+            u.setImagemUrl(url);
+            repository.save(u);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("mensagem", "Falha ao processar o arquivo."));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("mensagem", "Falha ao enviar imagem."));
+        }
     }
 
     @GetMapping("/{id}/imagem")
-    public ResponseEntity<byte[]> servirImagem(@PathVariable Integer id) {
+    public ResponseEntity<?> servirImagem(@PathVariable Integer id) {
         var opt = repository.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.<byte[]>notFound().build();
-        byte[] imagem = opt.get().getImagem();
-        if (imagem == null || imagem.length == 0) return ResponseEntity.<byte[]>notFound().build();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(imagem, headers, HttpStatus.OK);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        String url = opt.get().getImagemUrl();
+        if (url == null || url.isBlank()) return ResponseEntity.notFound().build();
+        return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Integer id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
+        var opt = repository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Usuario u = opt.get();
         List<Pet> pets = petRepository.findByUsuarioId(id);
         for (Pet pet : pets) {
             if (agendamentoRepository.existsByPetIdAndStatus(pet.getId(), "Agendado"))
                 return ResponseEntity.badRequest().body(Map.of("mensagem",
                         "Não é possível excluir o cliente pois o pet \"" + pet.getNome() + "\" possui agendamentos ativos."));
         }
+        r2.delete(u.getImagemUrl());
         for (Pet pet : pets) {
+            r2.delete(pet.getImagemUrl());
             agendamentoRepository.deleteByPetId(pet.getId());
             petRepository.deleteById(pet.getId());
         }
