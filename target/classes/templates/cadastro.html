@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO - Cadastro</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <nav th:replace="~{fragments/navbar :: navbar('/index.html', 'Voltar ao Início')}"></nav>
+
+  <main class="section">
+    <div class="container" style="max-width: 600px;">
+
+      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-2">Faça o seu cadastro!</h1>
+      <p class="has-text-centered mb-5 is-size-7">Já tem conta? <a href="/login.html" class="has-text-primary has-text-weight-bold">Fazer login</a></p>
+
+      <div class="field">
+        <div class="control">
+          <input id="nome" class="input" type="text" placeholder="João da Silva Santos Perreira" />
+        </div>
+        <label class="label is-small has-text-primary">Nome Completo</label>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input id="cpf" class="input" type="text" placeholder="888.888.888-88" />
+            </div>
+            <label class="label is-small has-text-primary">CPF</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input id="dataNascimento" class="input" type="text" placeholder="01/01/2018" />
+            </div>
+            <label class="label is-small has-text-primary">Data de nascimento</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column is-4">
+          <div class="field">
+            <div class="control">
+              <input id="cep" class="input" type="text" placeholder="8.888.888-8" />
+            </div>
+            <label class="label is-small has-text-primary">CEP</label>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input id="endereco" class="input" type="text" placeholder="Rua Principal da Silva Santos" />
+            </div>
+            <label class="label is-small has-text-primary">Endereço</label>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="field">
+            <div class="control">
+              <input id="numero" class="input" type="text" placeholder="888888" />
+            </div>
+            <label class="label is-small has-text-primary">Número</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control">
+              <input id="email" class="input" type="email" placeholder="joao@email.com" />
+            </div>
+            <label class="label is-small has-text-primary">Email</label>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div class="field">
+            <div class="control">
+              <input id="telefone" class="input" type="text" placeholder="(00) 00000-0000" />
+            </div>
+            <label class="label is-small has-text-primary">Telefone</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <input type="file" id="inputImagem" accept="image/*" onchange="previewImagem(event)" class="input" />
+          <img id="preview-imagem" src="" alt="Preview" style="display:none; max-height:80px; border-radius:4px; margin-top:0.5rem;" />
+        </div>
+        <label class="label is-small has-text-primary">Imagem</label>
+      </div>
+
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <div class="control" style="position: relative;">
+              <input id="senha" class="input" type="password" placeholder="*******************" style="padding-right: 45px;" />
+              <button type="button" id="toggleSenha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button>
+            </div>
+            <label class="label is-small has-text-primary">Senha</label>
+            <p class="help">• Deve conter um símbolo</p>
+            <p class="help">• Deve conter um número</p>
+            <p class="help">• Deve conter uma letra maiúscula</p>
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <div class="control" style="position: relative;">
+              <input id="senhaRepetida" class="input" type="password" placeholder="*******************" style="padding-right: 45px;" />
+              <button type="button" id="toggleSenhaRepetida" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button>
+            </div>
+            <label class="label is-small has-text-primary">Repita a senha</label>
+            <p class="help">• A senha deve coincidir</p>
+            <div class="field mt-3">
+              <label class="checkbox">
+                <input type="checkbox" checked />
+                Concordo com os <a href="#"><u>termos de uso e privacidade.</u></a>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="has-text-centered mt-4">
+        <button id="btnCadastrar" class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</div>
+<script src="https://unpkg.com/imask"></script>
+<script src="/scripts.js"></script>
+</body>
+</html>

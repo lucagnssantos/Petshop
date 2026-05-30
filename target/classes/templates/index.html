@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetGO</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="has-background-light">
+<div class="container">
+
+  <!-- Navbar específica da home com links de âncora -->
+  <nav class="navbar" role="navigation">
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="#home">Início</a>
+        <a class="navbar-item" href="#servicos">Serviços</a>
+        <a class="navbar-item" href="#sobre">Sobre nós</a>
+        <a class="navbar-item" href="#contatos">Contatos</a>
+      </div>
+      <div class="nav-logo">
+        <a class="navbar-item" href="/index.html">
+          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:100px;width:auto;" />
+        </a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item" id="nav-btn-entrar">
+          <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+        </div>
+        <div class="navbar-item is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem; display: none;">
+          <a id="nav-btn-painel" href="#" class="button is-small is-primary is-outlined has-text-weight-bold" style="display:none;"></a>
+          <span class="has-text-grey">Olá, <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
+          <figure class="image is-40x40">
+            <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="height:40px;object-fit:cover;" />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <section id="home" class="section">
+      <div class="container">
+        <div class="columns is-vcentered">
+          <div class="column is-half">
+            <h1 class="title is-3 has-text-weight-bold mb-3">Deixe o seu melhor amigo nas mãos de quem ama o que faz.</h1>
+            <p class="mb-5">Agilidade para você, carinho para ele.</p>
+            <div class="buttons">
+              <a href="/perfil.html#agendamentos" class="button is-primary has-text-weight-bold" id="btn-agendar">Agendar serviço</a>
+            </div>
+          </div>
+          <div class="column is-half has-text-centered">
+            <img src="https://placehold.co/500x350?text=Cachorro" alt="Cachorro feliz" style="border-radius: 1rem;" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="columns has-text-centered">
+          <div class="column">
+            <p class="has-text-weight-bold">"Melhor atendimento! Meu pet voltou cheiroso, calmo e feliz."</p>
+            <p class="has-text-grey mt-2">-Mariana Silva</p>
+          </div>
+          <div class="column">
+            <p class="has-text-weight-bold">"Super organizados e carinhosos. A tosa é impecável!"</p>
+            <p class="has-text-grey mt-2">-Ricardo Oliveira</p>
+          </div>
+          <div class="column">
+            <p class="has-text-weight-bold">"Atendimento rápido e produtos de primeira. Recomendo!"</p>
+            <p class="has-text-grey mt-2">-Ana Paula</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="servicos" class="section">
+      <div class="container has-text-centered">
+        <h2 class="title is-4 mb-1">Nossos serviços</h2>
+        <p class="has-text-grey mb-5">Apenas o melhor pro seu pet!</p>
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <a class="servico-link" href="#" style="display:block;">
+              <img src="https://placehold.co/120x120?text=Banho" alt="Banho" style="border-radius: 0.5rem;" />
+              <p class="has-text-primary has-text-weight-bold mt-2">Banho</p>
+            </a>
+          </div>
+          <div class="column has-text-centered">
+            <a class="servico-link" href="#" style="display:block;">
+              <img src="https://placehold.co/120x120?text=Tosa" alt="Tosa" style="border-radius: 0.5rem;" />
+              <p class="has-text-primary has-text-weight-bold mt-2">Tosa</p>
+            </a>
+          </div>
+          <div class="column has-text-centered">
+            <a class="servico-link" href="#" style="display:block;">
+              <img src="https://placehold.co/120x120?text=Unha" alt="Corte de unha" style="border-radius: 0.5rem;" />
+              <p class="has-text-primary has-text-weight-bold mt-2">Corte de unha</p>
+            </a>
+          </div>
+          <div class="column has-text-centered">
+            <a class="servico-link" href="#" style="display:block;">
+              <img src="https://placehold.co/120x120?text=Desembolo" alt="Desembolo" style="border-radius: 0.5rem;" />
+              <p class="has-text-primary has-text-weight-bold mt-2">Desembolo</p>
+            </a>
+          </div>
+          <div class="column has-text-centered">
+            <a class="servico-link" href="#" style="display:block;">
+              <img src="https://placehold.co/120x120?text=Hidratacao" alt="Hidratação" style="border-radius: 0.5rem;" />
+              <p class="has-text-primary has-text-weight-bold mt-2">Hidratação</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sobre" class="section">
+      <div class="container">
+        <div class="columns is-vcentered">
+          <div class="column is-5">
+            <img src="https://placehold.co/400x400?text=Loja" alt="Nossa loja" style="border-radius: 1rem; width: 100%;" />
+          </div>
+          <div class="column is-offset-1">
+            <h2 class="title is-4 has-text-primary">Quem somos nós?</h2>
+            <p class="mb-4">A <strong>PetGO</strong> nasceu do desejo de oferecer um espaço onde o bem-estar animal é a prioridade absoluta. Entendemos que seu pet não é apenas um animal de estimação, mas um membro fundamental da sua família. Por isso, criamos um ambiente planejado para oferecer serviços de <strong>alta qualidade com o acolhimento que eles merecem.</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="contatos" class="footer has-background-white py-5">
+    <div class="container">
+      <div class="has-text-centered mb-4">
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:50px;width:auto;" />
+      </div>
+      <hr />
+      <div class="columns is-vcentered">
+        <div class="column has-text-weight-bold"><p>PetGO Serviços de Petshop</p></div>
+        <div class="column has-text-centered has-text-weight-bold"><p>Rua Maria da Silva Santos, 8888</p></div>
+        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
+          <p>+55555555555555</p>
+          <div class="buttons mb-0">
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
+            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script src="/scripts.js"></script>
+</body>
+</html>
