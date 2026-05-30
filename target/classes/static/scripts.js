@@ -2694,7 +2694,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (response.ok) {
-                    window.location.href = "perfil.html#agendamentos";
+                    window.location.href = "/perfil.html#agendamentos";
                 } else {
                     const err = await response.json().catch(() => ({}));
                     toast(err.mensagem || "Erro ao salvar. Tente novamente.", "danger");
@@ -2703,6 +2703,146 @@ document.addEventListener("DOMContentLoaded", () => {
                 toast("Erro ao conectar com o servidor.", "danger");
             }
         });
+    }
+
+    // ================= CLIENTE DETALHE =================
+
+    if (document.getElementById("cli-nome")) {
+        const params = new URLSearchParams(window.location.search);
+        const clienteId = params.get("id");
+        if (!clienteId) window.location.href = "/admin.html";
+
+        authFetch(`${BASE_URL}/api/usuarios/${clienteId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(u => {
+                if (!u) return;
+                document.title = `PetGO - ${u.nome}`;
+                document.getElementById("cli-nome").textContent = u.nome || "—";
+                document.getElementById("cli-email").textContent = u.email || "—";
+                document.getElementById("cli-cpf").textContent = u.cpf || "—";
+                document.getElementById("cli-nascimento").textContent = u.dataNascimento || "—";
+                document.getElementById("cli-cep").textContent = u.cep || "—";
+                document.getElementById("cli-numero").textContent = u.numero || "—";
+                document.getElementById("cli-endereco").textContent = u.endereco || "—";
+                document.getElementById("cli-telefone").textContent = u.telefone || "—";
+                const foto = document.getElementById("cli-foto");
+                foto.src = u.imagemUrl || `https://placehold.co/96x96?text=${(u.nome||"?")[0].toUpperCase()}`;
+            });
+
+        authFetch(`${BASE_URL}/api/pets/usuario/${clienteId}`)
+            .then(r => r.ok ? r.json() : [])
+            .then(pets => {
+                const lista = document.getElementById("cli-pets-lista");
+                const vazio = document.getElementById("cli-pets-vazio");
+                if (!pets || pets.length === 0) { vazio.classList.remove("is-hidden"); return; }
+                pets.forEach(p => {
+                    const div = document.createElement("div");
+                    div.className = "is-flex is-align-items-center mb-2";
+                    div.style.gap = "0.75rem";
+                    const img = document.createElement("img");
+                    img.className = "is-rounded";
+                    img.style.cssText = "width:40px;height:40px;object-fit:cover;border-radius:50%;flex-shrink:0;";
+                    img.src = p.imagemUrl || `https://placehold.co/40x40?text=${(p.nome||"?")[0].toUpperCase()}`;
+                    const info = document.createElement("span");
+                    info.innerHTML = `<strong>${p.nome}</strong> <span class="has-text-grey">${p.raca || ""} · ${p.porte || ""} · ${p.sexo || ""}</span>`;
+                    const link = document.createElement("a");
+                    link.href = `/pet.html?id=${p.id}`;
+                    link.className = "button is-small is-light ml-auto";
+                    link.title = "Ver pet";
+                    link.target = "_blank";
+                    link.innerHTML = `<span class="icon"><i class="fas fa-eye"></i></span>`;
+                    div.appendChild(img);
+                    div.appendChild(info);
+                    div.appendChild(link);
+                    lista.appendChild(div);
+                });
+            });
+
+        authFetch(`${BASE_URL}/api/agendamentos/usuario/${clienteId}`)
+            .then(r => r.ok ? r.json() : [])
+            .then(ags => {
+                const tbody = document.getElementById("cli-ags-tbody");
+                const vazio = document.getElementById("cli-ags-vazio");
+                const hoje = new Date().toLocaleDateString("en-CA");
+                const futuros = (ags || []).filter(ag => ag.data >= hoje);
+                if (futuros.length === 0) { vazio.classList.remove("is-hidden"); return; }
+                futuros.sort((a, b) => a.data.localeCompare(b.data) || (a.hora || "").localeCompare(b.hora || "")).forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    // ================= PET DETALHE =================
+
+    if (document.getElementById("pet-foto") && !document.getElementById("admin-dashboard")) {
+        const params = new URLSearchParams(window.location.search);
+        const petId = params.get("id");
+        if (!petId) window.location.href = "/admin.html";
+
+        authFetch(`${BASE_URL}/api/pets/${petId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(pet => {
+                if (!pet) return;
+                document.title = `PetGO - ${pet.nome}`;
+                document.getElementById("pet-nome").textContent = pet.nome || "—";
+                document.getElementById("pet-raca").textContent = pet.raca || "—";
+                document.getElementById("pet-porte").textContent = pet.porte || "—";
+                document.getElementById("pet-sexo").textContent = pet.sexo || "—";
+                document.getElementById("pet-idade").textContent = pet.idade || "—";
+                document.getElementById("pet-obs").textContent = pet.observacao || "Nenhuma observação registrada.";
+                const foto = document.getElementById("pet-foto");
+                foto.src = pet.imagemUrl || `https://placehold.co/128x128?text=${(pet.nome||"?")[0].toUpperCase()}`;
+                if (pet.usuarioId) {
+                    authFetch(`${BASE_URL}/api/usuarios/${pet.usuarioId}`)
+                        .then(r => r.ok ? r.json() : null)
+                        .then(u => {
+                            if (u) {
+                                document.getElementById("pet-tutor").textContent = u.nome;
+                                const link = document.getElementById("pet-tutor-link");
+                                link.href = `/cliente.html?id=${pet.usuarioId}`;
+                                link.classList.remove("is-hidden");
+                            }
+                        });
+                }
+            });
+    }
+
+    // ================= FUNC DETALHE =================
+
+    if (document.getElementById("func-ags-tbody")) {
+        const params = new URLSearchParams(window.location.search);
+        const funcDetId = params.get("id");
+        if (!funcDetId) window.location.href = "/admin.html";
+
+        authFetch(`${BASE_URL}/api/usuarios/${funcDetId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(u => {
+                if (!u) return;
+                document.title = `PetGO - ${u.nome}`;
+                document.getElementById("func-nome").textContent = u.nome || "—";
+                document.getElementById("func-cargo").textContent = u.cargo || "—";
+                document.getElementById("func-email").textContent = u.email || "—";
+                document.getElementById("func-cpf").textContent = u.cpf || "—";
+                document.getElementById("func-nascimento").textContent = u.dataNascimento || "—";
+                document.getElementById("func-telefone").textContent = u.telefone || "—";
+                const foto = document.getElementById("func-foto");
+                foto.src = u.imagemUrl || `https://placehold.co/96x96?text=${(u.nome||"?")[0].toUpperCase()}`;
+            });
+
+        authFetch(`${BASE_URL}/api/agendamentos/funcionario/${funcDetId}`)
+            .then(r => r.ok ? r.json() : [])
+            .then(ags => {
+                const tbody = document.getElementById("func-ags-tbody");
+                const vazio = document.getElementById("func-ags-vazio");
+                if (!ags || ags.length === 0) { vazio.classList.remove("is-hidden"); return; }
+                ags.sort((a, b) => b.data.localeCompare(a.data)).forEach(ag => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
+                    tbody.appendChild(tr);
+                });
+            });
     }
 
 });

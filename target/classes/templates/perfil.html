@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;">
+<html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,35 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body class="has-background-light">
 <div class="container">
 
-  <nav class="navbar" role="navigation">
-    <div class="navbar-menu">
-      <div class="navbar-start">
-        <a class="navbar-item" href="index.html">Voltar ao início</a>
-      </div>
-      <div class="nav-logo">
-        <a class="navbar-item" href="index.html">
-          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:60px;width:auto;" />
-        </a>
-      </div>
-      <div class="navbar-end">
-        <div class="navbar-item is-flex is-align-items-center" style="gap: 0.5rem;">
-          <span class="has-text-grey">Olá, <a href="perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
-          <figure class="image is-40x40">
-            <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="height:40px;object-fit:cover;" />
-          </figure>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <nav th:replace="~{fragments/navbar :: navbar('/index.html', 'Voltar ao início')}"></nav>
 
   <main>
 
-    <!-- Cabeçalho do perfil -->
     <section class="section pb-3">
       <div class="container">
         <div class="box is-flex is-align-items-center" style="gap: 1.5rem;">
@@ -52,7 +32,6 @@
       </div>
     </section>
 
-    <!-- Tabs -->
     <section class="section pt-0">
       <div class="container">
 
@@ -64,7 +43,6 @@
           </ul>
         </div>
 
-        <!-- Tab: Perfil Pessoal -->
         <div id="tab-perfil" class="tab-content">
           <div class="box" style="max-width: 640px;">
             <div class="columns">
@@ -77,9 +55,7 @@
                 <p id="campo-cpf">—</p>
               </div>
             </div>
-
             <hr class="my-3" />
-
             <div class="columns">
               <div class="column">
                 <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Data de Nascimento</p>
@@ -90,9 +66,7 @@
                 <p id="campo-cep">—</p>
               </div>
             </div>
-
             <hr class="my-3" />
-
             <div class="columns">
               <div class="column is-8">
                 <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Endereço</p>
@@ -103,80 +77,50 @@
                 <p id="campo-numero">—</p>
               </div>
             </div>
-
             <hr class="my-3" />
-
             <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p>
             <p id="campo-emailPerfil">—</p>
-
             <div class="is-flex is-justify-content-space-between mt-5">
-              <a id="btn-editar" href="editar-perfil.html" class="button is-primary is-outlined">Editar dados</a>
+              <a id="btn-editar" href="/editar-perfil.html" class="button is-primary is-outlined">Editar dados</a>
               <button id="btn-sair" class="button is-danger is-outlined">Sair da conta</button>
             </div>
           </div>
         </div>
 
-        <!-- Tab: Meus Pets -->
         <div id="tab-pets" class="tab-content is-hidden">
           <div class="is-flex is-justify-content-flex-end mb-4">
-            <a href="cadastro-pet.html" class="button is-primary has-text-weight-bold">
+            <a href="/cadastro-pet.html" class="button is-primary has-text-weight-bold">
               <span class="icon"><i class="fas fa-plus"></i></span>
               <span>Cadastrar Pet</span>
             </a>
           </div>
-
           <div class="field mb-4">
             <div class="control has-icons-left">
-              <input
-                      id="filtro-pets"
-                      class="input"
-                      type="text"
-                      placeholder="Pesquisar pet..."
-              >
-
-              <span class="icon is-left">
-                <i class="fas fa-search"></i>
-              </span>
+              <input id="filtro-pets" class="input" type="text" placeholder="Pesquisar pet...">
+              <span class="icon is-left"><i class="fas fa-search"></i></span>
             </div>
           </div>
-
-          <div id="lista-pets" class="columns is-multiline">
-            <!-- Preenchido via JS a partir de GET /api/pets/usuario/{id} -->
-          </div>
+          <div id="lista-pets" class="columns is-multiline"></div>
           <div id="pets-vazio" class="has-text-centered py-6 has-text-grey is-hidden">
             <p class="is-size-5">Você ainda não tem pets cadastrados.</p>
-            <a href="cadastro-pet.html" class="button is-primary mt-3">Cadastrar agora</a>
+            <a href="/cadastro-pet.html" class="button is-primary mt-3">Cadastrar agora</a>
           </div>
         </div>
 
-        <!-- Tab: Agendamentos -->
         <div id="tab-agendamentos" class="tab-content is-hidden">
           <div class="is-flex is-justify-content-flex-end mb-4">
-            <a href="agendar.html" class="button is-primary has-text-weight-bold">
+            <a href="/agendar.html" class="button is-primary has-text-weight-bold">
               <span class="icon"><i class="fas fa-plus"></i></span>
               <span>Fazer novo agendamento</span>
             </a>
           </div>
-
           <div class="field mb-4">
             <div class="control has-icons-left">
-              <input
-                      id="filtro-agendamentos"
-                      class="input"
-                      type="text"
-                      placeholder="Pesquisar agendamento..."
-              >
-
-              <span class="icon is-left">
-                <i class="fas fa-search"></i>
-              </span>
-
+              <input id="filtro-agendamentos" class="input" type="text" placeholder="Pesquisar agendamento...">
+              <span class="icon is-left"><i class="fas fa-search"></i></span>
             </div>
           </div>
-
-          <div id="lista-agendamentos">
-            <!-- Preenchido via JS a partir de GET /api/agendamentos/usuario/{id} -->
-          </div>
+          <div id="lista-agendamentos"></div>
           <div id="agendamentos-vazio" class="has-text-centered py-6 has-text-grey is-hidden">
             <p class="is-size-5">Nenhum agendamento encontrado.</p>
           </div>
@@ -187,33 +131,9 @@
 
   </main>
 
-  <footer class="footer has-background-white py-5">
-    <div class="container">
-      <div class="has-text-centered mb-4">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:36px;width:auto;" />
-      </div>
-      <hr />
-      <div class="columns is-vcentered">
-        <div class="column has-text-weight-bold">
-          <p>PetGO Serviços de Petshop</p>
-        </div>
-        <div class="column has-text-centered has-text-weight-bold">
-          <p>Rua Maria da Silva Santos, 8888</p>
-        </div>
-        <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
-          <p>+55555555555555</p>
-          <div class="buttons mb-0">
-            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-instagram"></i></span></a>
-            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-facebook"></i></span></a>
-            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-whatsapp"></i></span></a>
-            <a class="button" href="#"><span class="icon has-text-primary"><i class="fab fa-tiktok"></i></span></a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 </div>
-<script src="scripts.js"></script>
+<script src="/scripts.js"></script>
 </body>
 </html>
