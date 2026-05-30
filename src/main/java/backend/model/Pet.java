@@ -19,9 +19,8 @@ public class Pet {
     private String idade;
     private String observacao;
 
-    @Lob
-    @Column(name = "imagem")
-    private byte[] imagem;
+    @Column(name = "imagem_url")
+    private String imagemUrl;
 
     @Column(name = "usuario_id")
     private Integer usuarioId;

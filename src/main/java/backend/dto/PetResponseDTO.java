@@ -13,6 +13,7 @@ public class PetResponseDTO {
     private String idade;
     private String observacao;
     private Integer usuarioId;
+    private String imagemUrl;
 
     public static PetResponseDTO from(Pet p) {
         PetResponseDTO dto = new PetResponseDTO();
@@ -24,6 +25,7 @@ public class PetResponseDTO {
         dto.idade = p.getIdade();
         dto.observacao = p.getObservacao();
         dto.usuarioId = p.getUsuarioId();
+        dto.imagemUrl = p.getImagemUrl();
         return dto;
     }
 }

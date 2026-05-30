@@ -12,6 +12,8 @@ import backend.repository.PetRepository;
 import backend.repository.ServicoRepository;
 import backend.repository.UsuarioRepository;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -120,26 +122,26 @@ public class DataLoader implements ApplicationRunner {
                 "05305-902", "Rua Butantã", "370", "carolina.duarte@email.com", "Cliente@123", 2, null, "(11) 98217-7017");
 
         // ===================== PETS =====================
-        Pet mel      = pet("Mel",      "Golden Retriever", "Grande",  "Fêmea", "3 anos", "Dócil, adora banho",                     ana.getId());
-        Pet bolinha  = pet("Bolinha",  "Poodle",           "Pequeno", "Macho", "1 ano",  "Muito agitado",                          ana.getId());
-        Pet thor     = pet("Thor",     "Rottweiler",       "Grande",  "Macho", "5 anos", "Precisa de focinheira durante tosa",      joao.getId());
-        Pet luna     = pet("Luna",     "Shih Tzu",         "Pequeno", "Fêmea", "2 anos", "Pelo longo, tosa a cada 45 dias",        mariana.getId());
-        Pet simba    = pet("Simba",    "Persa",            "Pequeno", "Macho", "4 anos", "Gato, muito tranquilo",                  mariana.getId());
-        Pet bob      = pet("Bob",      "Labrador",         "Grande",  "Macho", "6 anos", "Alérgico a shampoo com fragrância",      pedro.getId());
-        Pet nina     = pet("Nina",     "Dachshund",        "Pequeno", "Fêmea", "7 anos", "Coluna sensível, cuidado ao segurar",    lucia.getId());
-        Pet rex      = pet("Rex",      "Pastor Alemão",    "Grande",  "Macho", "4 anos", "Só tosa higiênica",                     lucia.getId());
-        Pet pipoca   = pet("Pipoca",   "Maltês",           "Pequeno", "Fêmea", "2 anos", "Pelo branco, usar shampoo clareador",    rafael.getId());
-        Pet cookie   = pet("Cookie",   "Beagle",           "Médio",   "Fêmea", "3 anos", "Ativa e brincalhona",                   camila.getId());
-        Pet zeus     = pet("Zeus",     "Husky Siberiano",  "Grande",  "Macho", "2 anos", "Pelagem densa, demora mais para secar",  felipe.getId());
-        Pet mia      = pet("Mia",      "Siamês",           "Pequeno", "Fêmea", "5 anos", "Gata, comportamento agitado no banho",  beatriz.getId());
-        Pet caramelo = pet("Caramelo", "SRD",              "Médio",   "Macho", "4 anos", "Resgatado, muito dócil",                gustavo.getId());
-        Pet nala     = pet("Nala",     "Border Collie",    "Grande",  "Fêmea", "1 ano",  "Filhote, primeira vez no pet shop",     isabela.getId());
-        Pet frida    = pet("Frida",    "Yorkshire",        "Pequeno", "Fêmea", "6 anos", "Tosa a cada 30 dias",                   thiago.getId());
-        Pet apolo    = pet("Apolo",    "Dálmata",          "Grande",  "Macho", "3 anos", "Ansioso, fica agitado com barulho",     natalia.getId());
-        Pet lola     = pet("Lola",     "Spitz Alemão",     "Pequeno", "Fêmea", "2 anos", "Muito peluda, desembolamento frequente", lucas.getId());
-        Pet duke     = pet("Duke",     "Boxer",            "Grande",  "Macho", "5 anos", "Focinheiro largo, cuidado na tosa",     juliana.getId());
-        Pet amendoim = pet("Amendoim", "Lhasa Apso",       "Pequeno", "Macho", "8 anos", "Idoso, cuidado extra no manuseio",      marcos.getId());
-        Pet aurora   = pet("Aurora",   "Golden Retriever", "Grande",  "Fêmea", "1 ano",  "Filhote, super agitada",                carolina.getId());
+        Pet mel      = pet("Mel",      "Golden Retriever", "Grande",  "Fêmea", "14/02/2023", "Dócil, adora banho",                     ana.getId());
+        Pet bolinha  = pet("Bolinha",  "Poodle",           "Pequeno", "Macho", "14/02/2025", "Muito agitado",                          ana.getId());
+        Pet thor     = pet("Thor",     "Rottweiler",       "Grande",  "Macho", "30/08/2020", "Precisa de focinheira durante tosa",      joao.getId());
+        Pet luna     = pet("Luna",     "Shih Tzu",         "Pequeno", "Fêmea", "19/12/2023", "Pelo longo, tosa a cada 45 dias",        mariana.getId());
+        Pet simba    = pet("Simba",    "Persa",            "Pequeno", "Macho", "19/12/2021", "Gato, muito tranquilo",                  mariana.getId());
+        Pet bob      = pet("Bob",      "Labrador",         "Grande",  "Macho", "07/04/2020", "Alérgico a shampoo com fragrância",      pedro.getId());
+        Pet nina     = pet("Nina",     "Dachshund",        "Pequeno", "Fêmea", "25/09/2018", "Coluna sensível, cuidado ao segurar",    lucia.getId());
+        Pet rex      = pet("Rex",      "Pastor Alemão",    "Grande",  "Macho", "10/11/2021", "Só tosa higiênica",                     lucia.getId());
+        Pet pipoca   = pet("Pipoca",   "Maltês",           "Pequeno", "Fêmea", "08/11/2023", "Pelo branco, usar shampoo clareador",    rafael.getId());
+        Pet cookie   = pet("Cookie",   "Beagle",           "Médio",   "Fêmea", "08/11/2022", "Ativa e brincalhona",                   camila.getId());
+        Pet zeus     = pet("Zeus",     "Husky Siberiano",  "Grande",  "Macho", "21/03/2024", "Pelagem densa, demora mais para secar",  felipe.getId());
+        Pet mia      = pet("Mia",      "Siamês",           "Pequeno", "Fêmea", "03/07/2020", "Gata, comportamento agitado no banho",  beatriz.getId());
+        Pet caramelo = pet("Caramelo", "SRD",              "Médio",   "Macho", "17/09/2021", "Resgatado, muito dócil",                gustavo.getId());
+        Pet nala     = pet("Nala",     "Border Collie",    "Grande",  "Fêmea", "29/01/2025", "Filhote, primeira vez no pet shop",     isabela.getId());
+        Pet frida    = pet("Frida",    "Yorkshire",        "Pequeno", "Fêmea", "14/06/2019", "Tosa a cada 30 dias",                   thiago.getId());
+        Pet apolo    = pet("Apolo",    "Dálmata",          "Grande",  "Macho", "05/10/2022", "Ansioso, fica agitado com barulho",     natalia.getId());
+        Pet lola     = pet("Lola",     "Spitz Alemão",     "Pequeno", "Fêmea", "22/04/2024", "Muito peluda, desembolamento frequente", lucas.getId());
+        Pet duke     = pet("Duke",     "Boxer",            "Grande",  "Macho", "11/12/2020", "Focinheiro largo, cuidado na tosa",     juliana.getId());
+        Pet amendoim = pet("Amendoim", "Lhasa Apso",       "Pequeno", "Macho", "28/02/2018", "Idoso, cuidado extra no manuseio",      marcos.getId());
+        Pet aurora   = pet("Aurora",   "Golden Retriever", "Grande",  "Fêmea", "16/05/2025", "Filhote, super agitada",                carolina.getId());
 
         // ===================== AGENDAMENTOS =====================
         // Agendamentos concluídos
@@ -227,16 +229,25 @@ public class DataLoader implements ApplicationRunner {
         return usuarioRepository.save(u);
     }
 
-    private Pet pet(String nome, String raca, String porte, String sexo, String idade, String observacao, Integer usuarioId) {
+    private Pet pet(String nome, String raca, String porte, String sexo, String dataNascimento, String observacao, Integer usuarioId) {
         Pet p = new Pet();
         p.setNome(nome);
         p.setRaca(raca);
         p.setPorte(porte);
         p.setSexo(sexo);
-        p.setIdade(idade);
+        p.setIdade(calcularIdade(dataNascimento));
         p.setObservacao(observacao);
         p.setUsuarioId(usuarioId);
         return petRepository.save(p);
+    }
+
+    private String calcularIdade(String dataNascimento) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        Period p = Period.between(LocalDate.parse(dataNascimento, fmt), LocalDate.now());
+        int anos = p.getYears();
+        int meses = p.getMonths();
+        if (anos == 0) return meses <= 1 ? meses + " mês" : meses + " meses";
+        return anos == 1 ? "1 ano" : anos + " anos";
     }
 
     private void servico(String nome, int duracao, boolean isVet) {

@@ -21,7 +21,7 @@
       </div>
       <div class="nav-logo">
         <a class="navbar-item" href="index.html">
-          <img src="https://placehold.co/120x60?text=PetGO" alt="PetGO logo" />
+          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:60px;width:auto;" />
         </a>
       </div>
       <div class="navbar-end">
@@ -99,6 +99,14 @@
           <div class="control"><input id="edit-email" class="input" type="email" placeholder="seu@email.com" /></div>
         </div>
 
+        <div class="field">
+          <label class="label is-small has-text-primary">Foto de perfil</label>
+          <div class="control">
+            <input id="edit-inputImagem" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'edit-preview-imagem')" />
+          </div>
+          <img id="edit-preview-imagem" src="" style="display:none; max-height:80px; margin-top:0.5rem; border-radius:50%;" />
+        </div>
+
         <div class="is-flex is-justify-content-space-between mt-4">
           <a href="perfil.html" class="button is-light">Cancelar</a>
           <button id="btn-salvar" class="button is-primary has-text-weight-bold">Salvar alterações</button>
@@ -111,7 +119,7 @@
   <footer class="footer has-background-white py-5">
     <div class="container">
       <div class="has-text-centered mb-4">
-        <img src="https://placehold.co/60x60?text=PetGO" alt="PetGO logo" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:36px;width:auto;" />
       </div>
       <hr />
       <div class="columns is-vcentered">

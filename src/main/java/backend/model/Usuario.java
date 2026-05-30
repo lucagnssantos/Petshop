@@ -30,7 +30,6 @@ public class Usuario {
 
     private String cargo;
 
-    @Lob
-    @Column(name = "imagem")
-    private byte[] imagem;
+    @Column(name = "imagem_url")
+    private String imagemUrl;
 }
