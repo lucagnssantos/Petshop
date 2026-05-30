@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;">
+<html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,10 +9,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body class="has-background-light">
 <div class="container">
+
+  <!-- Navbar específica da home com links de âncora -->
   <nav class="navbar" role="navigation">
     <div class="navbar-menu">
       <div class="navbar-start">
@@ -22,17 +24,17 @@
         <a class="navbar-item" href="#contatos">Contatos</a>
       </div>
       <div class="nav-logo">
-        <a class="navbar-item" href="index.html">
-          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:60px;width:auto;" />
+        <a class="navbar-item" href="/index.html">
+          <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:100px;width:auto;" />
         </a>
       </div>
       <div class="navbar-end">
         <div class="navbar-item" id="nav-btn-entrar">
-          <a href="login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+          <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
         </div>
         <div class="navbar-item is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem; display: none;">
           <a id="nav-btn-painel" href="#" class="button is-small is-primary is-outlined has-text-weight-bold" style="display:none;"></a>
-          <span class="has-text-grey">Olá, <a href="perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
+          <span class="has-text-grey">Olá, <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
           <figure class="image is-40x40">
             <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="height:40px;object-fit:cover;" />
           </figure>
@@ -50,7 +52,7 @@
             <h1 class="title is-3 has-text-weight-bold mb-3">Deixe o seu melhor amigo nas mãos de quem ama o que faz.</h1>
             <p class="mb-5">Agilidade para você, carinho para ele.</p>
             <div class="buttons">
-              <a href="perfil.html#agendamentos" class="button is-primary has-text-weight-bold" id="btn-agendar">Agendar serviço</a>
+              <a href="/perfil.html#agendamentos" class="button is-primary has-text-weight-bold" id="btn-agendar">Agendar serviço</a>
             </div>
           </div>
           <div class="column is-half has-text-centered">
@@ -125,7 +127,6 @@
             <img src="https://placehold.co/400x400?text=Loja" alt="Nossa loja" style="border-radius: 1rem; width: 100%;" />
           </div>
           <div class="column is-offset-1">
-            <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="Logo" class="mb-3" style="height:36px;width:auto;" />
             <h2 class="title is-4 has-text-primary">Quem somos nós?</h2>
             <p class="mb-4">A <strong>PetGO</strong> nasceu do desejo de oferecer um espaço onde o bem-estar animal é a prioridade absoluta. Entendemos que seu pet não é apenas um animal de estimação, mas um membro fundamental da sua família. Por isso, criamos um ambiente planejado para oferecer serviços de <strong>alta qualidade com o acolhimento que eles merecem.</strong></p>
           </div>
@@ -138,16 +139,12 @@
   <footer id="contatos" class="footer has-background-white py-5">
     <div class="container">
       <div class="has-text-centered mb-4">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO logo" style="height:36px;width:auto;" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:50px;width:auto;" />
       </div>
       <hr />
       <div class="columns is-vcentered">
-        <div class="column has-text-weight-bold">
-          <p>PetGO Serviços de Petshop</p>
-        </div>
-        <div class="column has-text-centered has-text-weight-bold">
-          <p>Rua Maria da Silva Santos, 8888</p>
-        </div>
+        <div class="column has-text-weight-bold"><p>PetGO Serviços de Petshop</p></div>
+        <div class="column has-text-centered has-text-weight-bold"><p>Rua Maria da Silva Santos, 8888</p></div>
         <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
           <p>+55555555555555</p>
           <div class="buttons mb-0">
@@ -160,7 +157,8 @@
       </div>
     </div>
   </footer>
+
 </div>
-<script src="scripts.js"></script>
+<script src="/scripts.js"></script>
 </body>
 </html>
