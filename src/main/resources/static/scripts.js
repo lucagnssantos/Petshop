@@ -597,7 +597,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     col.innerHTML = `
                         <div class="box has-text-centered">
                           <figure class="image is-96x96 mx-auto mb-3">
-                            <img class="is-rounded" src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}" alt="${pet.nome}" style="height:96px;object-fit:cover;border-radius:50%;" />
+                            <img class="is-rounded" src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}" alt="${pet.nome}" style="width:96px;height:96px;object-fit:cover;border-radius:50%;" />
                           </figure>
                           <p class="has-text-weight-bold">${pet.nome}</p>
                           <p class="is-size-7 has-text-grey">${pet.raca || ""} · ${pet.porte || ""}</p>
@@ -635,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                           class="is-rounded"
                                           src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}"
                                           alt="${pet.nome}"
-                                          style="height:96px;object-fit:cover;border-radius:50%;"
+                                          style="width:96px;height:96px;object-fit:cover;border-radius:50%;"
                                         />
                                       </figure>
 
