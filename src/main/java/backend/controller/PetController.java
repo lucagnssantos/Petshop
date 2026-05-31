@@ -81,7 +81,13 @@ public class PetController {
             if (dto.getRaca() != null)       p.setRaca(dto.getRaca());
             if (dto.getPorte() != null)      p.setPorte(dto.getPorte());
             if (dto.getSexo() != null)       p.setSexo(dto.getSexo());
-            if (dto.getIdade() != null)      p.setIdade(calcularIdade(dto.getIdade()));
+            if (dto.getIdade() != null && !dto.getIdade().isBlank()) {
+                    try {
+                        p.setIdade(calcularIdade(dto.getIdade()));
+                    } catch (Exception ignored) {
+                        p.setIdade(dto.getIdade());
+                    }
+                }
             if (dto.getObservacao() != null) p.setObservacao(dto.getObservacao());
             repository.save(p);
             return ResponseEntity.ok(Map.of("mensagem", "Pet atualizado com sucesso!"));
@@ -123,7 +129,7 @@ public class PetController {
         var claims = jwtUtil.extractClaims(header.substring(7));
         Integer tokenId = claims.get("id", Integer.class);
         Integer role    = claims.get("role", Integer.class);
-        if (!Integer.valueOf(1).equals(role) && !pet.getUsuarioId().equals(tokenId))
+        if (!Integer.valueOf(1).equals(role) && !tokenId.equals(pet.getUsuarioId()))
             return ResponseEntity.status(403).body(Map.of("mensagem", "Sem permissão para alterar a imagem deste pet."));
 
         // Remove imagem antiga do R2
