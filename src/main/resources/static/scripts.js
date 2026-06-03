@@ -838,6 +838,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!usuarioId) {
             window.location.href = "login.html";
         }
+        console.log("IMask:", IMask);
+           IMask(document.getElementById("edit-cpf"), {
+                mask: "000.000.000-00"
+            });
+
+            IMask(document.getElementById("edit-dataNascimento"), {
+                mask: "00/00/0000"
+            });
+
+            IMask(document.getElementById("edit-cep"), {
+                mask: "00000-000"
+            });
 
         const preencherCampos = (usuario) => {
             document.getElementById("edit-nome").value = usuario.nome || "";
@@ -1843,6 +1855,7 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
         }
 
+        console.log("IMask:", IMask);
         document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
             localStorage.removeItem("petgo_id");
             localStorage.removeItem("petgo_nome");
@@ -1953,6 +1966,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => {});
 
         // Modal editar perfil
+
+
         const modalEditarFunc = document.getElementById("modal-editar-func");
         const fecharModalEditarFunc = () => modalEditarFunc?.classList.remove("is-active");
 
