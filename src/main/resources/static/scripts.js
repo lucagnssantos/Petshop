@@ -383,6 +383,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ["func-dataNascimento",  "00/00/0000"],
         ["func-telefone",        "(00) 00000-0000"],
         ["pet-idade",            "00/00/0000"],
+        ["modal-u-cep",          "00000-000"],
+        ["edit-cpf",             "000.000.000-00"],
+        ["edit-dataNascimento",  "00/00/0000"],
+        ["edit-cep",             "00000-000"],
+        ["modal-func-cpf",             "000.000.000-00"],
+        ["modal-func-dataNascimento",  "00/00/0000"],
+        ["modal-func-telefone",        "(00) 00000-0000"],
     ].forEach(([id, mask]) => {
         const el = document.getElementById(id);
         if (el && window.IMask) IMask(el, { mask });
@@ -407,6 +414,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ["func-senhaRepetida", () => validarConfirmacaoSenha("func-senha", "func-senhaRepetida")],
         ["pet-nome",           () => validarNome("pet-nome")],
         ["pet-raca",           () => validarObrigatorio("pet-raca", "Raça")],
+        ["edit-nome",                 () => validarNome("edit-nome")],
+        ["edit-cpf",                  () => validarCpf("edit-cpf")],
+        ["edit-dataNascimento",       () => validarData("edit-dataNascimento")],
+        ["edit-cep",                  () => validarCep("edit-cep")],
+        ["edit-email",                () => validarEmail("edit-email")],
+        ["modal-func-nome",           () => validarNome("modal-func-nome")],
+        ["modal-func-cpf",            () => validarCpf("modal-func-cpf")],
+        ["modal-func-dataNascimento", () => validarData("modal-func-dataNascimento")],
+        ["modal-func-email",          () => validarEmail("modal-func-email")],
+        ["modal-func-telefone",       () => validarTelefone("modal-func-telefone")],
     ];
 
     blurRules.forEach(([id, fn]) => {
@@ -838,19 +855,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!usuarioId) {
             window.location.href = "login.html";
         }
-        console.log("IMask:", IMask);
-           IMask(document.getElementById("edit-cpf"), {
-                mask: "000.000.000-00"
-            });
-
-            IMask(document.getElementById("edit-dataNascimento"), {
-                mask: "00/00/0000"
-            });
-
-            IMask(document.getElementById("edit-cep"), {
-                mask: "00000-000"
-            });
-
         const preencherCampos = (usuario) => {
             document.getElementById("edit-nome").value = usuario.nome || "";
             document.getElementById("edit-cpf").value = usuario.cpf || "";
@@ -870,6 +874,17 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
         document.getElementById("btn-salvar")?.addEventListener("click", async () => {
+            const ok = [
+                validarNome("edit-nome"),
+                validarCpf("edit-cpf"),
+                validarData("edit-dataNascimento"),
+                validarCep("edit-cep"),
+                validarObrigatorio("edit-endereco", "Endereço"),
+                validarObrigatorio("edit-numero", "Número"),
+                validarEmail("edit-email"),
+            ].every(Boolean);
+            if (!ok) return;
+
             const body = {
                 nome: document.getElementById("edit-nome").value,
                 cpf: document.getElementById("edit-cpf").value,
@@ -1990,6 +2005,15 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("cancelar-modal-editar-func")?.addEventListener("click", fecharModalEditarFunc);
 
         document.getElementById("btn-salvar-func-perfil")?.addEventListener("click", async () => {
+            const ok = [
+                validarNome("modal-func-nome"),
+                validarCpf("modal-func-cpf"),
+                validarData("modal-func-dataNascimento"),
+                validarEmail("modal-func-email"),
+                validarTelefone("modal-func-telefone"),
+            ].every(Boolean);
+            if (!ok) return;
+
             const body = {
                 nome:            document.getElementById("modal-func-nome").value.trim()            || null,
                 email:           document.getElementById("modal-func-email").value.trim()           || null,
