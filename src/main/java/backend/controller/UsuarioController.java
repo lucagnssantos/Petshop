@@ -166,13 +166,16 @@ public class UsuarioController {
         if (file.getSize() > MAX_SIZE)
             return ResponseEntity.badRequest().body(Map.of("mensagem", "Imagem muito grande. Máximo: 5MB."));
 
-        // Valida propriedade: apenas o próprio usuário ou admin pode alterar
+        // Valida propriedade: apenas o próprio usuário ou admin pode alterar.
+        // Se não há token (ex: upload no fluxo de cadastro), permite sem restrição.
         String header = request.getHeader("Authorization");
-        var claims = jwtUtil.extractClaims(header.substring(7));
-        Integer tokenId = claims.get("id", Integer.class);
-        Integer role    = claims.get("role", Integer.class);
-        if (!Integer.valueOf(1).equals(role) && !id.equals(tokenId))
-            return ResponseEntity.status(403).body(Map.of("mensagem", "Sem permissão para alterar a imagem deste usuário."));
+        if (header != null && header.startsWith("Bearer ")) {
+            var claims = jwtUtil.extractClaims(header.substring(7));
+            Integer tokenId = claims.get("id", Integer.class);
+            Integer role    = claims.get("role", Integer.class);
+            if (!Integer.valueOf(1).equals(role) && !id.equals(tokenId))
+                return ResponseEntity.status(403).body(Map.of("mensagem", "Sem permissão para alterar a imagem deste usuário."));
+        }
 
         var opt = repository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();

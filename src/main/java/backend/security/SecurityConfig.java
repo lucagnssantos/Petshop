@@ -32,6 +32,7 @@ public class SecurityConfig {
                 // Rotas públicas — método HTTP explícito para não expor POST/DELETE
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usuarios/*/imagem").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/*/imagem").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/pets/*/imagem").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/servicos").permitAll()

@@ -487,7 +487,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (arquivo && novoId) {
                         const fd = new FormData();
                         fd.append("imagem", arquivo);
-                        await fetch(`${BASE_URL}/api/usuarios/${novoId}/imagem`, { method: "POST", body: fd });
+                        const imgResp = await authFetch(`${BASE_URL}/api/usuarios/${novoId}/imagem`, { method: "POST", body: fd });
+                        if (!imgResp.ok) {
+                            const err = await imgResp.json().catch(() => ({}));
+                            toast(err.mensagem || "Foto não foi salva. Tente novamente após o login.", "warning");
+                        }
                     }
                     toast("Cadastrado com sucesso!");
                     setTimeout(() => window.location.href = "login.html", 1500);
