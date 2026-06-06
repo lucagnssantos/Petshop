@@ -223,6 +223,66 @@ class JwtUtilTest {
 }
 ```
 
+## Frontend — index.html
+
+### Estrutura da página
+
+```
+<body>
+  <div id="hero-bg">          → fundo #E5DCFA, full-width, cobre navbar + seção hero
+    <div class="container">   → constrains a navbar
+      <nav class="navbar">
+    </div>
+    <section id="home">       → seção hero (padding-bottom: 0 para fundo terminar na base da imagem)
+  </div>
+
+  <main>
+    <section>                 → testimoniais
+    <section id="servicos">   → ícones de serviços
+    <section id="sobre">      → quem somos
+  </main>
+
+  <footer id="contatos">
+</body>
+```
+
+**Nota:** O `<body>` não tem `has-background-light` — o fundo geral é controlado pelo `style.css` (`background-color: #F5F2FE`).
+
+### Imagens e ícones (todos hospedados no Cloudflare R2)
+
+| Elemento | URL |
+|---|---|
+| Cachorro (hero) | `pub-.../imagem-dogindex.png` |
+| Ícone Banho | `pub-.../icone-banho.png` |
+| Ícone Tosa | `pub-.../icone-tosa.png` |
+| Ícone Corte de unha | `pub-.../icone-corteunha.png` |
+| Ícone Desembolo | `pub-.../icone-desembolo.png` |
+| Ícone Hidratação | `pub-.../icone-hidratacao.png` |
+| Quem somos | `pub-.../imagem-quemsomos.png` |
+| Logo | `pub-.../logo-vertical.png` |
+
+Base URL: `https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/`
+
+### Paleta de cores (style.css)
+
+| Uso | Cor |
+|---|---|
+| Fundo geral (`body`) | `#F5F2FE` |
+| Box hero (`#hero-bg`) | `#E5DCFA` |
+| Fundo ícones de serviço | `#E5DCFA` (hover: `#C1A6FF`) |
+| Primary (Bulma var) | `hsl(259deg, 93%, 63%)` |
+
+### Configurações de dev (application.properties)
+
+Templates e estáticos servidos direto do `src/` sem precisar de rebuild:
+```properties
+spring.web.resources.static-locations=file:src/main/resources/static/,classpath:/static/
+spring.thymeleaf.prefix=file:src/main/resources/templates/
+spring.thymeleaf.cache=false
+```
+
+---
+
 ## Como criar uma nova funcionalidade (workflow)
 
 ### 1. Criar o endpoint no controller

@@ -156,6 +156,93 @@ document.addEventListener("DOMContentLoaded", () => {
         return fetch(url, { ...options, headers });
     }
 
+    // ================= LOGOUT =================
+
+    function logout() {
+        ["petgo_id", "petgo_nome", "petgo_role", "petgo_cargo", "petgo_token"]
+            .forEach(k => localStorage.removeItem(k));
+        window.location.href = "index.html";
+    }
+
+    // ================= SERVIÇOS (CACHE GLOBAL) =================
+
+    let _servicosCache = null;
+    async function getServicos() {
+        if (_servicosCache) return _servicosCache;
+        const r = await authFetch(`${BASE_URL}/api/servicos`);
+        _servicosCache = r.ok ? await r.json() : [];
+        return _servicosCache;
+    }
+
+    // ================= UTILITÁRIOS DE AGENDAMENTO =================
+
+    async function verificarDisponibilidade({ dataId, horaId, servicosSelector, fetchServicos }) {
+        const data = document.getElementById(dataId)?.value;
+        const horaSelect = document.getElementById(horaId);
+        if (!horaSelect) return;
+        [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
+        const selecionados = [...document.querySelectorAll(`${servicosSelector} input[type=checkbox]:checked`)]
+            .map(cb => cb.value);
+        if (!data || selecionados.length === 0) return;
+        const todosServicos = await fetchServicos();
+        const isVet = selecionados.some(n => todosServicos.find(sv => sv.nome === n)?.isVet);
+        const tipo = isVet ? "vet" : "normal";
+        const totalDuracao = selecionados.reduce((sum, nome) => {
+            const s = todosServicos.find(sv => sv.nome === nome);
+            return sum + (s?.duracao || 60);
+        }, 0);
+        const slotsNeeded = Math.ceil(totalDuracao / 60);
+        try {
+            const resp = await authFetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
+            if (!resp.ok) return;
+            const { slots } = await resp.json();
+            [...horaSelect.options].forEach(opt => {
+                if (!opt.value) return;
+                const startH = parseInt(opt.value.split(":")[0]);
+                let blocked = false;
+                for (let i = 0; i < slotsNeeded; i++) {
+                    const key = String(startH + i).padStart(2, "0") + ":00";
+                    if ((slots[key] || 0) <= 0) { blocked = true; break; }
+                }
+                opt.disabled = blocked;
+                opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
+            });
+        } catch {}
+    }
+
+    function setupBloqueioVetGeral(containerId) {
+        document.getElementById(containerId)?.addEventListener("change", e => {
+            if (!e.target.matches("input[type=checkbox]")) return;
+            const cbs = [...document.querySelectorAll(`#${containerId} input[type=checkbox]`)];
+            const checked = cbs.filter(cb => cb.checked);
+            if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
+            const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
+            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+        });
+    }
+
+    function setupClientePetSelect(clienteSelectId, petSelectId) {
+        document.getElementById(clienteSelectId)?.addEventListener("change", function() {
+            const selectPet = document.getElementById(petSelectId);
+            selectPet.innerHTML = "<option value=''>Carregando...</option>";
+            selectPet.disabled = true;
+            if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
+            authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
+                .then(r => r.ok ? r.json() : [])
+                .then(pets => {
+                    selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
+                    pets.forEach(p => {
+                        const opt = document.createElement("option");
+                        opt.value = p.id;
+                        opt.textContent = p.nome;
+                        selectPet.appendChild(opt);
+                    });
+                    selectPet.disabled = pets.length === 0;
+                    if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
+                });
+        });
+    }
+
     // ================= TOAST =================
 
     function toast(mensagem, tipo = "primary") {
@@ -602,109 +689,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Endpoint esperado: GET /api/pets/usuario/{id}
         let todosPets = [];
+
+        function renderizarPets(pets) {
+            const lista = document.getElementById("lista-pets");
+            const vazio = document.getElementById("pets-vazio");
+            lista.innerHTML = "";
+            if (!pets || pets.length === 0) {
+                vazio.classList.remove("is-hidden");
+                return;
+            }
+            vazio.classList.add("is-hidden");
+            pets.forEach(pet => {
+                const col = document.createElement("div");
+                col.className = "column is-one-quarter";
+                col.innerHTML = `
+                    <div class="box has-text-centered">
+                      <figure class="image is-96x96 mx-auto mb-3">
+                        <img class="is-rounded"
+                          src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}"
+                          alt="${pet.nome}"
+                          style="width:96px;height:96px;object-fit:cover;border-radius:50%;" />
+                      </figure>
+                      <p class="has-text-weight-bold">${pet.nome}</p>
+                      <p class="is-size-7 has-text-grey">${pet.raca || ""} · ${pet.porte || ""}</p>
+                      <a href="cadastro-pet.html?id=${pet.id}" class="button is-small is-light is-fullwidth mt-3">
+                        <span class="icon"><i class="fas fa-pen"></i></span><span>Editar</span>
+                      </a>
+                    </div>`;
+                lista.appendChild(col);
+            });
+        }
+
         authFetch(`${BASE_URL}/api/pets/usuario/${usuarioId}`)
             .then(r => r.ok ? r.json() : [])
             .then(pets => {
                 todosPets = pets;
-                const lista = document.getElementById("lista-pets");
-                const vazio = document.getElementById("pets-vazio");
-                if (!pets || pets.length === 0) {
-                    vazio.classList.remove("is-hidden");
-                    return;
-                }
-                pets.forEach(pet => {
-                    const col = document.createElement("div");
-                    col.className = "column is-one-quarter";
-                    col.innerHTML = `
-                        <div class="box has-text-centered">
-                          <figure class="image is-96x96 mx-auto mb-3">
-                            <img class="is-rounded" src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}" alt="${pet.nome}" style="width:96px;height:96px;object-fit:cover;border-radius:50%;" />
-                          </figure>
-                          <p class="has-text-weight-bold">${pet.nome}</p>
-                          <p class="is-size-7 has-text-grey">${pet.raca || ""} · ${pet.porte || ""}</p>
-                          <a href="cadastro-pet.html?id=${pet.id}" class="button is-small is-light is-fullwidth mt-3">
-                            <span class="icon"><i class="fas fa-pen"></i></span><span>Editar</span>
-                          </a>
-                        </div>`;
-
-                        function renderizarPets(pets) {
-
-                            const lista = document.getElementById("lista-pets");
-                            const vazio = document.getElementById("pets-vazio");
-
-                            lista.innerHTML = "";
-
-                            if (!pets || pets.length === 0) {
-
-                                vazio.classList.remove("is-hidden");
-                                return;
-                            }
-
-                            vazio.classList.add("is-hidden");
-
-                            pets.forEach(pet => {
-
-                                const col = document.createElement("div");
-
-                                col.className = "column is-one-quarter";
-
-                                col.innerHTML = `
-                                    <div class="box has-text-centered">
-
-                                      <figure class="image is-96x96 mx-auto mb-3">
-                                        <img
-                                          class="is-rounded"
-                                          src="${pet.imagemUrl || `https://placehold.co/96x96?text=${pet.nome[0]}`}"
-                                          alt="${pet.nome}"
-                                          style="width:96px;height:96px;object-fit:cover;border-radius:50%;"
-                                        />
-                                      </figure>
-
-                                      <p class="has-text-weight-bold">
-                                        ${pet.nome}
-                                      </p>
-
-                                      <p class="is-size-7 has-text-grey">
-                                        ${pet.raca || ""} · ${pet.porte || ""}
-                                      </p>
-
-                                      <a
-                                        href="cadastro-pet.html?id=${pet.id}"
-                                        class="button is-small is-light is-fullwidth mt-3"
-                                      >
-                                        <span class="icon">
-                                          <i class="fas fa-pen"></i>
-                                        </span>
-
-                                        <span>Editar</span>
-                                      </a>
-                                    </div>
-                                `;
-
-                                lista.appendChild(col);
-                            });
-                        }
-                    renderizarPets(pets);
-
-                    document.getElementById("filtro-pets")
-                        .addEventListener("input", function () {
-                            const texto = this.value.toLowerCase();
-                            const petsFiltrados = todosPets.filter(pet => {
-                                return [
-                                    pet.nome,
-                                    pet.raca,
-                                    pet.porte,
-                                    pet.sexo,
-                                    pet.idade
-
-                                ].some(valor =>
-                                    (valor || "")
-                                        .toLowerCase()
-                                        .includes(texto)
-                                );
-                            });
-                            renderizarPets(petsFiltrados);
-                        });
+                renderizarPets(pets);
+                document.getElementById("filtro-pets")?.addEventListener("input", function() {
+                    const texto = this.value.toLowerCase();
+                    renderizarPets(todosPets.filter(pet =>
+                        [pet.nome, pet.raca, pet.porte, pet.sexo, pet.idade]
+                            .some(v => (v || "").toLowerCase().includes(texto))
+                    ));
                 });
             })
             .catch(() => {});
@@ -781,14 +807,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(r => r.ok ? r.json() : [])
                 .then(agendamentos => {
                     todosAgendamentos = agendamentos;
-                    const lista = document.getElementById("lista-agendamentos");
-                    const vazio = document.getElementById("agendamentos-vazio");
-                    lista.innerHTML = "";
-                    vazio.classList.add("is-hidden");
-                    if (!agendamentos || agendamentos.length === 0) {
-                        vazio.classList.remove("is-hidden");
-                        return;
-                    }
                     renderizarAgendamentos(agendamentos);
                 })
                 .catch(() => {});
@@ -841,14 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tabAlvo) tabAlvo.click();
         }
 
-        document.getElementById("btn-sair")?.addEventListener("click", () => {
-            localStorage.removeItem("petgo_id");
-            localStorage.removeItem("petgo_nome");
-            localStorage.removeItem("petgo_role");
-            localStorage.removeItem("petgo_cargo");
-            localStorage.removeItem("petgo_token");
-            window.location.href = "index.html";
-        });
+        document.getElementById("btn-sair")?.addEventListener("click", logout);
     }
 
     // ================= EDITAR PERFIL =================
@@ -1323,15 +1334,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "tabela-pets", "pets-admin-vazio", "pag-pets");
         }
 
-        // Cache de serviços (invalida ao criar/deletar na aba Serviços)
-        let servicosCache = null;
-        async function getServicos() {
-            if (servicosCache) return servicosCache;
-            const r = await authFetch(`${BASE_URL}/api/servicos`);
-            servicosCache = r.ok ? await r.json() : [];
-            return servicosCache;
-        }
-
         function carregarServicos() {
             authFetch(`${BASE_URL}/api/servicos`)
                 .then(r => r.ok ? r.json() : [])
@@ -1447,7 +1449,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!btn) return;
             if (!confirm("Excluir este serviço? Agendamentos existentes não serão afetados.")) return;
             const r = await authFetch(`${BASE_URL}/api/servicos/${btn.dataset.delServ}`, { method: "DELETE" });
-            if (r.ok) { servicosCache = null; carregarServicos(); toast("Serviço excluído."); }
+            if (r.ok) { _servicosCache = null; carregarServicos(); toast("Serviço excluído."); }
             else toast("Erro ao excluir.", "danger");
         });
 
@@ -1466,7 +1468,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ nome, duracao, isVet })
             });
             if (r.ok) {
-                servicosCache = null;
+                _servicosCache = null;
                 nomeInput.value = "";
                 duracaoInput.value = "";
                 if (isVetInput) isVetInput.checked = false;
@@ -1525,51 +1527,14 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("fechar-modal-ag")?.addEventListener("click", fecharModalAg);
         document.getElementById("cancelar-modal-ag")?.addEventListener("click", fecharModalAg);
 
-        async function verificarDisponibilidade() {
-            const data = document.getElementById("modal-ag-data")?.value;
-            const horaSelect = document.getElementById("modal-ag-hora");
-            if (!horaSelect) return;
-            [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
-            const selecionados = [...document.querySelectorAll("#modal-ag-servicos input[type=checkbox]:checked")].map(cb => cb.value);
-            if (!data || selecionados.length === 0) return;
-            const todosServicos = await getServicos();
-            const isVetAppointment = selecionados.some(n => todosServicos.find(sv => sv.nome === n)?.isVet);
-            const tipo = isVetAppointment ? "vet" : "normal";
-            const totalDuracao = selecionados.reduce((sum, nome) => {
-                const s = todosServicos.find(sv => sv.nome === nome);
-                return sum + (s?.duracao || 60);
-            }, 0);
-            const slotsNeeded = Math.ceil(totalDuracao / 60);
-            try {
-                const resp = await authFetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
-                if (!resp.ok) return;
-                const { slots } = await resp.json();
-                [...horaSelect.options].forEach(opt => {
-                    if (!opt.value) return;
-                    const startH = parseInt(opt.value.split(":")[0]);
-                    let blocked = false;
-                    for (let i = 0; i < slotsNeeded; i++) {
-                        const key = String(startH + i).padStart(2, "0") + ":00";
-                        if ((slots[key] || 0) <= 0) { blocked = true; break; }
-                    }
-                    opt.disabled = blocked;
-                    opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
-                });
-            } catch (e) {}
-        }
-
-        // Impede mistura de serviços vet + não-vet no modal de novo agendamento
-        document.getElementById("modal-ag-servicos")?.addEventListener("change", e => {
-            if (!e.target.matches("input[type=checkbox]")) return;
-            const cbs = [...document.querySelectorAll("#modal-ag-servicos input[type=checkbox]")];
-            const checked = cbs.filter(cb => cb.checked);
-            if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
-            const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
-            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+        const _verificarAdmin = () => verificarDisponibilidade({
+            dataId: "modal-ag-data", horaId: "modal-ag-hora",
+            servicosSelector: "#modal-ag-servicos", fetchServicos: getServicos
         });
 
-        document.getElementById("modal-ag-data")?.addEventListener("change", verificarDisponibilidade);
-        document.getElementById("modal-ag-servicos")?.addEventListener("change", verificarDisponibilidade);
+        setupBloqueioVetGeral("modal-ag-servicos");
+        document.getElementById("modal-ag-data")?.addEventListener("change", _verificarAdmin);
+        document.getElementById("modal-ag-servicos")?.addEventListener("change", _verificarAdmin);
 
         document.getElementById("btn-novo-agendamento")?.addEventListener("click", async () => {
             const selectCliente = document.getElementById("modal-ag-cliente");
@@ -1589,28 +1554,10 @@ document.addEventListener("DOMContentLoaded", () => {
             renderCheckboxes("modal-ag-servicos", servicos, [], false);
             document.getElementById("modal-ag-data").min = new Date().toISOString().split("T")[0];
             modalAg.classList.add("is-active");
-            verificarDisponibilidade();
+            _verificarAdmin();
         });
 
-        document.getElementById("modal-ag-cliente")?.addEventListener("change", function() {
-            const selectPet = document.getElementById("modal-ag-pet");
-            selectPet.innerHTML = "<option value=''>Carregando...</option>";
-            selectPet.disabled = true;
-            if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
-            authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
-                .then(r => r.ok ? r.json() : [])
-                .then(pets => {
-                    selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
-                    pets.forEach(p => {
-                        const opt = document.createElement("option");
-                        opt.value = p.id;
-                        opt.textContent = p.nome;
-                        selectPet.appendChild(opt);
-                    });
-                    selectPet.disabled = pets.length === 0;
-                    if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
-                });
-        });
+        setupClientePetSelect("modal-ag-cliente", "modal-ag-pet");
 
         document.getElementById("btn-salvar-modal-ag")?.addEventListener("click", async () => {
             const usuarioId = document.getElementById("modal-ag-cliente").value;
@@ -1632,18 +1579,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 if (r.ok) {
                     toast("Agendamento criado com sucesso!");
-                    fecharModalAg();
-                    document.getElementById("tabela-agendamentos").innerHTML = "";
-                    loaded.delete("agendamentos");
-                    loaded.delete("dashboard");
-                    carregarAgendamentos();
-                    loaded.add("agendamentos");
+                    recarregarAgendamentos(fecharModalAg);
                 } else {
                     const err = await r.json();
                     toast(err.mensagem || "Erro ao agendar.", "danger");
                 }
             } catch { toast("Erro ao conectar.", "danger"); }
         });
+
+        function recarregarAgendamentos(fecharModal) {
+            fecharModal();
+            document.getElementById("tabela-agendamentos").innerHTML = "";
+            loaded.delete("agendamentos");
+            loaded.delete("dashboard");
+            carregarAgendamentos();
+            loaded.add("agendamentos");
+        }
 
         // Modal: Detalhe / Edição de Agendamento
         let agAtivo = null;
@@ -1726,12 +1677,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 if (r.ok) {
                     toast("Agendamento atualizado!");
-                    fecharModalDet();
-                    document.getElementById("tabela-agendamentos").innerHTML = "";
-                    loaded.delete("agendamentos");
-                    loaded.delete("dashboard");
-                    carregarAgendamentos();
-                    loaded.add("agendamentos");
+                    recarregarAgendamentos(fecharModalDet);
                 } else toast("Erro ao salvar.", "danger");
             } catch { toast("Erro ao conectar.", "danger"); }
         });
@@ -1766,12 +1712,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 if (r.ok) {
                     toast("Agendamento cancelado.");
-                    fecharModalDet();
-                    document.getElementById("tabela-agendamentos").innerHTML = "";
-                    loaded.delete("agendamentos");
-                    loaded.delete("dashboard");
-                    carregarAgendamentos();
-                    loaded.add("agendamentos");
+                    recarregarAgendamentos(fecharModalDet);
                 } else toast("Erro ao cancelar.", "danger");
             } catch { toast("Erro ao conectar.", "danger"); }
         });
@@ -1787,13 +1728,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setInterval(() => { if (loaders[abaAtiva]) loaders[abaAtiva](); }, 60000);
 
-        document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
-            localStorage.removeItem("petgo_id");
-            localStorage.removeItem("petgo_nome");
-            localStorage.removeItem("petgo_role");
-            localStorage.removeItem("petgo_token");
-            window.location.href = "index.html";
-        });
+        document.getElementById("btn-sair-admin")?.addEventListener("click", logout);
 
         // Modal: Novo Funcionário
         const modalFunc = document.getElementById("modal-novo-funcionario");
@@ -1874,14 +1809,7 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "index.html";
         }
 
-        console.log("IMask:", IMask);
-        document.getElementById("btn-sair-admin")?.addEventListener("click", () => {
-            localStorage.removeItem("petgo_id");
-            localStorage.removeItem("petgo_nome");
-            localStorage.removeItem("petgo_role");
-            localStorage.removeItem("petgo_token");
-            window.location.href = "index.html";
-        });
+        document.getElementById("btn-sair-admin")?.addEventListener("click", logout);
 
         document.getElementById("btn-cadastrar-funcionario")?.addEventListener("click", async () => {
             const ok = [
@@ -2177,60 +2105,35 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function carregarAgendaFunc() {
-            authFetch(`${BASE_URL}/api/agendamentos`)
+            const endpoint = isAtendente
+                ? `${BASE_URL}/api/agendamentos`
+                : `${BASE_URL}/api/agendamentos/funcionario/${funcId}`;
+            authFetch(endpoint)
                 .then(r => r.ok ? r.json() : [])
-                .then(ags => {
-                    _agsFunc = ags;
-                    renderAgendaFunc();
-                })
+                .then(ags => { _agsFunc = ags; renderAgendaFunc(); })
                 .catch(() => {});
         }
 
-        document.getElementById("filtro-func-ag")
-            ?.addEventListener("input", renderAgendaFunc);
+        document.getElementById("filtro-func-ag")?.addEventListener("input", renderAgendaFunc);
 
-        document.getElementById("filtro-func-ag-data")
-            ?.addEventListener("change", renderAgendaFunc);
+        document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
+            if (isAtendente) {
+                const chk = document.getElementById("chk-func-ag-hoje");
+                if (chk) chk.checked = (e.target.value === new Date().toLocaleDateString("en-CA"));
+            }
+            renderAgendaFunc();
+        });
+
+        document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
+            const input = document.getElementById("filtro-func-ag-data");
+            if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
+            renderAgendaFunc();
+        });
 
         document.querySelectorAll("[name='chk-func-ag-status']")
             .forEach(el => el.addEventListener("change", renderAgendaFunc));
 
-        document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
-
-            const input = document.getElementById("filtro-func-ag-data");
-
-            if (!input) return;
-
-            if (e.target.checked) {
-                input.value = new Date().toLocaleDateString("en-CA");
-            } else {
-                input.value = "";
-            }
-
-            renderAgendaFunc();
-        });
-
-
         if (isAtendente) {
-            document.getElementById("filtro-func-ag-data")?.addEventListener("change", e => {
-                const hoje = new Date().toLocaleDateString("en-CA");
-                const chk = document.getElementById("chk-func-ag-hoje");
-                if (chk) chk.checked = (e.target.value === hoje);
-                renderAgendaFunc();
-            });
-            document.getElementById("chk-func-ag-hoje")?.addEventListener("change", e => {
-                const input = document.getElementById("filtro-func-ag-data");
-                if (input) input.value = e.target.checked ? new Date().toLocaleDateString("en-CA") : "";
-                renderAgendaFunc();
-            });
-
-            let servicosCacheFunc = null;
-            async function getServicosFunc() {
-                if (servicosCacheFunc) return servicosCacheFunc;
-                const r = await authFetch(`${BASE_URL}/api/servicos`);
-                servicosCacheFunc = r.ok ? await r.json() : [];
-                return servicosCacheFunc;
-            }
 
             // Editable detail modal
             const modalFuncAgEdit = document.getElementById("modal-func-ag-edit");
@@ -2258,7 +2161,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("func-ag-edit-titulo").textContent = `Agendamento #${ag.id}`;
                 document.getElementById("func-ag-edit-cliente").textContent = ag.usuarioNome || "—";
                 document.getElementById("func-ag-edit-pet").textContent = ag.petNome || "—";
-                const servicos = await getServicosFunc();
+                const servicos = await getServicos();
                 const servList = (ag.servico || "").split(",").map(s => s.trim());
                 renderCheckboxes("func-ag-edit-servicos", servicos, servList, !editavel);
                 const inputData = document.getElementById("func-ag-edit-data");
@@ -2347,50 +2250,15 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("fechar-modal-func-novo-ag")?.addEventListener("click", fecharModalFuncNovoAg);
             document.getElementById("cancelar-modal-func-novo-ag")?.addEventListener("click", fecharModalFuncNovoAg);
 
-            document.getElementById("func-novo-ag-servicos")?.addEventListener("change", e => {
-                if (!e.target.matches("input[type=checkbox]")) return;
-                const cbs = [...document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]")];
-                const checked = cbs.filter(cb => cb.checked);
-                if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
-                const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
-                cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+            setupBloqueioVetGeral("func-novo-ag-servicos");
+
+            const _verificarFunc = () => verificarDisponibilidade({
+                dataId: "func-novo-ag-data", horaId: "func-novo-ag-hora",
+                servicosSelector: "#func-novo-ag-servicos", fetchServicos: getServicos
             });
 
-            async function verificarDisponibilidadeFuncAg() {
-                const data = document.getElementById("func-novo-ag-data")?.value;
-                const horaSelect = document.getElementById("func-novo-ag-hora");
-                if (!horaSelect) return;
-                [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
-                const selecionados = [...document.querySelectorAll("#func-novo-ag-servicos input[type=checkbox]:checked")].map(cb => cb.value);
-                if (!data || selecionados.length === 0) return;
-                const todosServicos = await getServicosFunc();
-                const isVetAp = selecionados.some(n => todosServicos.find(sv => sv.nome === n)?.isVet);
-                const tipo = isVetAp ? "vet" : "normal";
-                const totalDuracao = selecionados.reduce((sum, nome) => {
-                    const s = todosServicos.find(sv => sv.nome === nome);
-                    return sum + (s?.duracao || 60);
-                }, 0);
-                const slotsNeeded = Math.ceil(totalDuracao / 60);
-                try {
-                    const resp = await authFetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
-                    if (!resp.ok) return;
-                    const { slots } = await resp.json();
-                    [...horaSelect.options].forEach(opt => {
-                        if (!opt.value) return;
-                        const startH = parseInt(opt.value.split(":")[0]);
-                        let blocked = false;
-                        for (let i = 0; i < slotsNeeded; i++) {
-                            const key = String(startH + i).padStart(2, "0") + ":00";
-                            if ((slots[key] || 0) <= 0) { blocked = true; break; }
-                        }
-                        opt.disabled = blocked;
-                        opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
-                    });
-                } catch (e) {}
-            }
-
-            document.getElementById("func-novo-ag-data")?.addEventListener("change", verificarDisponibilidadeFuncAg);
-            document.getElementById("func-novo-ag-servicos")?.addEventListener("change", verificarDisponibilidadeFuncAg);
+            document.getElementById("func-novo-ag-data")?.addEventListener("change", _verificarFunc);
+            document.getElementById("func-novo-ag-servicos")?.addEventListener("change", _verificarFunc);
 
             document.getElementById("btn-func-novo-ag")?.addEventListener("click", async () => {
                 const selectCliente = document.getElementById("func-novo-ag-cliente");
@@ -2406,32 +2274,14 @@ document.addEventListener("DOMContentLoaded", () => {
                             });
                         });
                 }
-                const servicos = await getServicosFunc();
+                const servicos = await getServicos();
                 renderCheckboxes("func-novo-ag-servicos", servicos, [], false);
                 document.getElementById("func-novo-ag-data").min = new Date().toISOString().split("T")[0];
                 modalFuncNovoAg.classList.add("is-active");
-                verificarDisponibilidadeFuncAg();
+                _verificarFunc();
             });
 
-            document.getElementById("func-novo-ag-cliente")?.addEventListener("change", function() {
-                const selectPet = document.getElementById("func-novo-ag-pet");
-                selectPet.innerHTML = "<option value=''>Carregando...</option>";
-                selectPet.disabled = true;
-                if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
-                authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
-                    .then(r => r.ok ? r.json() : [])
-                    .then(pets => {
-                        selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
-                        pets.forEach(p => {
-                            const opt = document.createElement("option");
-                            opt.value = p.id;
-                            opt.textContent = p.nome;
-                            selectPet.appendChild(opt);
-                        });
-                        selectPet.disabled = pets.length === 0;
-                        if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
-                    });
-            });
+            setupClientePetSelect("func-novo-ag-cliente", "func-novo-ag-pet");
 
             document.getElementById("btn-salvar-func-novo-ag")?.addEventListener("click", async () => {
                 const usuarioId = document.getElementById("func-novo-ag-cliente").value;
@@ -2455,10 +2305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         carregarAgendaFunc();
         setInterval(carregarAgendaFunc, 60000);
 
-        document.getElementById("btn-sair-funcionario")?.addEventListener("click", () => {
-            ["petgo_id","petgo_nome","petgo_role","petgo_cargo","petgo_token"].forEach(k => localStorage.removeItem(k));
-            window.location.href = "index.html";
-        });
+        document.getElementById("btn-sair-funcionario")?.addEventListener("click", logout);
     }
 
     // ================= CADASTRO PET =================
@@ -2617,36 +2464,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             servicosAgendar = servicos;
-            const container = document.getElementById("agendar-servicos");
-            if (container) {
-                const normais = servicos.filter(s => !s.isVet);
-                const vets    = servicos.filter(s =>  s.isVet);
-                const addGrupo = (titulo, grupo) => {
-                    if (grupo.length === 0) return;
-                    if (titulo) {
-                        const header = document.createElement("div");
-                        header.className = "column is-full pb-0 pt-2";
-                        header.innerHTML = `<p class="has-text-weight-semibold is-size-7 has-text-grey-dark">${titulo}</p>`;
-                        container.appendChild(header);
-                    }
-                    grupo.forEach(s => {
-                        const div = document.createElement("div");
-                        div.className = "column is-half py-1";
-                        const label = document.createElement("label");
-                        label.className = "checkbox";
-                        const cb = document.createElement("input");
-                        cb.type = "checkbox";
-                        cb.value = s.nome;
-                        cb.dataset.isVet = s.isVet ? "true" : "false";
-                        label.appendChild(cb);
-                        label.appendChild(document.createTextNode(" " + s.nome));
-                        div.appendChild(label);
-                        container.appendChild(div);
-                    });
-                };
-                addGrupo("Serviços Gerais:", normais);
-                addGrupo("Serviços Veterinários:", vets);
-            }
+            renderCheckboxes("agendar-servicos", servicos, [], false);
 
             if (agEditId && ags) {
                 const ag = ags.find(a => a.id === Number(agEditId));
@@ -2665,54 +2483,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("agendar-data").value = ag.data;
                     document.getElementById("agendar-hora").value = ag.hora;
                     document.getElementById("agendar-observacao").value = ag.observacao || "";
-                    verificarDisponibilidadeAgendar();
+                    _verificarAgendar();
                 }
             }
         });
 
-        async function verificarDisponibilidadeAgendar() {
-            const data = document.getElementById("agendar-data")?.value;
-            const horaSelect = document.getElementById("agendar-hora");
-            if (!horaSelect) return;
-            [...horaSelect.options].forEach(opt => { opt.disabled = false; if (opt.value) opt.text = opt.value; });
-            const selecionados = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]:checked")].map(cb => cb.value);
-            if (!data || selecionados.length === 0) return;
-            const isVetAppointment = selecionados.some(n => servicosAgendar.find(sv => sv.nome === n)?.isVet);
-            const tipo = isVetAppointment ? "vet" : "normal";
-            const totalDuracao = selecionados.reduce((sum, nome) => {
-                const s = servicosAgendar.find(sv => sv.nome === nome);
-                return sum + (s?.duracao || 60);
-            }, 0);
-            const slotsNeeded = Math.ceil(totalDuracao / 60);
-            try {
-                const resp = await fetch(`${BASE_URL}/api/agendamentos/disponibilidade?data=${data}&tipo=${tipo}`);
-                if (!resp.ok) return;
-                const { slots } = await resp.json();
-                [...horaSelect.options].forEach(opt => {
-                    if (!opt.value) return;
-                    const startH = parseInt(opt.value.split(":")[0]);
-                    let blocked = false;
-                    for (let i = 0; i < slotsNeeded; i++) {
-                        const key = String(startH + i).padStart(2, "0") + ":00";
-                        if ((slots[key] || 0) <= 0) { blocked = true; break; }
-                    }
-                    opt.disabled = blocked;
-                    opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
-                });
-            } catch (e) {}
-        }
-
-        document.getElementById("agendar-servicos")?.addEventListener("change", e => {
-            if (!e.target.matches("input[type=checkbox]")) return;
-            const cbs = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]")];
-            const checked = cbs.filter(cb => cb.checked);
-            if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
-            const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
-            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+        const _verificarAgendar = () => verificarDisponibilidade({
+            dataId: "agendar-data", horaId: "agendar-hora",
+            servicosSelector: "#agendar-servicos",
+            fetchServicos: () => Promise.resolve(servicosAgendar)
         });
 
-        document.getElementById("agendar-data")?.addEventListener("change", verificarDisponibilidadeAgendar);
-        document.getElementById("agendar-servicos")?.addEventListener("change", verificarDisponibilidadeAgendar);
+        setupBloqueioVetGeral("agendar-servicos");
+        document.getElementById("agendar-data")?.addEventListener("change", _verificarAgendar);
+        document.getElementById("agendar-servicos")?.addEventListener("change", _verificarAgendar);
 
         document.getElementById("btn-agendar")?.addEventListener("click", async () => {
             const petId = document.getElementById("agendar-pet").value;
