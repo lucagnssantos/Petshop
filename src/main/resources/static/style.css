@@ -1,5 +1,6 @@
 body {
   font-family: "Inconsolata", monospace;
+  background-color: #F5F2FE;
 }
 
 input[type="password"]::-ms-reveal,
@@ -79,6 +80,15 @@ hr {
   border-bottom-color: transparent !important;
 }
 
+#servicos .servico-link img {
+  background-color: #E5DCFA;
+  padding: 1rem;
+}
+
+#servicos .servico-link:hover img {
+  background-color: #C1A6FF;
+}
+
 .servico-link:hover img {
   opacity: 0.85;
   transform: translateY(-3px);
@@ -155,4 +165,21 @@ input[type="checkbox"] {
     opacity: 0;
     transform: translateX(1rem);
   }
+}
+
+#hero-bg {
+  background-color: #E5DCFA;
+}
+
+#home {
+  padding-bottom: 0;
+}
+
+#home .column.is-half:last-child {
+  padding-bottom: 0;
+}
+
+#home img {
+  display: block;
+  margin: 0 auto;
 }
