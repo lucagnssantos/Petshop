@@ -136,7 +136,7 @@ public class PetController {
         r2.delete(pet.getImagemUrl());
 
         try {
-            String url = r2.upload("pets", id, file.getBytes(), contentType);
+            String url = r2.upload("pets", file.getBytes(), contentType);
             pet.setImagemUrl(url);
             repository.save(pet);
             return ResponseEntity.ok(Map.of("url", url));

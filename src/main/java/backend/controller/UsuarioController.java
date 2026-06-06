@@ -185,7 +185,7 @@ public class UsuarioController {
         r2.delete(u.getImagemUrl());
 
         try {
-            String url = r2.upload("usuarios", id, file.getBytes(), contentType);
+            String url = r2.upload("usuarios", file.getBytes(), contentType);
             u.setImagemUrl(url);
             repository.save(u);
             return ResponseEntity.ok(Map.of("url", url));

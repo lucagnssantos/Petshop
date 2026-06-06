@@ -48,8 +48,8 @@ public class R2StorageService {
                 .build();
     }
 
-    public String upload(String folder, Integer entityId, byte[] data, String contentType) {
-        String key = folder + "/" + entityId + "/" + UUID.randomUUID() + "." + extensionFor(contentType);
+    public String upload(String folder, byte[] data, String contentType) {
+        String key = folder + "/" + UUID.randomUUID() + "." + extensionFor(contentType);
         s3.putObject(
                 PutObjectRequest.builder()
                         .bucket(bucket)
