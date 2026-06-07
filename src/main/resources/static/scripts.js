@@ -704,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("campo-endereco").textContent = usuario.endereco || "—";
                 document.getElementById("campo-numero").textContent = usuario.numero || "—";
                 document.getElementById("campo-emailPerfil").textContent = usuario.email || "—";
+                document.getElementById("campo-telefone").textContent = usuario.telefone || "—";
                 localStorage.setItem("petgo_nome", usuario.nome);
             })
             .catch(() => { toast("Erro ao conectar com o servidor.", "danger"); });
@@ -1075,7 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "PUT", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: "Concluído" })
             });
-            if (r.ok) { toast("Agendamento concluído."); carregarAgendamentos(); }
+            if (r.ok) { toast("Agendamento concluído."); loaded.delete("agendamentos"); carregarDashboard(); }
             else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
         });
 
@@ -1695,6 +1696,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("modal-ag-det-titulo").textContent = `Agendamento #${ag.id}`;
             document.getElementById("ag-det-cliente").textContent = ag.usuarioNome || "—";
             document.getElementById("ag-det-pet").textContent = ag.petNome || "—";
+            document.getElementById("ag-det-status").innerHTML = tagStatus(ag.status);
 
             const servicos = await getServicos();
             const servList = (ag.servico || "").split(",").map(s => s.trim());
