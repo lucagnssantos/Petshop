@@ -84,6 +84,42 @@ class AgendamentoControllerTest {
     }
 
     @Test
+    void criarDeveRetornar400ComHorarioForaDoIntervaloPermitido() throws Exception {
+        String amanha = LocalDate.now().plusDays(1).toString();
+
+        AgendamentoRequestDTO dto = new AgendamentoRequestDTO();
+        dto.setData(amanha);
+        dto.setHora("18:00");
+        dto.setServico("Banho");
+        dto.setPetId(1);
+        dto.setUsuarioId(1);
+
+        mockMvc.perform(post("/api/agendamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("Horário fora do intervalo permitido (08:00 às 17:00)."));
+    }
+
+    @Test
+    void criarDeveRetornar400ComHorarioAntesDoIntervaloPermitido() throws Exception {
+        String amanha = LocalDate.now().plusDays(1).toString();
+
+        AgendamentoRequestDTO dto = new AgendamentoRequestDTO();
+        dto.setData(amanha);
+        dto.setHora("07:00");
+        dto.setServico("Banho");
+        dto.setPetId(1);
+        dto.setUsuarioId(1);
+
+        mockMvc.perform(post("/api/agendamentos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("Horário fora do intervalo permitido (08:00 às 17:00)."));
+    }
+
+    @Test
     void criarDeveRetornar400ComMisturaVetENormal() throws Exception {
         String amanha = LocalDate.now().plusDays(1).toString();
 

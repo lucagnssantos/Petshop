@@ -27,6 +27,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -224,7 +225,7 @@ class UsuarioControllerTest {
     }
 
     @Test
-    void deletarDeveRetornar400QuandoPetTemAgendamentoAtivo() throws Exception {
+    void deletarDeveCascatearParaPetsEAgendamentosMesmoComAgendamentoAtivo() throws Exception {
         Pet pet = new Pet();
         pet.setId(10);
         pet.setNome("Rex");
@@ -233,12 +234,14 @@ class UsuarioControllerTest {
         user.setId(1);
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(user));
         when(petRepository.findByUsuarioId(1)).thenReturn(List.of(pet));
-        when(agendamentoRepository.existsByPetIdAndStatus(10, "Agendado")).thenReturn(true);
 
         mockMvc.perform(delete("/api/usuarios/1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.mensagem").value(
-                        "Não é possível excluir o cliente pois o pet \"Rex\" possui agendamentos ativos."));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensagem").value("Cliente removido com sucesso!"));
+
+        verify(agendamentoRepository).deleteByPetId(10);
+        verify(petRepository).deleteById(10);
+        verify(usuarioRepository).deleteById(1);
     }
 
     // ─── GET /funcionarios ────────────────────────────────────────────────────
@@ -284,6 +287,43 @@ class UsuarioControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\":\"Novo\"}"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void atualizarDeveRetornar400QuandoEmailJaPertenceAOutroUsuario() throws Exception {
+        Usuario user = new Usuario();
+        user.setId(1);
+        user.setEmail("antigo@email.com");
+
+        Usuario outro = new Usuario();
+        outro.setId(2);
+        outro.setEmail("novo@email.com");
+
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(user));
+        when(usuarioRepository.findByEmail("novo@email.com")).thenReturn(Optional.of(outro));
+
+        mockMvc.perform(put("/api/usuarios/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"novo@email.com\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("E-mail já cadastrado!"));
+    }
+
+    @Test
+    void atualizarDevePermitirManterOProprioEmail() throws Exception {
+        Usuario user = new Usuario();
+        user.setId(1);
+        user.setEmail("mesmo@email.com");
+
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(user));
+        when(usuarioRepository.findByEmail("mesmo@email.com")).thenReturn(Optional.of(user));
+        when(usuarioRepository.save(any())).thenReturn(user);
+
+        mockMvc.perform(put("/api/usuarios/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"mesmo@email.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensagem").value("Usuário atualizado com sucesso!"));
     }
 
     // ─── /funcionario/cadastrar ───────────────────────────────────────────────

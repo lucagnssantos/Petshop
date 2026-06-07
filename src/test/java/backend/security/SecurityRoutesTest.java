@@ -202,6 +202,24 @@ class SecurityRoutesTest {
                 .andExpect(status().isOk());
     }
 
+    // =========================================================
+    // CONTROLE DE ROLE — apenas admin pode acessar /admin/stats
+    // =========================================================
+
+    @Test
+    void adminStats_comTokenCliente_retorna403() throws Exception {
+        mockMvc.perform(get("/api/admin/stats")
+                        .header("Authorization", clienteToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void adminStats_comTokenFuncionario_retorna403() throws Exception {
+        mockMvc.perform(get("/api/admin/stats")
+                        .header("Authorization", funcionarioToken))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     void listarUsuarios_comTokenAdmin_retorna200() throws Exception {
         mockMvc.perform(get("/api/usuarios")

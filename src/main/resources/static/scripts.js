@@ -217,7 +217,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const checked = cbs.filter(cb => cb.checked);
             if (checked.length === 0) { cbs.forEach(cb => cb.disabled = false); return; }
             const isVetSel = checked.some(cb => cb.dataset.isVet === "true");
-            cbs.forEach(cb => { if (!cb.checked) cb.disabled = (cb.dataset.isVet === "true") !== isVetSel; });
+            let algumBloqueado = false;
+            cbs.forEach(cb => {
+                if (!cb.checked) {
+                    const deveBloqueado = (cb.dataset.isVet === "true") !== isVetSel;
+                    if (deveBloqueado && !cb.disabled) algumBloqueado = true;
+                    cb.disabled = deveBloqueado;
+                }
+            });
+            if (algumBloqueado)
+                toast("Serviços veterinários e gerais não podem ser combinados no mesmo agendamento.", "warning");
         });
     }
 
@@ -471,9 +480,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ["func-telefone",        "(00) 00000-0000"],
         ["pet-idade",            "00/00/0000"],
         ["modal-u-cep",          "00000-000"],
+        ["modal-u-func-cpf",         "000.000.000-00"],
+        ["modal-u-func-telefone",    "(00) 00000-0000"],
         ["edit-cpf",             "000.000.000-00"],
         ["edit-dataNascimento",  "00/00/0000"],
         ["edit-cep",             "00000-000"],
+        ["edit-telefone",        "(00) 00000-0000"],
         ["modal-func-cpf",             "000.000.000-00"],
         ["modal-func-dataNascimento",  "00/00/0000"],
         ["modal-func-telefone",        "(00) 00000-0000"],
@@ -506,6 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["edit-dataNascimento",       () => validarData("edit-dataNascimento")],
         ["edit-cep",                  () => validarCep("edit-cep")],
         ["edit-email",                () => validarEmail("edit-email")],
+        ["edit-telefone",             () => validarTelefone("edit-telefone")],
         ["modal-func-nome",           () => validarNome("modal-func-nome")],
         ["modal-func-cpf",            () => validarCpf("modal-func-cpf")],
         ["modal-func-dataNascimento", () => validarData("modal-func-dataNascimento")],
@@ -531,6 +544,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCadastrar) {
         btnCadastrar.addEventListener("click", async (event) => {
             event.preventDefault();
+
+            if (!document.getElementById("termos")?.checked) {
+                toast("Você deve aceitar os termos de uso.", "warning");
+                return;
+            }
 
             const ok = [
                 validarNome("nome"),
@@ -668,7 +686,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const perfilAvatar = document.getElementById("perfil-avatar");
 
         authFetch(`${BASE_URL}/api/usuarios/${usuarioId}`)
-            .then(r => r.ok ? r.json() : null)
+            .then(r => {
+                if (r.status === 401) { window.location.href = "login.html"; return null; }
+                return r.ok ? r.json() : null;
+            })
             .then(usuario => {
                 if (!usuario) return;
                 if (perfilAvatar) perfilAvatar.src = usuario.imagemUrl || `https://placehold.co/96x96?text=${inicial}`;
@@ -685,7 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("campo-emailPerfil").textContent = usuario.email || "—";
                 localStorage.setItem("petgo_nome", usuario.nome);
             })
-            .catch(() => {});
+            .catch(() => { toast("Erro ao conectar com o servidor.", "danger"); });
 
         // Endpoint esperado: GET /api/pets/usuario/{id}
         let todosPets = [];
@@ -733,7 +754,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     ));
                 });
             })
-            .catch(() => {});
+            .catch(() => { toast("Erro ao conectar com o servidor.", "danger"); });
 
         // Endpoint esperado: GET /api/agendamentos/usuario/{id}
         function renderizarAgendamentos(agendamentos) {
@@ -809,7 +830,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     todosAgendamentos = agendamentos;
                     renderizarAgendamentos(agendamentos);
                 })
-                .catch(() => {});
+                .catch(() => { toast("Erro ao conectar com o servidor.", "danger"); });
         }
 
         document.getElementById("filtro-agendamentos")
@@ -878,6 +899,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("edit-endereco").value = usuario.endereco || "";
             document.getElementById("edit-numero").value = usuario.numero || "";
             document.getElementById("edit-email").value = usuario.email || "";
+            document.getElementById("edit-telefone").value = usuario.telefone || "";
         };
 
         // Endpoint esperado: GET /api/usuarios/{id}
@@ -897,14 +919,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 validarObrigatorio("edit-endereco", "Endereço"),
                 validarObrigatorio("edit-numero", "Número"),
                 validarEmail("edit-email"),
+                validarTelefone("edit-telefone"),
             ].every(Boolean);
             if (!ok) return;
+
+            const arquivo = document.getElementById("edit-inputImagem")?.files[0];
+            if (arquivo) {
+                const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+                if (!allowedTypes.includes(arquivo.type)) {
+                    toast("Formato inválido. Envie JPEG, PNG, GIF ou WebP.", "warning");
+                    return;
+                }
+                if (arquivo.size > 5 * 1024 * 1024) {
+                    toast("Imagem muito grande. Máximo: 5MB.", "warning");
+                    return;
+                }
+            }
 
             const body = {
                 nome: document.getElementById("edit-nome").value,
                 cpf: document.getElementById("edit-cpf").value,
                 dataNascimento: document.getElementById("edit-dataNascimento").value,
                 email: document.getElementById("edit-email").value,
+                telefone: document.getElementById("edit-telefone").value,
                 cep: document.getElementById("edit-cep").value,
                 endereco: document.getElementById("edit-endereco").value,
                 numero: document.getElementById("edit-numero").value
@@ -919,7 +956,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 if (response.ok) {
-                    const arquivo = document.getElementById("edit-inputImagem")?.files[0];
                     if (arquivo) {
                         const fd = new FormData();
                         fd.append("imagem", arquivo);
@@ -927,12 +963,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (!imgResp.ok) {
                             const err = await imgResp.json().catch(() => ({}));
                             toast(err.mensagem || "Foto não foi salva. Verifique o formato e tente novamente.", "warning");
+                            return;
                         }
                     }
                     localStorage.setItem("petgo_nome", body.nome);
                     window.location.href = "perfil.html";
                 } else {
-                    toast("Erro ao salvar. Tente novamente.", "danger");
+                    const err = await response.json().catch(() => ({}));
+                    toast(err.mensagem || "Erro ao salvar. Tente novamente.", "danger");
                 }
             } catch {
                 toast("Erro ao conectar com o servidor.", "danger");
@@ -995,7 +1033,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${ag.usuarioNome || "—"}</td>
                         <td>${ag.petNome || "—"}</td>
                         <td>${ag.servico || "—"}</td>
-                        <td>${tagStatus(ag.status)}</td>`;
+                        <td>${tagStatus(ag.status)}</td>
+                        <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-dash="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}</td>`;
                     tbodyHoje.appendChild(tr);
                 });
             }
@@ -1028,6 +1067,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        document.getElementById("tabela-hoje")?.addEventListener("click", async e => {
+            const btn = e.target.closest("[data-concluir-dash]");
+            if (!btn) return;
+            if (!confirm("Tem certeza que deseja marcar como Concluído?\nEsta ação não pode ser revertida.")) return;
+            const r = await authFetch(`${BASE_URL}/api/agendamentos/${btn.dataset.concluirDash}`, {
+                method: "PUT", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "Concluído" })
+            });
+            if (r.ok) { toast("Agendamento concluído."); carregarAgendamentos(); }
+            else { const d = await r.json().catch(() => ({})); toast(d.mensagem || "Erro ao concluir.", "danger"); }
+        });
+
         function carregarAgendamentos() {
             authFetch(`${BASE_URL}/api/agendamentos`)
                 .then(r => r.ok ? r.json() : [])
@@ -1046,7 +1097,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${tagStatus(ag.status)}</td>
                 <td>
                   <div class="buttons are-small mb-0">
-                    <button class="button is-light" title="Detalhes" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                    <button class="button is-light" title="${ag.status === "Agendado" ? "Ver / Editar" : "Detalhes"}" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>
                     <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
                     ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="Marcar como Concluído" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
                   </div>
@@ -1101,6 +1152,20 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("modal-u-cep").value = u.cep || "";
             document.getElementById("modal-u-endereco").value = u.endereco || "";
             document.getElementById("modal-u-numero").value = u.numero || "";
+
+            const camposAddress = document.getElementById("campos-address-cliente");
+            const camposFuncAdmin = document.getElementById("campos-func-admin");
+            if (u.idRole === 3) {
+                if (camposAddress) camposAddress.style.display = "none";
+                if (camposFuncAdmin) camposFuncAdmin.style.display = "";
+                document.getElementById("modal-u-func-email").value = u.email || "";
+                document.getElementById("modal-u-func-telefone").value = u.telefone || "";
+                document.getElementById("modal-u-func-cpf").value = u.cpf || "";
+            } else {
+                if (camposAddress) camposAddress.style.display = "";
+                if (camposFuncAdmin) camposFuncAdmin.style.display = "none";
+            }
+
             const fotoU = document.getElementById("modal-u-foto");
             if (fotoU) fotoU.value = "";
             const prevU = document.getElementById("modal-u-preview");
@@ -1162,13 +1227,20 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("btn-salvar-modal-usuario")?.addEventListener("click", async () => {
             const id = document.getElementById("modal-u-id").value;
             const cargo = document.getElementById("modal-u-cargo").value;
-            const body = {
-                nome: document.getElementById("modal-u-nome").value,
-                cep: document.getElementById("modal-u-cep").value,
-                endereco: document.getElementById("modal-u-endereco").value,
-                numero: document.getElementById("modal-u-numero").value,
-                ...(cargo ? { cargo } : {})
-            };
+            const body = usuarioAtivo?.idRole === 3
+                ? {
+                    nome: document.getElementById("modal-u-nome").value,
+                    email: document.getElementById("modal-u-func-email").value,
+                    telefone: document.getElementById("modal-u-func-telefone").value,
+                    cpf: document.getElementById("modal-u-func-cpf").value,
+                    ...(cargo ? { cargo } : {})
+                }
+                : {
+                    nome: document.getElementById("modal-u-nome").value,
+                    cep: document.getElementById("modal-u-cep").value,
+                    endereco: document.getElementById("modal-u-endereco").value,
+                    numero: document.getElementById("modal-u-numero").value,
+                };
             try {
                 const r = await authFetch(`${BASE_URL}/api/usuarios/${id}`, {
                     method: "PUT",
@@ -1818,6 +1890,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 validarSelect("wrap-func-cargo", "func-cargo", "Cargo"),
                 validarData("func-dataNascimento"),
                 validarEmail("func-email"),
+                validarTelefone("func-telefone"),
                 validarSenha("func-senha"),
                 validarConfirmacaoSenha("func-senha", "func-senhaRepetida"),
             ].every(Boolean);
@@ -1829,6 +1902,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cargo: document.getElementById("func-cargo").value,
                 dataNascimento: document.getElementById("func-dataNascimento").value,
                 email: document.getElementById("func-email").value,
+                telefone: document.getElementById("func-telefone").value,
                 senha: document.getElementById("func-senha").value
             };
 
@@ -1867,9 +1941,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const isAtendente = funcCargo === "Atendente";
 
+        document.getElementById("func-agenda-filtro-data")?.classList.remove("is-hidden");
+
         if (isAtendente) {
             document.getElementById("btn-func-novo-ag")?.classList.remove("is-hidden");
-            document.getElementById("func-agenda-filtro-data")?.classList.remove("is-hidden");
             const sub = document.getElementById("func-agenda-subtitulo");
             if (sub) sub.textContent = "Todos os agendamentos";
         }
@@ -2023,7 +2098,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let _agsFunc = [];
 
         function renderAgendaFunc() {
-            const hoje = new Date().toLocaleDateString("en-CA");
             let dados;
 
             if (isAtendente) {
@@ -2040,9 +2114,7 @@ document.addEventListener("DOMContentLoaded", () => {
                           ? ag.data.split("/").reverse().join("-")
                           : ag.data;
 
-                      const dataComparar = dataFiltro || hoje;
-
-                      if (dataAg !== dataComparar) return false;
+                      if (dataFiltro && dataAg !== dataFiltro) return false;
 
                       if (funcCargo === "Veterinário" && !ag.isVet) return false;
 
@@ -2080,27 +2152,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     </td>`,
                 "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
             } else {
-                tbodyFunc.innerHTML = "";
-                if (!dados.length) { vazioFunc.classList.remove("is-hidden"); return; }
-                vazioFunc.classList.add("is-hidden");
-                dados.forEach(ag => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td>${fmtData(ag.data)} ${ag.hora || "—"}</td>
-                        <td>${ag.usuarioNome || "—"}</td>
-                        <td>${ag.petNome || "—"}</td>
-                        <td>${ag.servico || "—"}</td>
-                        <td>${tagStatus(ag.status)}</td>
-                        <td>
-                          <div class="buttons are-small mb-0">
-                            <button class="button is-light" title="Detalhes" data-ag-func='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
-                            <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="Ver cliente" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
-                            <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                            ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}
-                          </div>
-                        </td>`;
-                    tbodyFunc.appendChild(tr);
-                });
+                const usaEdit = funcCargo === "Esteticista";
+                paginar(dados, ag => `
+                    <td>${fmtData(ag.data)} ${ag.hora || "—"}</td>
+                    <td>${ag.usuarioNome || "—"}</td>
+                    <td>${ag.petNome || "—"}</td>
+                    <td>${ag.servico || "—"}</td>
+                    <td>${tagStatus(ag.status)}</td>
+                    <td>
+                      <div class="buttons are-small mb-0">
+                        ${usaEdit
+                            ? `<button class="button is-light" title="${ag.status === "Agendado" ? "Ver / Editar" : "Detalhes"}" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>`
+                            : `<button class="button is-light" title="Detalhes" data-ag-func='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>`
+                        }
+                        <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="Ver cliente" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
+                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}
+                      </div>
+                    </td>`,
+                "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
             }
         }
 
@@ -2133,7 +2203,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll("[name='chk-func-ag-status']")
             .forEach(el => el.addEventListener("change", renderAgendaFunc));
 
-        if (isAtendente) {
+        if (isAtendente || funcCargo === "Esteticista") {
 
             // Editable detail modal
             const modalFuncAgEdit = document.getElementById("modal-func-ag-edit");
@@ -2238,6 +2308,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 else toast("Erro ao cancelar.", "danger");
             });
 
+            if (isAtendente) {
             // Novo Agendamento modal
             const modalFuncNovoAg = document.getElementById("modal-func-novo-ag");
             const fecharModalFuncNovoAg = () => {
@@ -2300,6 +2371,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (r.ok) { toast("Agendamento criado com sucesso!"); fecharModalFuncNovoAg(); carregarAgendaFunc(); }
                 else { const err = await r.json().catch(() => ({})); toast(err.mensagem || "Erro ao agendar.", "danger"); }
             });
+            }
         }
 
         carregarAgendaFunc();
@@ -2484,6 +2556,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("agendar-hora").value = ag.hora;
                     document.getElementById("agendar-observacao").value = ag.observacao || "";
                     _verificarAgendar();
+                    atualizarDuracaoInfo();
                 }
             }
         });
@@ -2494,9 +2567,22 @@ document.addEventListener("DOMContentLoaded", () => {
             fetchServicos: () => Promise.resolve(servicosAgendar)
         });
 
+        function atualizarDuracaoInfo() {
+            const info = document.getElementById("agendar-duracao-info");
+            if (!info) return;
+            const selecionados = [...document.querySelectorAll("#agendar-servicos input[type=checkbox]:checked")].map(c => c.value);
+            if (selecionados.length === 0) { info.classList.add("is-hidden"); return; }
+            const totalDuracao = selecionados.reduce((sum, nome) => {
+                const s = servicosAgendar.find(sv => sv.nome === nome);
+                return sum + (s?.duracao || 60);
+            }, 0);
+            info.textContent = `Tempo estimado: ${totalDuracao} min`;
+            info.classList.remove("is-hidden");
+        }
+
         setupBloqueioVetGeral("agendar-servicos");
         document.getElementById("agendar-data")?.addEventListener("change", _verificarAgendar);
-        document.getElementById("agendar-servicos")?.addEventListener("change", _verificarAgendar);
+        document.getElementById("agendar-servicos")?.addEventListener("change", () => { _verificarAgendar(); atualizarDuracaoInfo(); });
 
         document.getElementById("btn-agendar")?.addEventListener("click", async () => {
             const petId = document.getElementById("agendar-pet").value;
@@ -2542,7 +2628,10 @@ document.addEventListener("DOMContentLoaded", () => {
         authFetch(`${BASE_URL}/api/usuarios/${clienteId}`)
             .then(r => r.ok ? r.json() : null)
             .then(u => {
-                if (!u) return;
+                if (!u) {
+                    document.getElementById("cli-nome").textContent = "Cliente não encontrado";
+                    return;
+                }
                 document.title = `PetGO - ${u.nome}`;
                 document.getElementById("cli-nome").textContent = u.nome || "—";
                 document.getElementById("cli-email").textContent = u.email || "—";

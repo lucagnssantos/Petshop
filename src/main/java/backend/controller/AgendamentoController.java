@@ -83,6 +83,12 @@ public class AgendamentoController {
             return ResponseEntity.badRequest().body(Map.of("mensagem",
                 "Não é possível agendar em datas passadas."));
 
+        // Horário fora do intervalo permitido (08:00 – 17:00)
+        int horaInt = Integer.parseInt(dto.getHora().split(":")[0]);
+        if (horaInt < 8 || horaInt > 17)
+            return ResponseEntity.badRequest().body(Map.of("mensagem",
+                "Horário fora do intervalo permitido (08:00 às 17:00)."));
+
         List<Servico> servicosList = Arrays.stream(dto.getServico().split(","))
             .map(String::trim)
             .map(nome -> servicoRepository.findByNome(nome).orElse(null))

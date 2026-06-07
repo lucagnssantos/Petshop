@@ -125,7 +125,12 @@ public class UsuarioController {
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody UsuarioRequestDTO dto) {
         return repository.findById(id).map(u -> {
             if (dto.getNome() != null)           u.setNome(dto.getNome());
-            if (dto.getEmail() != null)          u.setEmail(dto.getEmail());
+            if (dto.getEmail() != null) {
+                var existing = repository.findByEmail(dto.getEmail());
+                if (existing.isPresent() && !existing.get().getId().equals(id))
+                    return ResponseEntity.badRequest().body((Object) Map.of("mensagem", "E-mail já cadastrado!"));
+                u.setEmail(dto.getEmail());
+            }
             if (dto.getCpf() != null)            u.setCpf(dto.getCpf());
             if (dto.getDataNascimento() != null) u.setDataNascimento(dto.getDataNascimento());
             if (dto.getCep() != null)            u.setCep(dto.getCep());
@@ -211,11 +216,6 @@ public class UsuarioController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Usuario u = opt.get();
         List<Pet> pets = petRepository.findByUsuarioId(id);
-        for (Pet pet : pets) {
-            if (agendamentoRepository.existsByPetIdAndStatus(pet.getId(), "Agendado"))
-                return ResponseEntity.badRequest().body(Map.of("mensagem",
-                        "Não é possível excluir o cliente pois o pet \"" + pet.getNome() + "\" possui agendamentos ativos."));
-        }
         r2.delete(u.getImagemUrl());
         for (Pet pet : pets) {
             r2.delete(pet.getImagemUrl());
