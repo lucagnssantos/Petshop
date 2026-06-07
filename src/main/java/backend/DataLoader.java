@@ -203,6 +203,18 @@ public class DataLoader implements ApplicationRunner {
         agendamento(beatriz.getId(), mia.getId(),      "Vacinação",      "2026-05-31", "11:00", "Reforço anual de vacinas",        "Agendado",  null);
         agendamento(lucas.getId(),   lola.getId(),     "Consulta",       "2026-04-30", "14:00", "Suspeita de alergia alimentar",   "Cancelado", "Tutora não pôde comparecer, reagendamento necessário.");
 
+        // Agendamentos — agosto e setembro
+        agendamento(ana.getId(),     mel.getId(),    "Banho",          "2026-08-03", "09:00", null,                          "Agendado",  null);
+        agendamento(joao.getId(),    thor.getId(),   "Tosa",           "2026-08-10", "10:00", null,                          "Agendado",  null);
+        agendamento(mariana.getId(), luna.getId(),   "Banho, Tosa",    "2026-08-14", "11:00", "Pelagem comprida",            "Agendado",  null);
+        agendamento(pedro.getId(),   bob.getId(),    "Hidratação",     "2026-08-20", "14:00", null,                          "Concluído", null);
+        agendamento(lucia.getId(),   nina.getId(),   "Consulta",       "2026-08-25", "09:00", "Check-up trimestral",         "Agendado",  null);
+        agendamento(rafael.getId(),  pipoca.getId(), "Banho",          "2026-09-02", "09:00", null,                          "Agendado",  null);
+        agendamento(camila.getId(),  cookie.getId(), "Tosa",           "2026-09-09", "10:00", null,                          "Agendado",  null);
+        agendamento(felipe.getId(),  zeus.getId(),   "Banho, Tosa",    "2026-09-15", "11:00", "Pelagem densa",               "Agendado",  null);
+        agendamento(beatriz.getId(), mia.getId(),    "Vacinação",      "2026-09-21", "14:00", "Reforço anual",               "Agendado",  null);
+        agendamento(isabela.getId(), nala.getId(),   "Banho",          "2026-09-28", "09:00", null,                          "Cancelado", "Tutora remarcou para outra data.");
+
         System.out.println("=== DataLoader: banco populado com sucesso! ===");
         System.out.println("Admin:            admin@petgo.com        / Admin@123");
         System.out.println("Veterinário:      carlos.vet@petgo.com   / Func@123");
