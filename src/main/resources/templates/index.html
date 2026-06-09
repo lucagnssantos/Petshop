@@ -18,17 +18,24 @@
 
     <!-- Navbar específica da home com links de âncora -->
     <nav class="navbar" role="navigation">
-      <div class="navbar-menu">
+      <div class="navbar-brand">
+        <div class="nav-logo">
+          <a class="navbar-item" href="/index.html">
+            <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img" />
+          </a>
+        </div>
+        <a role="button" class="navbar-burger" data-target="navbar-menu-home" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div class="navbar-menu" id="navbar-menu-home">
         <div class="navbar-start">
           <a class="navbar-item" href="#home">Início</a>
           <a class="navbar-item" href="#servicos">Serviços</a>
           <a class="navbar-item" href="#sobre">Sobre nós</a>
           <a class="navbar-item" href="#contatos">Contatos</a>
-        </div>
-        <div class="nav-logo">
-          <a class="navbar-item" href="/index.html">
-            <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:100px;width:auto;" />
-          </a>
         </div>
         <div class="navbar-end">
           <div class="navbar-item" id="nav-btn-entrar">
@@ -67,7 +74,7 @@
 
 <main>
 
-  <section class="section">
+  <section class="section" id="depoimentos">
     <div class="container">
       <div class="columns has-text-centered">
         <div class="column">

@@ -16,8 +16,10 @@
 
   <div class="is-flex" style="min-height: 100vh;">
 
+    <div id="sidebar-backdrop" class="dashboard-sidebar-backdrop"></div>
+
     <!-- Sidebar -->
-    <aside class="has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
+    <aside class="dashboard-sidebar has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
         <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO" style="height:48px;width:auto;" />
         <p class="is-size-7 has-text-grey mt-2">Painel Admin</p>
@@ -36,7 +38,13 @@
     </aside>
 
     <!-- Conteúdo principal -->
-    <main class="p-5" style="flex: 1;">
+    <main class="p-5" style="flex: 1; min-width: 0;">
+
+      <button id="btn-toggle-sidebar" class="navbar-burger dashboard-sidebar-toggle is-hidden-tablet mb-4" aria-label="Abrir menu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
 
       <h1 class="title is-4 mb-5">Dashboard</h1>
 
@@ -49,18 +57,22 @@
         </div>
         <h2 class="title is-5 mb-3">Agenda de Hoje</h2>
         <div class="box p-0 mb-5">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>Horário</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="tabela-hoje"></tbody>
           </table>
+          </div>
           <p id="hoje-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento para hoje.</p>
         </div>
         <h2 class="title is-5 mb-3">Próximos Agendamentos</h2>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th></tr></thead>
             <tbody id="tabela-proximos"></tbody>
           </table>
+          </div>
           <p id="proximos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento futuro.</p>
         </div>
       </div>
@@ -86,10 +98,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped" style="table-layout:fixed;">
             <thead><tr><th style="width:3rem;">#</th><th style="width:14%;">Cliente</th><th style="width:10%;">Pet</th><th style="width:18%;">Serviço</th><th style="width:10rem;">Data / Hora</th><th style="width:7rem;">Status</th><th style="width:9rem;">Ações</th></tr></thead>
             <tbody id="tabela-agendamentos"></tbody>
           </table>
+          </div>
           <p id="agendamentos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
           <nav id="pag-agendamentos" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
@@ -104,10 +118,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr></thead>
             <tbody id="tabela-clientes"></tbody>
           </table>
+          </div>
           <p id="clientes-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum cliente encontrado.</p>
           <nav id="pag-clientes" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
@@ -130,10 +146,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>Nome</th><th>Cargo</th><th>Telefone</th><th>E-mail</th><th>Ações</th></tr></thead>
             <tbody id="tabela-funcionarios"></tbody>
           </table>
+          </div>
           <p id="funcionarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum funcionário cadastrado.</p>
           <nav id="pag-funcionarios" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
@@ -162,10 +180,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>#</th><th>Nome</th><th>Duração</th><th>Tipo</th><th>Ações</th></tr></thead>
             <tbody id="tabela-servicos"></tbody>
           </table>
+          </div>
           <p id="servicos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum serviço cadastrado.</p>
         </div>
       </div>
@@ -205,10 +225,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>#</th><th>Nome</th><th>Raça</th><th>Porte</th><th>Sexo</th><th>Ações</th></tr></thead>
             <tbody id="tabela-pets"></tbody>
           </table>
+          </div>
           <p id="pets-admin-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum pet cadastrado.</p>
           <nav id="pag-pets" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>

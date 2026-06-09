@@ -320,6 +320,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
     inicializarNavUsuario();
 
+    // ================= NAVBAR BURGER (MOBILE) =================
+
+    function inicializarNavbarBurger() {
+        document.querySelectorAll(".navbar-burger").forEach(burger => {
+            const alvo = document.getElementById(burger.dataset.target);
+            if (!alvo) return;
+            burger.addEventListener("click", () => {
+                const ativo = burger.classList.toggle("is-active");
+                alvo.classList.toggle("is-active", ativo);
+                burger.setAttribute("aria-expanded", String(ativo));
+            });
+            alvo.querySelectorAll("a.navbar-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    burger.classList.remove("is-active");
+                    alvo.classList.remove("is-active");
+                    burger.setAttribute("aria-expanded", "false");
+                });
+            });
+        });
+    }
+
+    inicializarNavbarBurger();
+
+    // ================= SIDEBAR ADMIN/FUNCIONÁRIO (MOBILE) =================
+
+    function inicializarSidebarMobile() {
+        const sidebar = document.querySelector(".dashboard-sidebar");
+        const toggle = document.getElementById("btn-toggle-sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
+        if (!sidebar || !toggle || !backdrop) return;
+
+        function fechar() {
+            sidebar.classList.remove("is-active");
+            backdrop.classList.remove("is-active");
+        }
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("is-active");
+            backdrop.classList.toggle("is-active");
+        });
+        backdrop.addEventListener("click", fechar);
+        sidebar.querySelectorAll("a.navbar-item, button").forEach(item => {
+            item.addEventListener("click", fechar);
+        });
+    }
+
+    inicializarSidebarMobile();
+
     // ================= SERVIÇOS (HOME) =================
 
     document.querySelectorAll(".servico-link").forEach(link => {

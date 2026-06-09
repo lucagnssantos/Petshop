@@ -16,8 +16,10 @@
 
   <div class="is-flex" style="min-height: 100vh;">
 
+    <div id="sidebar-backdrop" class="dashboard-sidebar-backdrop"></div>
+
     <!-- Sidebar -->
-    <aside class="has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
+    <aside class="dashboard-sidebar has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
         <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO" style="height:48px;width:auto;" />
         <figure class="image is-64x64 mx-auto mt-3">
@@ -34,7 +36,13 @@
     </aside>
 
     <!-- Conteúdo principal -->
-    <main class="p-5" style="flex: 1;">
+    <main class="p-5" style="flex: 1; min-width: 0;">
+
+      <button id="btn-toggle-sidebar" class="navbar-burger dashboard-sidebar-toggle is-hidden-tablet mb-4" aria-label="Abrir menu">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
 
       <div id="section-func-agenda">
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-1">
@@ -58,10 +66,12 @@
           </div>
         </div>
         <div class="box p-0">
+          <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
             <thead><tr><th>Data / Hora</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody id="tabela-func-agenda"></tbody>
           </table>
+          </div>
           <p id="func-agenda-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
           <nav id="pag-func-agenda" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
