@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/agendamentos/disponibilidade").permitAll()
                 // Toda rota /api/** exige autenticação
                 .requestMatchers("/api/**").authenticated()
+                // Swagger UI
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 // Arquivos estáticos (HTML, JS, CSS) são públicos
                 .anyRequest().permitAll()
             )

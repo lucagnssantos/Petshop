@@ -3,3 +3,5 @@
 target/
 TESTES_MANUAIS.md
 Avaliação_ExpCriativa2026.csv
+node_modules/
+coverage/

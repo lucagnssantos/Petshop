@@ -432,50 +432,27 @@ document.addEventListener("DOMContentLoaded", () => {
         if (help) help.textContent = "";
     }
 
-    function cpfValido(cpf) {
-        cpf = cpf.replace(/\D/g, "");
-        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-        let soma = 0;
-        for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
-        let r = (soma * 10) % 11;
-        if (r === 10 || r === 11) r = 0;
-        if (r !== parseInt(cpf[9])) return false;
-        soma = 0;
-        for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
-        r = (soma * 10) % 11;
-        if (r === 10 || r === 11) r = 0;
-        return r === parseInt(cpf[10]);
-    }
-
     function validarNome(id) {
-        const v = document.getElementById(id)?.value.trim() || "";
-        if (!v) { setErro(id, "Nome obrigatório."); return false; }
-        if (v.length < 3) { setErro(id, "Nome muito curto."); return false; }
+        const r = validarNomeValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
     function validarCpf(id) {
-        const v = document.getElementById(id)?.value || "";
-        if (!v) { setErro(id, "CPF obrigatório."); return false; }
-        if (!cpfValido(v)) { setErro(id, "CPF inválido."); return false; }
+        const r = validarCpfValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
     function validarData(id) {
-        const v = document.getElementById(id)?.value || "";
-        if (!v) { setErro(id, "Data obrigatória."); return false; }
-        const [d, m, a] = v.split("/").map(Number);
-        const data = new Date(a, m - 1, d);
-        if (isNaN(data) || data.getDate() !== d || data.getMonth() !== m - 1 || a < 1900 || a > new Date().getFullYear()) {
-            setErro(id, "Data inválida."); return false;
-        }
+        const r = validarDataValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
     function validarCep(id) {
-        const v = (document.getElementById(id)?.value || "").replace(/\D/g, "");
-        if (!v) { setErro(id, "CEP obrigatório."); return false; }
-        if (v.length !== 8) { setErro(id, "CEP inválido."); return false; }
+        const r = validarCepValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
@@ -486,27 +463,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function validarEmail(id) {
-        const v = document.getElementById(id)?.value.trim() || "";
-        if (!v) { setErro(id, "E-mail obrigatório."); return false; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { setErro(id, "E-mail inválido."); return false; }
+        const r = validarEmailValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
     function validarSenha(id) {
-        const v = document.getElementById(id)?.value || "";
-        if (!v) { setErro(id, "Senha obrigatória."); return false; }
-        if (v.length < 6) { setErro(id, "Mínimo 6 caracteres."); return false; }
-        if (!/[A-Z]/.test(v)) { setErro(id, "Deve conter letra maiúscula."); return false; }
-        if (!/[0-9]/.test(v)) { setErro(id, "Deve conter um número."); return false; }
-        if (!/[^A-Za-z0-9]/.test(v)) { setErro(id, "Deve conter um símbolo."); return false; }
+        const r = validarSenhaValor(document.getElementById(id)?.value);
+        if (!r.valido) { setErro(id, r.mensagem); return false; }
         setOk(id); return true;
     }
 
-    function validarTelefone(id) {
-        const val = (document.getElementById(id)?.value || "").replace(/\D/g, "");
-        if (!val) { setErro(id, "Telefone obrigatório."); return false; }
-        if (val.length < 10) { setErro(id, "Telefone inválido."); return false; }
-        setOk(id); return true;
+    function validarTelefone(ap) {
+        const r = validarTelefoneValor(document.getElementById(ap)?.value);
+        if (!r.valido) { setErro(ap, r.mensagem); return false; }
+        setOk(ap); return true;
     }
 
     function validarConfirmacaoSenha(idSenha, idConf) {

@@ -9,6 +9,11 @@ import backend.repository.PetRepository;
 import backend.repository.UsuarioRepository;
 import backend.security.JwtUtil;
 import backend.service.R2StorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Tag(name = "Usuários", description = "Cadastro, autenticação e gestão de usuários (clientes e funcionários)")
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -38,6 +44,10 @@ public class UsuarioController {
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    @Operation(summary = "Cadastrar funcionário", description = "Apenas administradores (role=1) podem criar funcionários.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Funcionário cadastrado"),
+                    @ApiResponse(responseCode = "400", description = "E-mail ou CPF já cadastrado"),
+                    @ApiResponse(responseCode = "403", description = "Acesso negado") })
     @PostMapping("/funcionario/cadastrar")
     public ResponseEntity<?> cadastrarFuncionario(@RequestBody UsuarioRequestDTO dto,
                                                    HttpServletRequest request) {
@@ -69,6 +79,9 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Cadastrar cliente", description = "Endpoint público. Cria um usuário com role=2 (cliente).")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Usuário cadastrado com sucesso"),
+                    @ApiResponse(responseCode = "400", description = "E-mail ou CPF já cadastrado") })
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody UsuarioRequestDTO dto) {
         if (repository.findByEmail(dto.getEmail()).isPresent())
@@ -93,6 +106,9 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Login", description = "Retorna token JWT com campos: id, nome, role, cargo, token.")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Login realizado — retorna token JWT"),
+                    @ApiResponse(responseCode = "401", description = "E-mail não encontrado ou senha incorreta") })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UsuarioRequestDTO dto) {
         if (dto.getEmail() == null || dto.getSenha() == null)
@@ -114,6 +130,9 @@ public class UsuarioController {
         ));
     }
 
+    @Operation(summary = "Buscar usuário por ID", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado") })
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Integer id) {
         return repository.findById(id)
@@ -121,6 +140,10 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Atualizar usuário", description = "Atualiza campos do usuário. Apenas campos enviados são alterados.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Usuário atualizado"),
+                    @ApiResponse(responseCode = "400", description = "E-mail já cadastrado"),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado") })
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody UsuarioRequestDTO dto) {
         return repository.findById(id).map(u -> {
@@ -143,21 +166,32 @@ public class UsuarioController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Listar todos os usuários", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de usuários")
     @GetMapping
     public List<UsuarioResponseDTO> listarTodos() {
         return repository.findAll().stream().map(UsuarioResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Listar funcionários", description = "Retorna usuários com role=3.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de funcionários")
     @GetMapping("/funcionarios")
     public List<UsuarioResponseDTO> listarFuncionarios() {
         return repository.findByIdRole(3).stream().map(UsuarioResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Listar clientes", description = "Retorna usuários com role=2.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de clientes")
     @GetMapping("/clientes")
     public List<UsuarioResponseDTO> listarClientes() {
         return repository.findByIdRole(2).stream().map(UsuarioResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Upload de foto do usuário", description = "Aceita JPEG, PNG, GIF ou WebP até 5 MB. Salvo na CDN Cloudflare R2.")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "URL da imagem salva"),
+                    @ApiResponse(responseCode = "400", description = "Formato ou tamanho inválido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado") })
     @PostMapping(value = "/{id}/imagem", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadImagem(@PathVariable Integer id,
                                            @RequestParam("imagem") MultipartFile file,
@@ -201,6 +235,9 @@ public class UsuarioController {
         }
     }
 
+    @Operation(summary = "Redirecionar para foto do usuário", description = "Retorna 302 para a URL da CDN.")
+    @ApiResponses({ @ApiResponse(responseCode = "302", description = "Redirect para a imagem"),
+                    @ApiResponse(responseCode = "404", description = "Usuário ou imagem não encontrada") })
     @GetMapping("/{id}/imagem")
     public ResponseEntity<?> servirImagem(@PathVariable Integer id) {
         var opt = repository.findById(id);
@@ -210,6 +247,9 @@ public class UsuarioController {
         return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
     }
 
+    @Operation(summary = "Remover usuário", description = "Remove o usuário, seus pets e agendamentos. Exclui imagens da CDN.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Usuário removido"),
+                    @ApiResponse(responseCode = "404", description = "Usuário não encontrado") })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Integer id) {
         var opt = repository.findById(id);

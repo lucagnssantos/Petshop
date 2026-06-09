@@ -1,0 +1,17 @@
+{
+  "name": "petgo-frontend-tests",
+  "version": "1.0.0",
+  "description": "Testes unitários do frontend PetGO",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/src/test/javascript/**/*.test.js"],
+    "collectCoverageFrom": ["src/main/resources/static/utils.js"],
+    "coverageReporters": ["text", "lcov"]
+  }
+}

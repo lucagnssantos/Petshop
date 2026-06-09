@@ -7,6 +7,11 @@ import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
 import backend.security.JwtUtil;
 import backend.service.R2StorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Tag(name = "Pets", description = "Cadastro e gestão de pets vinculados a clientes")
 @RestController
 @RequestMapping("/api/pets")
 public class PetController {
@@ -44,6 +50,9 @@ public class PetController {
         return anos == 1 ? "1 ano" : anos + " anos";
     }
 
+    @Operation(summary = "Buscar pet por ID", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Pet encontrado"),
+                    @ApiResponse(responseCode = "404", description = "Pet não encontrado") })
     @GetMapping("/{id}")
     public ResponseEntity<PetResponseDTO> buscarPorId(@PathVariable Integer id) {
         return repository.findById(id)
@@ -51,16 +60,22 @@ public class PetController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Listar pets do usuário", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de pets do cliente")
     @GetMapping("/usuario/{usuarioId}")
     public List<PetResponseDTO> listarPorUsuario(@PathVariable Integer usuarioId) {
         return repository.findByUsuarioId(usuarioId).stream().map(PetResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Listar todos os pets", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista completa de pets")
     @GetMapping
     public List<PetResponseDTO> listarTodos() {
         return repository.findAll().stream().map(PetResponseDTO::from).toList();
     }
 
+    @Operation(summary = "Cadastrar pet", description = "Campo 'idade' deve estar no formato dd/MM/yyyy. A idade é calculada automaticamente.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Pet cadastrado")
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody PetRequestDTO dto) {
         Pet pet = new Pet();
@@ -74,6 +89,9 @@ public class PetController {
         return ResponseEntity.ok(PetResponseDTO.from(repository.save(pet)));
     }
 
+    @Operation(summary = "Atualizar pet", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Pet atualizado"),
+                    @ApiResponse(responseCode = "404", description = "Pet não encontrado") })
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody PetRequestDTO dto) {
         return repository.findById(id).map(p -> {
@@ -94,6 +112,10 @@ public class PetController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Remover pet", description = "Bloqueia remoção se houver agendamentos ativos. Remove imagem da CDN.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Pet removido"),
+                    @ApiResponse(responseCode = "400", description = "Pet possui agendamentos ativos"),
+                    @ApiResponse(responseCode = "404", description = "Pet não encontrado") })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Integer id) {
         var opt = repository.findById(id);
@@ -107,6 +129,11 @@ public class PetController {
         return ResponseEntity.ok(Map.of("mensagem", "Pet removido com sucesso!"));
     }
 
+    @Operation(summary = "Upload de foto do pet", description = "Aceita JPEG, PNG, GIF ou WebP até 5 MB.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "URL da imagem salva"),
+                    @ApiResponse(responseCode = "400", description = "Formato ou tamanho inválido"),
+                    @ApiResponse(responseCode = "403", description = "Sem permissão"),
+                    @ApiResponse(responseCode = "404", description = "Pet não encontrado") })
     @PostMapping(value = "/{id}/imagem", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadImagem(@PathVariable Integer id,
                                            @RequestParam("imagem") MultipartFile file,
@@ -147,6 +174,9 @@ public class PetController {
         }
     }
 
+    @Operation(summary = "Redirecionar para foto do pet", description = "Retorna 302 para a URL da CDN.")
+    @ApiResponses({ @ApiResponse(responseCode = "302", description = "Redirect para a imagem"),
+                    @ApiResponse(responseCode = "404", description = "Pet ou imagem não encontrada") })
     @GetMapping("/{id}/imagem")
     public ResponseEntity<?> servirImagem(@PathVariable Integer id) {
         var opt = repository.findById(id);

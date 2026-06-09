@@ -9,6 +9,11 @@ import backend.repository.AgendamentoRepository;
 import backend.repository.PetRepository;
 import backend.repository.ServicoRepository;
 import backend.repository.UsuarioRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -18,6 +23,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Tag(name = "Agendamentos", description = "Criação, consulta, atualização e verificação de disponibilidade de agendamentos")
 @RestController
 @RequestMapping("/api/agendamentos")
 public class AgendamentoController {
@@ -76,6 +82,10 @@ public class AgendamentoController {
             .map(Usuario::getId);
     }
 
+    @Operation(summary = "Criar agendamento", description = "Valida data futura, horário (08-17h), disponibilidade do funcionário e do pet. Atribui automaticamente o funcionário livre.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Agendamento criado"),
+                    @ApiResponse(responseCode = "400", description = "Regra de negócio violada (data passada, horário inválido, pet ocupado, serviços misturados)"),
+                    @ApiResponse(responseCode = "400", description = "Nenhum profissional disponível no horário") })
     @PostMapping
     public ResponseEntity<?> criar(@RequestBody AgendamentoRequestDTO dto) {
         // Data no passado
@@ -133,21 +143,32 @@ public class AgendamentoController {
         return ResponseEntity.ok(toDTO(agendamentoRepository.save(agendamento)));
     }
 
+    @Operation(summary = "Listar agendamentos do usuário", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de agendamentos do cliente")
     @GetMapping("/usuario/{usuarioId}")
     public List<AgendamentoResponseDTO> listarPorUsuario(@PathVariable Integer usuarioId) {
         return agendamentoRepository.findByUsuarioId(usuarioId).stream().map(this::toDTO).toList();
     }
 
+    @Operation(summary = "Listar agendamentos do funcionário", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista de agendamentos do funcionário")
     @GetMapping("/funcionario/{funcionarioId}")
     public List<AgendamentoResponseDTO> listarPorFuncionario(@PathVariable Integer funcionarioId) {
         return agendamentoRepository.findByFuncionarioId(funcionarioId).stream().map(this::toDTO).toList();
     }
 
+    @Operation(summary = "Listar todos os agendamentos", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponse(responseCode = "200", description = "Lista completa de agendamentos")
     @GetMapping
     public List<AgendamentoResponseDTO> listarTodos() {
         return agendamentoRepository.findAll().stream().map(this::toDTO).toList();
     }
 
+    @Operation(summary = "Atualizar agendamento", description = "Permite alterar status, serviço, data, hora e observação. Cancelamento exige campo 'motivo'. Apenas agendamentos com status 'Agendado' podem ser alterados.", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Agendamento atualizado"),
+                    @ApiResponse(responseCode = "400", description = "Status inválido, motivo ausente ou agendamento já finalizado"),
+                    @ApiResponse(responseCode = "404", description = "Agendamento não encontrado"),
+                    @ApiResponse(responseCode = "409", description = "Conflito de concorrência — recarregue e tente novamente") })
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Integer id, @RequestBody AgendamentoRequestDTO dto) {
         return agendamentoRepository.findById(id).map(ag -> {
@@ -183,6 +204,8 @@ public class AgendamentoController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Verificar disponibilidade de horários", description = "Endpoint público. Retorna mapa hora→vagas para uma data. Parâmetro 'tipo': 'normal' (Esteticista) ou 'vet' (Veterinário).")
+    @ApiResponses({ @ApiResponse(responseCode = "200", description = "Mapa de slots disponíveis, ex: {\"slots\":{\"08:00\":2,\"09:00\":1}}") })
     @GetMapping("/disponibilidade")
     public ResponseEntity<?> disponibilidade(
             @RequestParam String data,
