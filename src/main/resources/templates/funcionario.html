@@ -2,6 +2,7 @@
 <html lang="pt-BR" data-theme="light" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('petgo-theme')||'light');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PetGO - Área do Funcionário</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
@@ -21,7 +22,7 @@
     <!-- Sidebar -->
     <aside class="dashboard-sidebar has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.svg" alt="PetGO" style="height:48px;width:auto;" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO" class="petgo-logo" style="height:48px;width:auto;" />
         <figure class="image is-64x64 mx-auto mt-3">
           <img id="func-avatar" class="is-rounded" src="https://placehold.co/64x64?text=?" alt="Avatar" style="height:64px;object-fit:cover;border-radius:50%;" />
         </figure>
@@ -32,6 +33,9 @@
       <a class="navbar-item" href="#" data-secao-func="perfil"><span class="icon mr-2"><i class="fas fa-user"></i></span> Meu Perfil</a>
       <button id="btn-sair-funcionario" class="navbar-item has-text-danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
         <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> Sair
+      </button>
+      <button class="btn-tema navbar-item mt-auto" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;" aria-label="Alternar tema">
+        <span class="icon mr-2"><i class="icon-tema fas fa-moon"></i></span> <span class="btn-tema-label">Modo escuro</span>
       </button>
     </aside>
 

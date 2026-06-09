@@ -7,7 +7,7 @@
   <div class="navbar-brand">
     <div class="nav-logo">
       <a class="navbar-item" href="/index.html">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img petgo-logo" />
       </a>
     </div>
     <a role="button" class="navbar-burger" data-target="navbar-menu-principal" aria-label="menu" aria-expanded="false">
@@ -21,6 +21,11 @@
       <a class="navbar-item" th:href="${voltarHref}" th:text="${voltarTexto}">Voltar</a>
     </div>
     <div class="navbar-end">
+      <div class="navbar-item">
+        <button class="btn-tema button is-ghost" aria-label="Alternar tema">
+          <span class="icon"><i class="icon-tema fas fa-moon"></i></span>
+        </button>
+      </div>
       <div class="navbar-item" id="nav-btn-entrar">
         <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
       </div>
@@ -41,7 +46,7 @@
     <a class="navbar-item has-text-weight-bold" th:href="${voltarHref}">Voltar</a>
     <div class="nav-logo">
       <a class="navbar-item" href="/index.html">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img petgo-logo" />
       </a>
     </div>
   </div>

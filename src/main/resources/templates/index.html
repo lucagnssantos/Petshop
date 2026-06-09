@@ -2,6 +2,7 @@
 <html lang="pt-BR" data-theme="light" style="scroll-behavior: smooth;" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
+  <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('petgo-theme')||'light');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PetGO</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css" />
@@ -21,7 +22,7 @@
       <div class="navbar-brand">
         <div class="nav-logo">
           <a class="navbar-item" href="/index.html">
-            <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img" />
+            <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img petgo-logo" />
           </a>
         </div>
         <a role="button" class="navbar-burger" data-target="navbar-menu-home" aria-label="menu" aria-expanded="false">
@@ -38,6 +39,11 @@
           <a class="navbar-item" href="#contatos">Contatos</a>
         </div>
         <div class="navbar-end">
+          <div class="navbar-item">
+            <button class="btn-tema button is-ghost" aria-label="Alternar tema">
+              <span class="icon"><i class="icon-tema fas fa-moon"></i></span>
+            </button>
+          </div>
           <div class="navbar-item" id="nav-btn-entrar">
             <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
           </div>
@@ -151,7 +157,7 @@
   <footer id="contatos" class="footer has-background-white py-5">
     <div class="container">
       <div class="has-text-centered mb-4">
-        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" style="height:50px;width:auto;" />
+        <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="petgo-logo" style="height:50px;width:auto;" />
       </div>
       <hr />
       <div class="columns is-vcentered">

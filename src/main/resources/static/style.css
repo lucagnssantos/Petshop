@@ -232,6 +232,31 @@ input[type="checkbox"] {
   }
 }
 
+/* ===== Dark mode ===== */
+
+[data-theme="dark"] body,
+[data-theme="dark"] body.has-background-light,
+[data-theme="dark"] #admin-dashboard,
+[data-theme="dark"] #funcionario-dashboard {
+  background-color: #13111c !important;
+}
+
+[data-theme="dark"] #hero-bg {
+  background-color: #1e1830;
+}
+
+[data-theme="dark"] .dashboard-sidebar,
+[data-theme="dark"] .dashboard-sidebar.has-background-white {
+  background-color: #1a1728 !important;
+  border-right-color: #2d2850 !important;
+}
+
+[data-theme="dark"] footer.footer,
+[data-theme="dark"] footer.footer.has-background-white {
+  background-color: #1a1728 !important;
+}
+
+
 /* ===== Responsividade — painéis admin/funcionário ===== */
 
 .dashboard-sidebar-backdrop {

@@ -1,3 +1,8 @@
+(function () {
+    const t = localStorage.getItem('petgo-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+})();
+
 function previewImagem(event, previewId) {
     const file = event.target.files[0];
     if (!file) return;
@@ -2810,5 +2815,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
     }
+
+    // Dark mode toggle
+    const LOGO_LIGHT = 'https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png';
+    const LOGO_DARK  = 'https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical-branca.png';
+    function aplicarTema(tema) {
+        document.querySelectorAll('.btn-tema .icon-tema').forEach(el => {
+            el.className = 'icon-tema fas ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon');
+        });
+        document.querySelectorAll('.btn-tema .btn-tema-label').forEach(el => {
+            el.textContent = tema === 'dark' ? 'Modo claro' : 'Modo escuro';
+        });
+        document.querySelectorAll('.petgo-logo').forEach(img => {
+            img.src = tema === 'dark' ? LOGO_DARK : LOGO_LIGHT;
+        });
+    }
+    aplicarTema(localStorage.getItem('petgo-theme') || 'light');
+    document.querySelectorAll('.btn-tema').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const novo = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', novo);
+            localStorage.setItem('petgo-theme', novo);
+            aplicarTema(novo);
+        });
+    });
 
 });
