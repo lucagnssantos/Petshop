@@ -29,14 +29,20 @@
         <p class="has-text-weight-bold mt-2" id="func-nome-nav">...</p>
         <p class="is-size-7 has-text-grey" id="func-cargo-nav">...</p>
       </div>
-      <a class="navbar-item is-active" href="#" data-secao-func="agenda"><span class="icon mr-2"><i class="fas fa-calendar-day"></i></span> Minha Agenda</a>
-      <a class="navbar-item" href="#" data-secao-func="perfil"><span class="icon mr-2"><i class="fas fa-user"></i></span> Meu Perfil</a>
+      <a class="navbar-item is-active" href="#" data-secao-func="agenda"><span class="icon mr-2"><i class="fas fa-calendar-day"></i></span> <span th:text="#{func.minha.agenda}">Minha Agenda</span></a>
+      <a class="navbar-item" href="#" data-secao-func="perfil"><span class="icon mr-2"><i class="fas fa-user"></i></span> <span th:text="#{func.meu.perfil}">Meu Perfil</span></a>
       <button id="btn-sair-funcionario" class="navbar-item has-text-danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
-        <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> Sair
+        <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> <span th:text="#{func.sair}">Sair</span>
       </button>
-      <button class="btn-tema navbar-item mt-auto" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;" aria-label="Alternar tema">
-        <span class="icon mr-2"><i class="icon-tema fas fa-moon"></i></span> <span class="btn-tema-label">Modo escuro</span>
-      </button>
+      <div class="mt-auto" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="is-flex" style="gap: 0.25rem;">
+          <a href="?lang=pt_BR" class="button is-small" th:classappend="${#locale.language == 'pt' ? 'is-primary' : 'is-ghost'}">PT</a>
+          <a href="?lang=en" class="button is-small" th:classappend="${#locale.language == 'en' ? 'is-primary' : 'is-ghost'}">EN</a>
+        </div>
+        <button class="btn-tema navbar-item" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;" aria-label="Alternar tema">
+          <span class="icon mr-2"><i class="icon-tema fas fa-moon"></i></span> <span class="btn-tema-label" th:text="#{func.modo.escuro}">Modo escuro</span>
+        </button>
+      </div>
     </aside>
 
     <!-- Conteúdo principal -->
@@ -50,57 +56,64 @@
 
       <div id="section-func-agenda">
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-1">
-          <h1 class="title is-4 mb-0">Minha Agenda</h1>
-          <button id="btn-func-novo-ag" class="button is-primary has-text-weight-bold is-hidden"><span class="icon"><i class="fas fa-plus"></i></span><span>Novo agendamento</span></button>
+          <h1 class="title is-4 mb-0" th:text="#{func.minha.agenda}">Minha Agenda</h1>
+          <button id="btn-func-novo-ag" class="button is-primary has-text-weight-bold is-hidden"><span class="icon"><i class="fas fa-plus"></i></span><span th:text="#{func.novo.ag}">Novo agendamento</span></button>
         </div>
-        <p class="has-text-grey mb-4" id="func-agenda-subtitulo">Agendamentos do dia</p>
+        <p class="has-text-grey mb-4" id="func-agenda-subtitulo" th:text="#{func.agenda.subtitulo}">Agendamentos do dia</p>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-func-ag" placeholder="Buscar por cliente, pet, serviço ou status..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-func-ag" th:placeholder="#{func.agenda.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
           <div class="is-flex is-flex-wrap-wrap is-align-items-center mt-2" style="gap:0.75rem;">
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Agendado"> Agendado</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Concluído"> Concluído</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Cancelado"> Cancelado</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Agendado"> <span th:text="#{func.agenda.status.agendado}">Agendado</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Concluído"> <span th:text="#{func.agenda.status.concluido}">Concluído</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-ag-status" value="Cancelado"> <span th:text="#{func.agenda.status.cancelado}">Cancelado</span></label>
             <div id="func-agenda-filtro-data" class="is-flex is-align-items-center is-hidden" style="gap:0.5rem;border-left:1px solid #dbdbdb;padding-left:0.75rem;">
               <input class="input is-small" type="date" id="filtro-func-ag-data" style="width:auto;" autocomplete="off">
-              <label class="checkbox is-size-7"><input type="checkbox" id="chk-func-ag-hoje"> Hoje</label>
+              <label class="checkbox is-size-7"><input type="checkbox" id="chk-func-ag-hoje"> <span th:text="#{func.agenda.hoje}">Hoje</span></label>
             </div>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>Data / Hora</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{func.tabela.datahora}">Data / Hora</th>
+              <th th:text="#{func.tabela.cliente}">Cliente</th>
+              <th th:text="#{func.tabela.pet}">Pet</th>
+              <th th:text="#{func.tabela.servico}">Serviço</th>
+              <th th:text="#{func.tabela.status}">Status</th>
+              <th th:text="#{func.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-func-agenda"></tbody>
           </table>
           </div>
-          <p id="func-agenda-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
+          <p id="func-agenda-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{func.agenda.vazio}">Nenhum agendamento encontrado.</p>
           <nav id="pag-func-agenda" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
       <div id="section-func-perfil" class="is-hidden">
-        <h1 class="title is-4 mb-5">Meu Perfil</h1>
+        <h1 class="title is-4 mb-5" th:text="#{func.perfil.titulo}">Meu Perfil</h1>
         <div class="box" style="max-width: 520px;">
           <div class="columns">
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Nome</p><p id="fp-nome">—</p></div>
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Cargo</p><p id="fp-cargo">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.nome}">Nome</p><p id="fp-nome">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.cargo}">Cargo</p><p id="fp-cargo">—</p></div>
           </div>
           <hr class="my-3" />
           <div class="columns">
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">CPF</p><p id="fp-cpf">—</p></div>
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Data de Nascimento</p><p id="fp-dataNascimento">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.cpf}">CPF</p><p id="fp-cpf">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.nascimento}">Data de Nascimento</p><p id="fp-dataNascimento">—</p></div>
           </div>
           <hr class="my-3" />
           <div class="columns">
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p><p id="fp-email">—</p></div>
-            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Telefone</p><p id="fp-telefone">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.email}">E-mail</p><p id="fp-email">—</p></div>
+            <div class="column"><p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{func.perfil.telefone}">Telefone</p><p id="fp-telefone">—</p></div>
           </div>
           <div class="mt-5">
             <button id="btn-editar-func-perfil" class="button is-primary is-outlined">
-              <span class="icon"><i class="fas fa-pen"></i></span><span>Editar dados</span>
+              <span class="icon"><i class="fas fa-pen"></i></span><span th:text="#{func.perfil.btn.editar}">Editar dados</span>
             </button>
           </div>
         </div>
@@ -113,7 +126,7 @@
   <div id="modal-editar-func" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title">Editar Perfil</p><button class="delete" id="fechar-modal-editar-func"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" th:text="#{func.modal.editar.titulo}">Editar Perfil</p><button class="delete" id="fechar-modal-editar-func"></button></header>
       <section class="modal-card-body">
         <div class="is-flex is-align-items-center mb-5" style="gap: 1.5rem;">
           <figure class="image" style="width:80px;height:80px;flex-shrink:0;">
@@ -122,26 +135,26 @@
           <div class="file is-small">
             <label class="file-label">
               <input class="file-input" type="file" id="modal-func-foto" accept="image/*" onchange="previewImagem(event, 'modal-func-avatar-preview')">
-              <span class="file-cta"><span class="file-icon"><i class="fas fa-upload"></i></span><span class="file-label">Alterar foto</span></span>
+              <span class="file-cta"><span class="file-icon"><i class="fas fa-upload"></i></span><span class="file-label" th:text="#{func.modal.alterar.foto}">Alterar foto</span></span>
             </label>
           </div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">Nome Completo</label><input class="input" type="text" id="modal-func-nome" autocomplete="off" /></div></div>
-          <div class="column is-4"><div class="field"><label class="label is-small has-text-grey">Cargo <span class="tag is-light is-small ml-1">somente leitura</span></label><input class="input" type="text" id="modal-func-cargo" readonly /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.nome}">Nome Completo</label><input class="input" type="text" id="modal-func-nome" autocomplete="off" /></div></div>
+          <div class="column is-4"><div class="field"><label class="label is-small has-text-grey"><span th:text="#{func.perfil.cargo}">Cargo</span> <span class="tag is-light is-small ml-1" th:text="#{func.modal.cargo.leitura}">somente leitura</span></label><input class="input" type="text" id="modal-func-cargo" readonly /></div></div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">CPF</label><input class="input" type="text" id="modal-func-cpf" placeholder="000.000.000-00" /></div></div>
-          <div class="column"><div class="field"><label class="label is-small">Data de Nascimento</label><input class="input" type="text" id="modal-func-dataNascimento" placeholder="DD/MM/AAAA" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.cpf}">CPF</label><input class="input" type="text" id="modal-func-cpf" placeholder="000.000.000-00" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.nascimento}">Data de Nascimento</label><input class="input" type="text" id="modal-func-dataNascimento" placeholder="DD/MM/AAAA" /></div></div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">E-mail</label><input class="input" type="email" id="modal-func-email" autocomplete="off" /></div></div>
-          <div class="column"><div class="field"><label class="label is-small">Telefone</label><input class="input" type="text" id="modal-func-telefone" autocomplete="off" placeholder="(00) 00000-0000" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.email}">E-mail</label><input class="input" type="email" id="modal-func-email" autocomplete="off" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.telefone}">Telefone</label><input class="input" type="text" id="modal-func-telefone" autocomplete="off" placeholder="(00) 00000-0000" /></div></div>
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-flex-end" style="gap: 0.5rem;">
-        <button class="button" id="cancelar-modal-editar-func">Cancelar</button>
-        <button class="button is-primary" id="btn-salvar-func-perfil">Salvar</button>
+        <button class="button" id="cancelar-modal-editar-func" th:text="#{func.modal.btn.cancelar}">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-func-perfil" th:text="#{func.modal.btn.salvar}">Salvar</button>
       </footer>
     </div>
   </div>
@@ -150,23 +163,23 @@
   <div id="modal-func-ag-det" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title" id="func-ag-det-titulo">Agendamento</p><button class="delete" id="fechar-modal-func-ag-det"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" id="func-ag-det-titulo" th:text="#{func.modal.ag.titulo}">Agendamento</p><button class="delete" id="fechar-modal-func-ag-det"></button></header>
       <section class="modal-card-body">
         <div class="columns mb-3">
-          <div class="column"><p class="is-size-7 has-text-grey">Cliente</p><p id="func-ag-det-cliente" class="has-text-weight-bold">—</p></div>
-          <div class="column"><p class="is-size-7 has-text-grey">Pet</p><p id="func-ag-det-pet" class="has-text-weight-bold">—</p></div>
+          <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.cliente}">Cliente</p><p id="func-ag-det-cliente" class="has-text-weight-bold">—</p></div>
+          <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.pet}">Pet</p><p id="func-ag-det-pet" class="has-text-weight-bold">—</p></div>
         </div>
-        <div class="field mb-3"><p class="is-size-7 has-text-grey">Serviço</p><p id="func-ag-det-servico" class="has-text-weight-bold">—</p></div>
+        <div class="field mb-3"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.servico}">Serviço</p><p id="func-ag-det-servico" class="has-text-weight-bold">—</p></div>
         <div class="columns mb-3">
-          <div class="column"><p class="is-size-7 has-text-grey">Data</p><p id="func-ag-det-data" class="has-text-weight-bold">—</p></div>
-          <div class="column"><p class="is-size-7 has-text-grey">Horário</p><p id="func-ag-det-hora" class="has-text-weight-bold">—</p></div>
-          <div class="column"><p class="is-size-7 has-text-grey">Status</p><p id="func-ag-det-status">—</p></div>
+          <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.data}">Data</p><p id="func-ag-det-data" class="has-text-weight-bold">—</p></div>
+          <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.hora}">Horário</p><p id="func-ag-det-hora" class="has-text-weight-bold">—</p></div>
+          <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.status}">Status</p><p id="func-ag-det-status">—</p></div>
         </div>
-        <div class="field mb-3"><p class="is-size-7 has-text-grey">Observação</p><p id="func-ag-det-obs" class="has-text-grey-dark">—</p></div>
-        <div class="field" id="func-ag-det-motivo-section" style="display:none;"><p class="is-size-7 has-text-danger">Motivo do cancelamento</p><p id="func-ag-det-motivo" class="has-text-grey-dark">—</p></div>
+        <div class="field mb-3"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.obs}">Observação</p><p id="func-ag-det-obs" class="has-text-grey-dark">—</p></div>
+        <div class="field" id="func-ag-det-motivo-section" style="display:none;"><p class="is-size-7 has-text-danger" th:text="#{func.modal.ag.motivo}">Motivo do cancelamento</p><p id="func-ag-det-motivo" class="has-text-grey-dark">—</p></div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-flex-end">
-        <button class="button" id="btn-func-ag-det-fechar">Fechar</button>
+        <button class="button" id="btn-func-ag-det-fechar" th:text="#{func.modal.ag.btn.fechar}">Fechar</button>
       </footer>
     </div>
   </div>
@@ -175,30 +188,30 @@
   <div id="modal-func-ag-edit" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title" id="func-ag-edit-titulo">Agendamento</p><button class="delete" id="fechar-modal-func-ag-edit"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" id="func-ag-edit-titulo" th:text="#{func.modal.ag.titulo}">Agendamento</p><button class="delete" id="fechar-modal-func-ag-edit"></button></header>
       <section class="modal-card-body">
         <div id="func-ag-edit-form">
           <div class="columns mb-2">
-            <div class="column"><p class="is-size-7 has-text-grey">Cliente</p><p id="func-ag-edit-cliente" class="has-text-weight-bold"></p></div>
-            <div class="column"><p class="is-size-7 has-text-grey">Pet</p><p id="func-ag-edit-pet" class="has-text-weight-bold"></p></div>
+            <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.cliente}">Cliente</p><p id="func-ag-edit-cliente" class="has-text-weight-bold"></p></div>
+            <div class="column"><p class="is-size-7 has-text-grey" th:text="#{func.modal.ag.pet}">Pet</p><p id="func-ag-edit-pet" class="has-text-weight-bold"></p></div>
           </div>
           <div class="field"><div id="func-ag-edit-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
           <div class="columns">
-            <div class="column"><div class="field"><label class="label is-small">Data</label><input class="input" type="date" id="func-ag-edit-data" /></div></div>
-            <div class="column"><div class="field"><label class="label is-small">Horário</label><div class="select is-fullwidth"><select id="func-ag-edit-hora"><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.ag.data}">Data</label><input class="input" type="date" id="func-ag-edit-data" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.ag.hora}">Horário</label><div class="select is-fullwidth"><select id="func-ag-edit-hora"><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
           </div>
-          <div class="field"><label class="label is-small">Observação</label><textarea class="textarea is-small" id="func-ag-edit-obs" rows="3"></textarea></div>
-          <div class="field" id="func-ag-edit-motivo-section" style="display:none;"><label class="label is-small has-text-danger">Motivo do cancelamento</label><p id="func-ag-edit-motivo" class="has-text-grey-dark is-size-6"></p></div>
+          <div class="field"><label class="label is-small" th:text="#{func.modal.ag.obs}">Observação</label><textarea class="textarea is-small" id="func-ag-edit-obs" rows="3"></textarea></div>
+          <div class="field" id="func-ag-edit-motivo-section" style="display:none;"><label class="label is-small has-text-danger" th:text="#{func.modal.ag.motivo}">Motivo do cancelamento</label><p id="func-ag-edit-motivo" class="has-text-grey-dark is-size-6"></p></div>
         </div>
         <div id="func-ag-edit-cancel-confirm" class="is-hidden">
-          <p class="has-text-weight-bold mb-3">Tem certeza que deseja cancelar este agendamento?</p>
-          <div class="field"><label class="label is-small">Motivo do cancelamento <span class="has-text-danger">*</span></label><textarea class="textarea is-small" id="func-ag-cancel-motivo" rows="3" placeholder="Descreva o motivo..."></textarea></div>
+          <p class="has-text-weight-bold mb-3" th:text="#{func.modal.ag.confirm.msg}">Tem certeza que deseja cancelar este agendamento?</p>
+          <div class="field"><label class="label is-small"><span th:text="#{func.modal.ag.motivo}">Motivo do cancelamento</span> <span class="has-text-danger">*</span></label><textarea class="textarea is-small" id="func-ag-cancel-motivo" rows="3" th:placeholder="#{func.modal.ag.motivo.placeholder}"></textarea></div>
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap:0.5rem;">
-        <div id="func-ag-footer-esq" style="display:none;"><button class="button is-danger is-outlined" id="btn-func-ag-cancelar-inicio">Cancelar Agendamento</button></div>
-        <div id="func-ag-footer-dir" style="margin-left:auto;"><button class="button is-primary" id="btn-func-ag-edit-salvar" style="display:none;">Salvar</button><button class="button" id="btn-func-ag-edit-fechar" style="display:none;">Fechar</button></div>
-        <div id="func-ag-edit-footer-confirm" style="display:none; width:100%; justify-content:space-between;"><button class="button" id="btn-func-ag-voltar-form">Voltar</button><button class="button is-danger" id="btn-func-ag-confirmar-cancel">Confirmar Cancelamento</button></div>
+        <div id="func-ag-footer-esq" style="display:none;"><button class="button is-danger is-outlined" id="btn-func-ag-cancelar-inicio" th:text="#{func.modal.ag.cancelar}">Cancelar Agendamento</button></div>
+        <div id="func-ag-footer-dir" style="margin-left:auto;"><button class="button is-primary" id="btn-func-ag-edit-salvar" style="display:none;" th:text="#{func.modal.ag.salvar}">Salvar</button><button class="button" id="btn-func-ag-edit-fechar" style="display:none;" th:text="#{func.modal.ag.fechar2}">Fechar</button></div>
+        <div id="func-ag-edit-footer-confirm" style="display:none; width:100%; justify-content:space-between;"><button class="button" id="btn-func-ag-voltar-form" th:text="#{func.modal.ag.voltar}">Voltar</button><button class="button is-danger" id="btn-func-ag-confirmar-cancel" th:text="#{func.modal.ag.confirmar}">Confirmar Cancelamento</button></div>
       </footer>
     </div>
   </div>
@@ -207,20 +220,20 @@
   <div id="modal-func-novo-ag" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title">Novo Agendamento</p><button class="delete" id="fechar-modal-func-novo-ag"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" th:text="#{func.modal.novo.ag}">Novo Agendamento</p><button class="delete" id="fechar-modal-func-novo-ag"></button></header>
       <section class="modal-card-body">
-        <div class="field"><label class="label is-small">Cliente</label><div class="select is-fullwidth"><select id="func-novo-ag-cliente"><option value="">Selecione o cliente...</option></select></div></div>
-        <div class="field"><label class="label is-small">Pet</label><div class="select is-fullwidth"><select id="func-novo-ag-pet" disabled><option value="">Selecione o cliente primeiro</option></select></div></div>
-        <div class="field"><label class="label is-small">Serviços</label><div id="func-novo-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
+        <div class="field"><label class="label is-small" th:text="#{func.tabela.cliente}">Cliente</label><div class="select is-fullwidth"><select id="func-novo-ag-cliente"><option value="" th:text="#{func.modal.novo.ag.selecione.cliente}">Selecione o cliente...</option></select></div></div>
+        <div class="field"><label class="label is-small" th:text="#{func.tabela.pet}">Pet</label><div class="select is-fullwidth"><select id="func-novo-ag-pet" disabled><option value="" th:text="#{func.modal.novo.ag.selecione.pet}">Selecione o cliente primeiro</option></select></div></div>
+        <div class="field"><label class="label is-small" th:text="#{func.modal.novo.ag.servicos}">Serviços</label><div id="func-novo-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">Data</label><input class="input" type="date" id="func-novo-ag-data" /></div></div>
-          <div class="column"><div class="field"><label class="label is-small">Horário</label><div class="select is-fullwidth"><select id="func-novo-ag-hora"><option value="">Selecione...</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.ag.data}">Data</label><input class="input" type="date" id="func-novo-ag-data" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{func.modal.ag.hora}">Horário</label><div class="select is-fullwidth"><select id="func-novo-ag-hora"><option value="" th:text="#{func.modal.ag.selecione.hora}">Selecione...</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
         </div>
-        <div class="field"><label class="label is-small">Observação</label><textarea class="textarea is-small" id="func-novo-ag-observacao" rows="2"></textarea></div>
+        <div class="field"><label class="label is-small" th:text="#{func.modal.ag.obs}">Observação</label><textarea class="textarea is-small" id="func-novo-ag-observacao" rows="2"></textarea></div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
-        <button class="button" id="cancelar-modal-func-novo-ag">Cancelar</button>
-        <button class="button is-primary" id="btn-salvar-func-novo-ag">Agendar</button>
+        <button class="button" id="cancelar-modal-func-novo-ag" th:text="#{func.modal.novo.ag.btn.cancelar}">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-func-novo-ag" th:text="#{func.modal.novo.ag.btn.agendar}">Agendar</button>
       </footer>
     </div>
   </div>

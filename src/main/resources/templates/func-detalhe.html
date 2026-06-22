@@ -33,39 +33,39 @@
       </div>
 
       <div class="box mb-5">
-        <p class="label is-small has-text-grey mb-3">DADOS PESSOAIS</p>
+        <p class="label is-small has-text-grey mb-3" th:text="#{func.det.dados}">DADOS PESSOAIS</p>
         <div class="columns is-multiline">
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">CPF</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{func.det.cpf}">CPF</p>
             <p id="func-cpf">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">DATA DE NASCIMENTO</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{func.det.nascimento}">DATA DE NASCIMENTO</p>
             <p id="func-nascimento">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">TELEFONE</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{func.det.telefone}">TELEFONE</p>
             <p id="func-telefone">—</p>
           </div>
         </div>
       </div>
 
       <div class="box">
-        <p class="label is-small has-text-grey mb-3">AGENDAMENTOS ATRIBUÍDOS</p>
+        <p class="label is-small has-text-grey mb-3" th:text="#{func.det.ags}">AGENDAMENTOS ATRIBUÍDOS</p>
         <div class="table-container">
         <table class="table is-fullwidth is-hoverable is-striped is-size-7">
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Pet</th>
-              <th>Serviço</th>
-              <th>Status</th>
+              <th th:text="#{func.det.tabela.data}">Data</th>
+              <th th:text="#{func.det.tabela.pet}">Pet</th>
+              <th th:text="#{func.det.tabela.servico}">Serviço</th>
+              <th th:text="#{func.det.tabela.status}">Status</th>
             </tr>
           </thead>
           <tbody id="func-ags-tbody"></tbody>
         </table>
         </div>
-        <p id="func-ags-vazio" class="has-text-grey is-hidden">Nenhum agendamento atribuído.</p>
+        <p id="func-ags-vazio" class="has-text-grey is-hidden" th:text="#{func.det.ags.vazio}">Nenhum agendamento atribuído.</p>
       </div>
 
     </div>

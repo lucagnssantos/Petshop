@@ -32,57 +32,57 @@
       </div>
 
       <div class="box mb-5">
-        <p class="label is-small has-text-grey mb-3">DADOS PESSOAIS</p>
+        <p class="label is-small has-text-grey mb-3" th:text="#{cli.dados.pessoais}">DADOS PESSOAIS</p>
         <div class="columns is-multiline">
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">CPF</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.cpf}">CPF</p>
             <p id="cli-cpf">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">DATA DE NASCIMENTO</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.nascimento}">DATA DE NASCIMENTO</p>
             <p id="cli-nascimento">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">CEP</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.cep}">CEP</p>
             <p id="cli-cep">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">NÚMERO</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.numero}">NÚMERO</p>
             <p id="cli-numero">—</p>
           </div>
           <div class="column is-full">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">ENDEREÇO</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.endereco}">ENDEREÇO</p>
             <p id="cli-endereco">—</p>
           </div>
           <div class="column is-half">
-            <p class="is-size-7 has-text-grey has-text-weight-bold">TELEFONE</p>
+            <p class="is-size-7 has-text-grey has-text-weight-bold" th:text="#{cli.telefone}">TELEFONE</p>
             <p id="cli-telefone">—</p>
           </div>
         </div>
       </div>
 
       <div class="box mb-5">
-        <p class="label is-small has-text-grey mb-3">PETS</p>
+        <p class="label is-small has-text-grey mb-3" th:text="#{cli.pets}">PETS</p>
         <div id="cli-pets-lista"></div>
-        <p id="cli-pets-vazio" class="has-text-grey is-hidden">Nenhum pet cadastrado.</p>
+        <p id="cli-pets-vazio" class="has-text-grey is-hidden" th:text="#{cli.pets.vazio}">Nenhum pet cadastrado.</p>
       </div>
 
       <div class="box">
-        <p class="label is-small has-text-grey mb-3">AGENDAMENTOS</p>
+        <p class="label is-small has-text-grey mb-3" th:text="#{cli.agendamentos}">AGENDAMENTOS</p>
         <div class="table-container">
         <table class="table is-fullwidth is-hoverable is-striped is-size-7">
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Pet</th>
-              <th>Serviço</th>
-              <th>Status</th>
+              <th th:text="#{cli.tabela.data}">Data</th>
+              <th th:text="#{cli.tabela.pet}">Pet</th>
+              <th th:text="#{cli.tabela.servico}">Serviço</th>
+              <th th:text="#{cli.tabela.status}">Status</th>
             </tr>
           </thead>
           <tbody id="cli-ags-tbody"></tbody>
         </table>
         </div>
-        <p id="cli-ags-vazio" class="has-text-grey is-hidden">Nenhum agendamento encontrado.</p>
+        <p id="cli-ags-vazio" class="has-text-grey is-hidden" th:text="#{cli.ags.vazio}">Nenhum agendamento encontrado.</p>
       </div>
 
     </div>

@@ -15,7 +15,7 @@
 <body class="has-background-light">
 <div class="container">
 
-  <nav th:replace="~{fragments/navbar :: navbar('/index.html', 'Voltar ao início')}"></nav>
+  <nav th:replace="~{fragments/navbar :: navbar('/index.html', #{nav.voltar.inicio})}"></nav>
 
   <main>
 
@@ -38,9 +38,9 @@
 
         <div class="tabs is-boxed is-small mb-5">
           <ul>
-            <li class="is-active" data-tab="perfil"><a><span class="icon is-small"><i class="fas fa-user"></i></span><span>Perfil Pessoal</span></a></li>
-            <li data-tab="pets"><a><span class="icon is-small"><i class="fas fa-paw"></i></span><span>Meus Pets</span></a></li>
-            <li data-tab="agendamentos"><a><span class="icon is-small"><i class="fas fa-calendar-alt"></i></span><span>Agendamentos</span></a></li>
+            <li class="is-active" data-tab="perfil"><a><span class="icon is-small"><i class="fas fa-user"></i></span><span th:text="#{perfil.tab.perfil}">Perfil Pessoal</span></a></li>
+            <li data-tab="pets"><a><span class="icon is-small"><i class="fas fa-paw"></i></span><span th:text="#{perfil.tab.pets}">Meus Pets</span></a></li>
+            <li data-tab="agendamentos"><a><span class="icon is-small"><i class="fas fa-calendar-alt"></i></span><span th:text="#{perfil.tab.agendamentos}">Agendamentos</span></a></li>
           </ul>
         </div>
 
@@ -48,50 +48,50 @@
           <div class="box" style="max-width: 640px;">
             <div class="columns">
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Nome Completo</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.nome.label}">Nome Completo</p>
                 <p id="campo-nome" class="has-text-weight-medium">—</p>
               </div>
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">CPF</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.cpf.label}">CPF</p>
                 <p id="campo-cpf">—</p>
               </div>
             </div>
             <hr class="my-3" />
             <div class="columns">
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Data de Nascimento</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.nascimento.label}">Data de Nascimento</p>
                 <p id="campo-dataNascimento">—</p>
               </div>
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">CEP</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.cep.label}">CEP</p>
                 <p id="campo-cep">—</p>
               </div>
             </div>
             <hr class="my-3" />
             <div class="columns">
               <div class="column is-8">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Endereço</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.endereco.label}">Endereço</p>
                 <p id="campo-endereco">—</p>
               </div>
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Número</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.numero.label}">Número</p>
                 <p id="campo-numero">—</p>
               </div>
             </div>
             <hr class="my-3" />
             <div class="columns">
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">E-mail</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.email.label}">E-mail</p>
                 <p id="campo-emailPerfil">—</p>
               </div>
               <div class="column">
-                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1">Telefone</p>
+                <p class="is-size-7 has-text-primary has-text-weight-bold mb-1" th:text="#{perfil.telefone.label}">Telefone</p>
                 <p id="campo-telefone">—</p>
               </div>
             </div>
             <div class="is-flex is-justify-content-space-between mt-5 form-actions">
-              <a id="btn-editar" href="/editar-perfil.html" class="button is-primary is-outlined">Editar dados</a>
-              <button id="btn-sair" class="button is-danger is-outlined">Sair da conta</button>
+              <a id="btn-editar" href="/editar-perfil.html" class="button is-primary is-outlined" th:text="#{perfil.btn.editar}">Editar dados</a>
+              <button id="btn-sair" class="button is-danger is-outlined" th:text="#{perfil.btn.sair}">Sair da conta</button>
             </div>
           </div>
         </div>
@@ -100,19 +100,19 @@
           <div class="is-flex is-justify-content-flex-end mb-4">
             <a href="/cadastro-pet.html" class="button is-primary has-text-weight-bold">
               <span class="icon"><i class="fas fa-plus"></i></span>
-              <span>Cadastrar Pet</span>
+              <span th:text="#{perfil.btn.cadastrar.pet}">Cadastrar Pet</span>
             </a>
           </div>
           <div class="field mb-4">
             <div class="control has-icons-left">
-              <input id="filtro-pets" class="input" type="text" placeholder="Pesquisar pet...">
+              <input id="filtro-pets" class="input" type="text" th:placeholder="#{perfil.buscar.pet}">
               <span class="icon is-left"><i class="fas fa-search"></i></span>
             </div>
           </div>
           <div id="lista-pets" class="columns is-multiline"></div>
           <div id="pets-vazio" class="has-text-centered py-6 has-text-grey is-hidden">
-            <p class="is-size-5">Você ainda não tem pets cadastrados.</p>
-            <a href="/cadastro-pet.html" class="button is-primary mt-3">Cadastrar agora</a>
+            <p class="is-size-5" th:text="#{perfil.pets.vazio}">Você ainda não tem pets cadastrados.</p>
+            <a href="/cadastro-pet.html" class="button is-primary mt-3" th:text="#{perfil.pets.cadastrar}">Cadastrar agora</a>
           </div>
         </div>
 
@@ -120,18 +120,18 @@
           <div class="is-flex is-justify-content-flex-end mb-4">
             <a href="/agendar.html" class="button is-primary has-text-weight-bold">
               <span class="icon"><i class="fas fa-plus"></i></span>
-              <span>Fazer novo agendamento</span>
+              <span th:text="#{perfil.btn.novo.agendamento}">Fazer novo agendamento</span>
             </a>
           </div>
           <div class="field mb-4">
             <div class="control has-icons-left">
-              <input id="filtro-agendamentos" class="input" type="text" placeholder="Pesquisar agendamento...">
+              <input id="filtro-agendamentos" class="input" type="text" th:placeholder="#{perfil.buscar.agendamento}">
               <span class="icon is-left"><i class="fas fa-search"></i></span>
             </div>
           </div>
           <div id="lista-agendamentos"></div>
           <div id="agendamentos-vazio" class="has-text-centered py-6 has-text-grey is-hidden">
-            <p class="is-size-5">Nenhum agendamento encontrado.</p>
+            <p class="is-size-5" th:text="#{perfil.agendamentos.vazio}">Nenhum agendamento encontrado.</p>
           </div>
         </div>
 

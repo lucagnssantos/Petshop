@@ -15,19 +15,21 @@
 <body class="has-background-light">
 <div class="container">
 
-  <nav th:replace="~{fragments/navbar :: navbar('/index.html', 'Voltar ao Início')}"></nav>
+  <nav th:replace="~{fragments/navbar :: navbar('/index.html', #{nav.voltar.inicio})}"></nav>
 
   <main class="section">
     <div class="container" style="max-width: 600px;">
 
-      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-2">Faça o seu cadastro!</h1>
-      <p class="has-text-centered mb-5 is-size-7">Já tem conta? <a href="/login.html" class="has-text-primary has-text-weight-bold">Fazer login</a></p>
+      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-2" th:text="#{cadastro.titulo}">Faça o seu cadastro!</h1>
+      <p class="has-text-centered mb-5 is-size-7">
+        <span th:text="#{cadastro.ja.tem.conta}">Já tem conta?</span> <a href="/login.html" class="has-text-primary has-text-weight-bold" th:text="#{cadastro.fazer.login}">Fazer login</a>
+      </p>
 
       <div class="field">
         <div class="control">
-          <input id="nome" class="input" type="text" placeholder="João da Silva Santos Perreira" />
+          <input id="nome" class="input" type="text" th:placeholder="#{cadastro.nome.placeholder}" />
         </div>
-        <label class="label is-small has-text-primary">Nome Completo</label>
+        <label class="label is-small has-text-primary" th:text="#{cadastro.nome.label}">Nome Completo</label>
       </div>
 
       <div class="columns">
@@ -36,7 +38,7 @@
             <div class="control">
               <input id="cpf" class="input" type="text" placeholder="888.888.888-88" />
             </div>
-            <label class="label is-small has-text-primary">CPF</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.cpf.label}">CPF</label>
           </div>
         </div>
         <div class="column">
@@ -44,7 +46,7 @@
             <div class="control">
               <input id="dataNascimento" class="input" type="text" placeholder="01/01/2018" />
             </div>
-            <label class="label is-small has-text-primary">Data de nascimento</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.nascimento.label}">Data de nascimento</label>
           </div>
         </div>
       </div>
@@ -55,15 +57,15 @@
             <div class="control">
               <input id="cep" class="input" type="text" placeholder="8.888.888-8" />
             </div>
-            <label class="label is-small has-text-primary">CEP</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.cep.label}">CEP</label>
           </div>
         </div>
         <div class="column">
           <div class="field">
             <div class="control">
-              <input id="endereco" class="input" type="text" placeholder="Rua Principal da Silva Santos" />
+              <input id="endereco" class="input" type="text" th:placeholder="#{cadastro.endereco.placeholder}" />
             </div>
-            <label class="label is-small has-text-primary">Endereço</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.endereco.label}">Endereço</label>
           </div>
         </div>
         <div class="column is-3">
@@ -71,7 +73,7 @@
             <div class="control">
               <input id="numero" class="input" type="text" placeholder="888888" />
             </div>
-            <label class="label is-small has-text-primary">Número</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.numero.label}">Número</label>
           </div>
         </div>
       </div>
@@ -82,7 +84,7 @@
             <div class="control">
               <input id="email" class="input" type="email" placeholder="joao@email.com" />
             </div>
-            <label class="label is-small has-text-primary">Email</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.email.label}">Email</label>
           </div>
         </div>
         <div class="column is-4">
@@ -90,7 +92,7 @@
             <div class="control">
               <input id="telefone" class="input" type="text" placeholder="(00) 00000-0000" />
             </div>
-            <label class="label is-small has-text-primary">Telefone</label>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.telefone.label}">Telefone</label>
           </div>
         </div>
       </div>
@@ -100,7 +102,7 @@
           <input type="file" id="inputImagem" accept="image/*" onchange="previewImagem(event)" class="input" />
           <img id="preview-imagem" src="" alt="Preview" style="display:none; max-height:80px; border-radius:4px; margin-top:0.5rem;" />
         </div>
-        <label class="label is-small has-text-primary">Imagem</label>
+        <label class="label is-small has-text-primary" th:text="#{cadastro.imagem.label}">Imagem</label>
       </div>
 
       <div class="columns">
@@ -110,10 +112,10 @@
               <input id="senha" class="input" type="password" placeholder="*******************" style="padding-right: 45px;" />
               <button type="button" id="toggleSenha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button>
             </div>
-            <label class="label is-small has-text-primary">Senha</label>
-            <p class="help">• Deve conter um símbolo</p>
-            <p class="help">• Deve conter um número</p>
-            <p class="help">• Deve conter uma letra maiúscula</p>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.senha.label}">Senha</label>
+            <p class="help" th:text="#{cadastro.senha.help1}">• Deve conter um símbolo</p>
+            <p class="help" th:text="#{cadastro.senha.help2}">• Deve conter um número</p>
+            <p class="help" th:text="#{cadastro.senha.help3}">• Deve conter uma letra maiúscula</p>
           </div>
         </div>
         <div class="column">
@@ -122,12 +124,12 @@
               <input id="senhaRepetida" class="input" type="password" placeholder="*******************" style="padding-right: 45px;" />
               <button type="button" id="toggleSenhaRepetida" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button>
             </div>
-            <label class="label is-small has-text-primary">Repita a senha</label>
-            <p class="help">• A senha deve coincidir</p>
+            <label class="label is-small has-text-primary" th:text="#{cadastro.senha.repetir.label}">Repita a senha</label>
+            <p class="help" th:text="#{cadastro.senha.repetir.help}">• A senha deve coincidir</p>
             <div class="field mt-3">
               <label class="checkbox">
                 <input type="checkbox" id="termos" />
-                Concordo com os <a href="#"><u>termos de uso e privacidade.</u></a>
+                <span th:text="#{cadastro.termos.prefixo}">Concordo com os</span> <a href="#"><u th:text="#{cadastro.termos.link}">termos de uso e privacidade.</u></a>
               </label>
             </div>
           </div>
@@ -135,7 +137,7 @@
       </div>
 
       <div class="has-text-centered mt-4">
-        <button id="btnCadastrar" class="button is-primary has-text-weight-bold px-6">Cadastrar</button>
+        <button id="btnCadastrar" class="button is-primary has-text-weight-bold px-6" th:text="#{cadastro.btn}">Cadastrar</button>
       </div>
 
     </div>

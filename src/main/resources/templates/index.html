@@ -33,23 +33,29 @@
       </div>
       <div class="navbar-menu" id="navbar-menu-home">
         <div class="navbar-start">
-          <a class="navbar-item" href="#home">Início</a>
-          <a class="navbar-item" href="#servicos">Serviços</a>
-          <a class="navbar-item" href="#sobre">Sobre nós</a>
-          <a class="navbar-item" href="#contatos">Contatos</a>
+          <a class="navbar-item" href="#home" th:text="#{home.nav.inicio}">Início</a>
+          <a class="navbar-item" href="#servicos" th:text="#{home.nav.servicos}">Serviços</a>
+          <a class="navbar-item" href="#sobre" th:text="#{home.nav.sobre}">Sobre nós</a>
+          <a class="navbar-item" href="#contatos" th:text="#{home.nav.contatos}">Contatos</a>
         </div>
         <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons mb-0" style="gap: 0.25rem;">
+              <a href="?lang=pt_BR" class="button is-small" th:classappend="${#locale.language == 'pt' ? 'is-primary' : 'is-ghost'}">PT</a>
+              <a href="?lang=en" class="button is-small" th:classappend="${#locale.language == 'en' ? 'is-primary' : 'is-ghost'}">EN</a>
+            </div>
+          </div>
           <div class="navbar-item">
             <button class="btn-tema button is-ghost" aria-label="Alternar tema">
               <span class="icon"><i class="icon-tema fas fa-moon"></i></span>
             </button>
           </div>
           <div class="navbar-item" id="nav-btn-entrar">
-            <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+            <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold" th:text="#{home.nav.entrar}">Entrar/Cadastrar</a>
           </div>
           <div class="navbar-item is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem; display: none;">
             <a id="nav-btn-painel" href="#" class="button is-small is-primary is-outlined has-text-weight-bold" style="display:none;"></a>
-            <span class="has-text-grey">Olá, <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
+            <span class="has-text-grey"><span th:text="#{home.nav.ola}">Olá,</span> <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
             <figure class="image is-40x40" style="flex-shrink:0;">
               <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" />
             </figure>
@@ -64,10 +70,10 @@
     <div class="container">
       <div class="columns is-vcentered">
         <div class="column is-half">
-          <h1 class="title is-3 has-text-weight-bold mb-3">Deixe o seu melhor amigo nas mãos de quem ama o que faz.</h1>
-          <p class="mb-5">Agilidade para você, carinho para ele.</p>
+          <h1 class="title is-3 has-text-weight-bold mb-3" th:text="#{home.hero.titulo}">Deixe o seu melhor amigo nas mãos de quem ama o que faz.</h1>
+          <p class="mb-5" th:text="#{home.hero.subtitulo}">Agilidade para você, carinho para ele.</p>
           <div class="buttons">
-            <a href="/perfil.html#agendamentos" class="button is-primary has-text-weight-bold" id="btn-agendar">Agendar serviço</a>
+            <a href="/perfil.html#agendamentos" class="button is-primary has-text-weight-bold" id="btn-agendar" th:text="#{home.btn.agendar}">Agendar serviço</a>
           </div>
         </div>
         <div class="column is-half has-text-centered">
@@ -84,15 +90,15 @@
     <div class="container">
       <div class="columns has-text-centered">
         <div class="column">
-          <p class="has-text-weight-bold">"Melhor atendimento! Meu pet voltou cheiroso, calmo e feliz."</p>
+          <p class="has-text-weight-bold" th:text="#{home.dep1}">"Melhor atendimento! Meu pet voltou cheiroso, calmo e feliz."</p>
           <p class="has-text-grey mt-2">-Mariana Silva</p>
         </div>
         <div class="column">
-          <p class="has-text-weight-bold">"Super organizados e carinhosos. A tosa é impecável!"</p>
+          <p class="has-text-weight-bold" th:text="#{home.dep2}">"Super organizados e carinhosos. A tosa é impecável!"</p>
           <p class="has-text-grey mt-2">-Ricardo Oliveira</p>
         </div>
         <div class="column">
-          <p class="has-text-weight-bold">"Atendimento rápido e produtos de primeira. Recomendo!"</p>
+          <p class="has-text-weight-bold" th:text="#{home.dep3}">"Atendimento rápido e produtos de primeira. Recomendo!"</p>
           <p class="has-text-grey mt-2">-Ana Paula</p>
         </div>
       </div>
@@ -101,37 +107,37 @@
 
   <section id="servicos" class="section">
     <div class="container has-text-centered">
-      <h2 class="title is-4 mb-1">Nossos serviços</h2>
-      <p class="has-text-grey mb-5">Apenas o melhor pro seu pet!</p>
+      <h2 class="title is-4 mb-1" th:text="#{home.servicos.titulo}">Nossos serviços</h2>
+      <p class="has-text-grey mb-5" th:text="#{home.servicos.subtitulo}">Apenas o melhor pro seu pet!</p>
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <a class="servico-link" href="#" style="display:block;">
             <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/icone-banho.png" alt="Banho" style="border-radius: 0.5rem;" />
-            <p class="has-text-primary has-text-weight-bold mt-2">Banho</p>
+            <p class="has-text-primary has-text-weight-bold mt-2" th:text="#{home.servico.banho}">Banho</p>
           </a>
         </div>
         <div class="column has-text-centered">
           <a class="servico-link" href="#" style="display:block;">
             <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/icone-tosa.png" alt="Tosa" style="border-radius: 0.5rem;" />
-            <p class="has-text-primary has-text-weight-bold mt-2">Tosa</p>
+            <p class="has-text-primary has-text-weight-bold mt-2" th:text="#{home.servico.tosa}">Tosa</p>
           </a>
         </div>
         <div class="column has-text-centered">
           <a class="servico-link" href="#" style="display:block;">
             <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/icone-corteunha.png" alt="Corte de unha" style="border-radius: 0.5rem;" />
-            <p class="has-text-primary has-text-weight-bold mt-2">Corte de unha</p>
+            <p class="has-text-primary has-text-weight-bold mt-2" th:text="#{home.servico.corteunha}">Corte de unha</p>
           </a>
         </div>
         <div class="column has-text-centered">
           <a class="servico-link" href="#" style="display:block;">
             <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/icone-desembolo.png" alt="Desembolo" style="border-radius: 0.5rem;" />
-            <p class="has-text-primary has-text-weight-bold mt-2">Desembolo</p>
+            <p class="has-text-primary has-text-weight-bold mt-2" th:text="#{home.servico.desembolo}">Desembolo</p>
           </a>
         </div>
         <div class="column has-text-centered">
           <a class="servico-link" href="#" style="display:block;">
             <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/icone-hidratacao.png" alt="Hidratação" style="border-radius: 0.5rem;" />
-            <p class="has-text-primary has-text-weight-bold mt-2">Hidratação</p>
+            <p class="has-text-primary has-text-weight-bold mt-2" th:text="#{home.servico.hidratacao}">Hidratação</p>
           </a>
         </div>
       </div>
@@ -145,8 +151,8 @@
           <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/imagem-quemsomos.png" alt="Nossa loja" style="border-radius: 1rem; width: 100%;" />
         </div>
         <div class="column is-offset-1">
-          <h2 class="title is-4 has-text-primary">Quem somos nós?</h2>
-          <p class="mb-4">A <strong>PetGO</strong> nasceu do desejo de oferecer um espaço onde o bem-estar animal é a prioridade absoluta. Entendemos que seu pet não é apenas um animal de estimação, mas um membro fundamental da sua família. Por isso, criamos um ambiente planejado para oferecer serviços de <strong>alta qualidade com o acolhimento que eles merecem.</strong></p>
+          <h2 class="title is-4 has-text-primary" th:text="#{home.sobre.titulo}">Quem somos nós?</h2>
+          <p class="mb-4" th:utext="#{home.sobre.texto}">A <strong>PetGO</strong> nasceu do desejo de oferecer um espaço onde o bem-estar animal é a prioridade absoluta.</p>
         </div>
       </div>
     </div>
@@ -161,7 +167,7 @@
       </div>
       <hr />
       <div class="columns is-vcentered">
-        <div class="column has-text-weight-bold"><p>PetGO Serviços de Petshop</p></div>
+        <div class="column has-text-weight-bold"><p th:text="#{footer.nome}">PetGO Serviços de Petshop</p></div>
         <div class="column has-text-centered has-text-weight-bold"><p>Rua Maria da Silva Santos, 8888</p></div>
         <div class="column is-flex is-align-items-center is-justify-content-flex-end has-text-weight-bold" style="gap: 1rem;">
           <p>+55555555555555</p>

@@ -23,22 +23,28 @@
     <aside class="dashboard-sidebar has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
         <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO" class="petgo-logo" style="height:48px;width:auto;" />
-        <p class="is-size-7 has-text-grey mt-2">Painel Admin</p>
+        <p class="is-size-7 has-text-grey mt-2" th:text="#{admin.painel}">Painel Admin</p>
         <p class="has-text-weight-semibold is-size-7 mt-1" id="nav-nome"></p>
       </div>
-      <a class="navbar-item is-active" href="#" data-aba="dashboard"><span class="icon mr-2"><i class="fas fa-chart-bar"></i></span> Dashboard</a>
-      <a class="navbar-item" href="#" data-aba="agendamentos"><span class="icon mr-2"><i class="fas fa-calendar-alt"></i></span> Agendamentos</a>
-      <a class="navbar-item" href="#" data-aba="clientes"><span class="icon mr-2"><i class="fas fa-users"></i></span> Clientes</a>
-      <a class="navbar-item" href="#" data-aba="funcionarios"><span class="icon mr-2"><i class="fas fa-id-badge"></i></span> Funcionários</a>
-      <a class="navbar-item" href="#" data-aba="pets"><span class="icon mr-2"><i class="fas fa-paw"></i></span> Pets</a>
-      <a class="navbar-item" href="#" data-aba="servicos"><span class="icon mr-2"><i class="fas fa-concierge-bell"></i></span> Serviços</a>
-      <a class="navbar-item" href="#" data-aba="insights"><span class="icon mr-2"><i class="fas fa-chart-pie"></i></span> Insights</a>
+      <a class="navbar-item is-active" href="#" data-aba="dashboard"><span class="icon mr-2"><i class="fas fa-chart-bar"></i></span> <span th:text="#{admin.sidebar.dashboard}">Dashboard</span></a>
+      <a class="navbar-item" href="#" data-aba="agendamentos"><span class="icon mr-2"><i class="fas fa-calendar-alt"></i></span> <span th:text="#{admin.sidebar.agendamentos}">Agendamentos</span></a>
+      <a class="navbar-item" href="#" data-aba="clientes"><span class="icon mr-2"><i class="fas fa-users"></i></span> <span th:text="#{admin.sidebar.clientes}">Clientes</span></a>
+      <a class="navbar-item" href="#" data-aba="funcionarios"><span class="icon mr-2"><i class="fas fa-id-badge"></i></span> <span th:text="#{admin.sidebar.funcionarios}">Funcionários</span></a>
+      <a class="navbar-item" href="#" data-aba="pets"><span class="icon mr-2"><i class="fas fa-paw"></i></span> <span th:text="#{admin.sidebar.pets}">Pets</span></a>
+      <a class="navbar-item" href="#" data-aba="servicos"><span class="icon mr-2"><i class="fas fa-concierge-bell"></i></span> <span th:text="#{admin.sidebar.servicos}">Serviços</span></a>
+      <a class="navbar-item" href="#" data-aba="insights"><span class="icon mr-2"><i class="fas fa-chart-pie"></i></span> <span th:text="#{admin.sidebar.insights}">Insights</span></a>
       <button id="btn-sair-admin" class="navbar-item has-text-danger" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;">
-        <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> Sair
+        <span class="icon mr-2"><i class="fas fa-sign-out-alt"></i></span> <span th:text="#{admin.sidebar.sair}">Sair</span>
       </button>
-      <button class="btn-tema navbar-item mt-auto" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;" aria-label="Alternar tema">
-        <span class="icon mr-2"><i class="icon-tema fas fa-moon"></i></span> <span class="btn-tema-label">Modo escuro</span>
-      </button>
+      <div class="mt-auto" style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="is-flex" style="gap: 0.25rem;">
+          <a href="?lang=pt_BR" class="button is-small" th:classappend="${#locale.language == 'pt' ? 'is-primary' : 'is-ghost'}">PT</a>
+          <a href="?lang=en" class="button is-small" th:classappend="${#locale.language == 'en' ? 'is-primary' : 'is-ghost'}">EN</a>
+        </div>
+        <button class="btn-tema navbar-item" style="background:none;border:none;cursor:pointer;width:100%;text-align:left;" aria-label="Alternar tema">
+          <span class="icon mr-2"><i class="icon-tema fas fa-moon"></i></span> <span class="btn-tema-label" th:text="#{admin.sidebar.modo.escuro}">Modo escuro</span>
+        </button>
+      </div>
     </aside>
 
     <!-- Conteúdo principal -->
@@ -50,192 +56,238 @@
         <span aria-hidden="true"></span>
       </button>
 
-      <h1 class="title is-4 mb-5">Dashboard</h1>
+      <h1 class="title is-4 mb-5" th:text="#{admin.dashboard.titulo}">Dashboard</h1>
 
       <div id="section-dashboard" class="mb-6">
         <div class="field mb-4">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-dashboard" placeholder="Buscar na agenda de hoje e próximos..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-dashboard" th:placeholder="#{admin.dashboard.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
         </div>
-        <h2 class="title is-5 mb-3">Agenda de Hoje</h2>
+        <h2 class="title is-5 mb-3" th:text="#{admin.agenda.hoje}">Agenda de Hoje</h2>
         <div class="box p-0 mb-5">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>Horário</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.horario}">Horário</th>
+              <th th:text="#{admin.tabela.cliente}">Cliente</th>
+              <th th:text="#{admin.tabela.pet}">Pet</th>
+              <th th:text="#{admin.tabela.servico}">Serviço</th>
+              <th th:text="#{admin.tabela.status}">Status</th>
+              <th th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-hoje"></tbody>
           </table>
           </div>
-          <p id="hoje-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento para hoje.</p>
+          <p id="hoje-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.hoje.vazio}">Nenhum agendamento para hoje.</p>
         </div>
-        <h2 class="title is-5 mb-3">Próximos Agendamentos</h2>
+        <h2 class="title is-5 mb-3" th:text="#{admin.agenda.proximos}">Próximos Agendamentos</h2>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>Pet</th><th>Serviço</th><th>Status</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.data}">Data</th>
+              <th th:text="#{admin.tabela.horario}">Horário</th>
+              <th th:text="#{admin.tabela.cliente}">Cliente</th>
+              <th th:text="#{admin.tabela.pet}">Pet</th>
+              <th th:text="#{admin.tabela.servico}">Serviço</th>
+              <th th:text="#{admin.tabela.status}">Status</th>
+            </tr></thead>
             <tbody id="tabela-proximos"></tbody>
           </table>
           </div>
-          <p id="proximos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento futuro.</p>
+          <p id="proximos-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.proximos.vazio}">Nenhum agendamento futuro.</p>
         </div>
       </div>
 
       <div id="section-agendamentos" class="mb-6 is-hidden">
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
-          <h2 class="title is-5 mb-0">Agendamentos</h2>
-          <button id="btn-novo-agendamento" class="button is-primary has-text-weight-bold"><span class="icon"><i class="fas fa-plus"></i></span><span>Novo agendamento</span></button>
+          <h2 class="title is-5 mb-0" th:text="#{admin.ag.titulo}">Agendamentos</h2>
+          <button id="btn-novo-agendamento" class="button is-primary has-text-weight-bold"><span class="icon"><i class="fas fa-plus"></i></span><span th:text="#{admin.ag.novo}">Novo agendamento</span></button>
         </div>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-ag" placeholder="Buscar por cliente, pet, serviço ou status..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-ag" th:placeholder="#{admin.ag.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
           <div class="is-flex is-flex-wrap-wrap is-align-items-center mt-2" style="gap:0.75rem;">
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Agendado"> Agendado</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Concluído"> Concluído</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Cancelado"> Cancelado</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Agendado"> <span th:text="#{admin.ag.status.agendado}">Agendado</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Concluído"> <span th:text="#{admin.ag.status.concluido}">Concluído</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-ag-status" value="Cancelado"> <span th:text="#{admin.ag.status.cancelado}">Cancelado</span></label>
             <div class="is-flex is-align-items-center" style="gap:0.5rem;border-left:1px solid #dbdbdb;padding-left:0.75rem;">
               <input class="input is-small" type="date" id="filtro-ag-data" style="width:auto;" autocomplete="off">
-              <label class="checkbox is-size-7"><input type="checkbox" id="chk-ag-hoje"> Hoje</label>
+              <label class="checkbox is-size-7"><input type="checkbox" id="chk-ag-hoje"> <span th:text="#{admin.ag.hoje}">Hoje</span></label>
             </div>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped" style="table-layout:fixed;">
-            <thead><tr><th style="width:3rem;">#</th><th style="width:14%;">Cliente</th><th style="width:10%;">Pet</th><th style="width:18%;">Serviço</th><th style="width:10rem;">Data / Hora</th><th style="width:7rem;">Status</th><th style="width:9rem;">Ações</th></tr></thead>
+            <thead><tr>
+              <th style="width:3rem;" th:text="#{admin.tabela.numero}">#</th>
+              <th style="width:14%;" th:text="#{admin.tabela.cliente}">Cliente</th>
+              <th style="width:10%;" th:text="#{admin.tabela.pet}">Pet</th>
+              <th style="width:18%;" th:text="#{admin.tabela.servico}">Serviço</th>
+              <th style="width:10rem;" th:text="#{admin.tabela.data}">Data / Hora</th>
+              <th style="width:7rem;" th:text="#{admin.tabela.status}">Status</th>
+              <th style="width:9rem;" th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-agendamentos"></tbody>
           </table>
           </div>
-          <p id="agendamentos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum agendamento encontrado.</p>
+          <p id="agendamentos-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.ag.vazio}">Nenhum agendamento encontrado.</p>
           <nav id="pag-agendamentos" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
       <div id="section-clientes" class="mb-6 is-hidden">
-        <h2 class="title is-5 mb-3">Clientes</h2>
+        <h2 class="title is-5 mb-3" th:text="#{admin.clientes.titulo}">Clientes</h2>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-cl" placeholder="Buscar por nome ou e-mail..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-cl" th:placeholder="#{admin.clientes.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.nome}">Nome</th>
+              <th th:text="#{admin.tabela.email}">E-mail</th>
+              <th th:text="#{admin.tabela.telefone}">Telefone</th>
+              <th th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-clientes"></tbody>
           </table>
           </div>
-          <p id="clientes-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum cliente encontrado.</p>
+          <p id="clientes-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.clientes.vazio}">Nenhum cliente encontrado.</p>
           <nav id="pag-clientes" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
       <div id="section-funcionarios" class="mb-6 is-hidden">
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-3">
-          <h2 class="title is-5 mb-0">Funcionários</h2>
-          <button id="btn-abrir-modal-func" class="button is-primary has-text-weight-bold"><span class="icon"><i class="fas fa-plus"></i></span><span>Novo funcionário</span></button>
+          <h2 class="title is-5 mb-0" th:text="#{admin.func.titulo}">Funcionários</h2>
+          <button id="btn-abrir-modal-func" class="button is-primary has-text-weight-bold"><span class="icon"><i class="fas fa-plus"></i></span><span th:text="#{admin.func.novo}">Novo funcionário</span></button>
         </div>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-func" placeholder="Buscar por nome, cargo ou e-mail..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-func" th:placeholder="#{admin.func.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
           <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Veterinário"> Veterinário</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Esteticista"> Esteticista</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Atendente"> Atendente</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Veterinário"> <span th:text="#{admin.func.cargo.vet}">Veterinário</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Esteticista"> <span th:text="#{admin.func.cargo.esteticista}">Esteticista</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-func-cargo" value="Atendente"> <span th:text="#{admin.func.cargo.atendente}">Atendente</span></label>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>Nome</th><th>Cargo</th><th>Telefone</th><th>E-mail</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.nome}">Nome</th>
+              <th th:text="#{admin.tabela.cargo}">Cargo</th>
+              <th th:text="#{admin.tabela.telefone}">Telefone</th>
+              <th th:text="#{admin.tabela.email}">E-mail</th>
+              <th th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-funcionarios"></tbody>
           </table>
           </div>
-          <p id="funcionarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum funcionário cadastrado.</p>
+          <p id="funcionarios-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.func.vazio}">Nenhum funcionário cadastrado.</p>
           <nav id="pag-funcionarios" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
 
       <div id="section-servicos" class="mb-6 is-hidden">
-        <h2 class="title is-5 mb-3">Serviços</h2>
+        <h2 class="title is-5 mb-3" th:text="#{admin.servicos.titulo}">Serviços</h2>
         <div class="box mb-4">
           <div class="field has-addons">
-            <div class="control is-expanded"><input class="input" type="text" id="novo-servico-nome" placeholder="Nome do novo serviço..." /></div>
-            <div class="control"><input class="input" type="number" id="novo-servico-duracao" placeholder="Min." min="1" style="width:80px;" title="Duração em minutos" /></div>
-            <div class="control"><button class="button is-primary" id="btn-add-servico"><span class="icon"><i class="fas fa-plus"></i></span><span>Adicionar</span></button></div>
+            <div class="control is-expanded"><input class="input" type="text" id="novo-servico-nome" th:placeholder="#{admin.servicos.nome.placeholder}" /></div>
+            <div class="control"><input class="input" type="number" id="novo-servico-duracao" th:placeholder="#{admin.servicos.duracao.placeholder}" min="1" style="width:80px;" title="Duração em minutos" /></div>
+            <div class="control"><button class="button is-primary" id="btn-add-servico"><span class="icon"><i class="fas fa-plus"></i></span><span th:text="#{admin.servicos.btn.adicionar}">Adicionar</span></button></div>
           </div>
           <div class="field mt-2">
-            <label class="checkbox"><input type="checkbox" id="novo-servico-isvet" /> Serviço Veterinário</label>
+            <label class="checkbox"><input type="checkbox" id="novo-servico-isvet" /> <span th:text="#{admin.servicos.isvet}">Serviço Veterinário</span></label>
           </div>
         </div>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-serv" placeholder="Buscar por nome ou tipo..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-serv" th:placeholder="#{admin.servicos.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
           <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Geral"> Geral</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Veterinário"> Veterinário</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Geral"> <span th:text="#{admin.servicos.tipo.geral}">Geral</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-serv-tipo" value="Veterinário"> <span th:text="#{admin.servicos.tipo.vet}">Veterinário</span></label>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>#</th><th>Nome</th><th>Duração</th><th>Tipo</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.numero}">#</th>
+              <th th:text="#{admin.tabela.nome}">Nome</th>
+              <th th:text="#{admin.tabela.duracao}">Duração</th>
+              <th th:text="#{admin.tabela.tipo}">Tipo</th>
+              <th th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-servicos"></tbody>
           </table>
           </div>
-          <p id="servicos-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum serviço cadastrado.</p>
+          <p id="servicos-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.servicos.vazio}">Nenhum serviço cadastrado.</p>
         </div>
       </div>
 
       <div id="section-insights" class="mb-6 is-hidden">
-        <h2 class="title is-5 mb-4">Insights</h2>
+        <h2 class="title is-5 mb-4" th:text="#{admin.insights.titulo}">Insights</h2>
         <div class="columns mb-5">
-          <div class="column"><div class="box has-text-centered py-4"><p class="heading">Total de Agendamentos</p><p class="title" id="kpi-total-ags">—</p></div></div>
-          <div class="column"><div class="box has-text-centered py-4"><p class="heading">Taxa de Conclusão</p><p class="title has-text-success" id="kpi-taxa-conclusao">—</p></div></div>
-          <div class="column"><div class="box has-text-centered py-4"><p class="heading">Serviço Mais Popular</p><p class="title is-5" id="kpi-servico-top">—</p></div></div>
-          <div class="column"><div class="box has-text-centered py-4"><p class="heading">Pet Mais Agendado</p><p class="title is-5" id="kpi-pet-top">—</p></div></div>
+          <div class="column"><div class="box has-text-centered py-4"><p class="heading" th:text="#{admin.insights.total.ags}">Total de Agendamentos</p><p class="title" id="kpi-total-ags">—</p></div></div>
+          <div class="column"><div class="box has-text-centered py-4"><p class="heading" th:text="#{admin.insights.taxa.conclusao}">Taxa de Conclusão</p><p class="title has-text-success" id="kpi-taxa-conclusao">—</p></div></div>
+          <div class="column"><div class="box has-text-centered py-4"><p class="heading" th:text="#{admin.insights.servico.top}">Serviço Mais Popular</p><p class="title is-5" id="kpi-servico-top">—</p></div></div>
+          <div class="column"><div class="box has-text-centered py-4"><p class="heading" th:text="#{admin.insights.pet.top}">Pet Mais Agendado</p><p class="title is-5" id="kpi-pet-top">—</p></div></div>
         </div>
         <div class="columns mb-4">
-          <div class="column is-4"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold">Status dos Agendamentos</p><canvas id="chart-status"></canvas></div></div>
-          <div class="column is-8"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold">Serviços Mais Populares</p><canvas id="chart-servicos"></canvas></div></div>
+          <div class="column is-4"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold" th:text="#{admin.insights.chart.status}">Status dos Agendamentos</p><canvas id="chart-status"></canvas></div></div>
+          <div class="column is-8"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold" th:text="#{admin.insights.chart.servicos}">Serviços Mais Populares</p><canvas id="chart-servicos"></canvas></div></div>
         </div>
         <div class="columns">
-          <div class="column is-8"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold">Agendamentos por Dia da Semana</p><canvas id="chart-dias"></canvas></div></div>
-          <div class="column is-4"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold">Porte dos Pets</p><canvas id="chart-porte"></canvas></div></div>
+          <div class="column is-8"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold" th:text="#{admin.insights.chart.dias}">Agendamentos por Dia da Semana</p><canvas id="chart-dias"></canvas></div></div>
+          <div class="column is-4"><div class="box"><p class="subtitle is-6 mb-3 has-text-weight-semibold" th:text="#{admin.insights.chart.porte}">Porte dos Pets</p><canvas id="chart-porte"></canvas></div></div>
         </div>
       </div>
 
       <div id="section-pets" class="mb-6 is-hidden">
-        <h2 class="title is-5 mb-3">Pets</h2>
+        <h2 class="title is-5 mb-3" th:text="#{admin.pets.titulo}">Pets</h2>
         <div class="field mb-3">
           <div class="control has-icons-left">
-            <input class="input is-small" type="text" id="filtro-pets" placeholder="Buscar por nome, raça, porte ou sexo..." autocomplete="off">
+            <input class="input is-small" type="text" id="filtro-pets" th:placeholder="#{admin.pets.buscar}" autocomplete="off">
             <span class="icon is-small is-left"><i class="fas fa-search"></i></span>
           </div>
           <div class="is-flex is-flex-wrap-wrap mt-2" style="gap:0.75rem;">
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Pequeno"> Pequeno</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Médio"> Médio</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Grande"> Grande</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Pequeno"> <span th:text="#{admin.pets.porte.pequeno}">Pequeno</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Médio"> <span th:text="#{admin.pets.porte.medio}">Médio</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-porte" value="Grande"> <span th:text="#{admin.pets.porte.grande}">Grande</span></label>
             <span class="is-size-7 has-text-grey mx-1">|</span>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Macho"> Macho</label>
-            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Fêmea"> Fêmea</label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Macho"> <span th:text="#{admin.pets.sexo.macho}">Macho</span></label>
+            <label class="checkbox is-size-7"><input type="checkbox" name="chk-pet-sexo" value="Fêmea"> <span th:text="#{admin.pets.sexo.femea}">Fêmea</span></label>
           </div>
         </div>
         <div class="box p-0">
           <div class="table-container">
           <table class="table is-fullwidth is-hoverable is-striped">
-            <thead><tr><th>#</th><th>Nome</th><th>Raça</th><th>Porte</th><th>Sexo</th><th>Ações</th></tr></thead>
+            <thead><tr>
+              <th th:text="#{admin.tabela.numero}">#</th>
+              <th th:text="#{admin.tabela.nome}">Nome</th>
+              <th th:text="#{admin.tabela.raca}">Raça</th>
+              <th th:text="#{admin.tabela.porte}">Porte</th>
+              <th th:text="#{admin.tabela.sexo}">Sexo</th>
+              <th th:text="#{admin.tabela.acoes}">Ações</th>
+            </tr></thead>
             <tbody id="tabela-pets"></tbody>
           </table>
           </div>
-          <p id="pets-admin-vazio" class="has-text-centered has-text-grey py-4 is-hidden">Nenhum pet cadastrado.</p>
+          <p id="pets-admin-vazio" class="has-text-centered has-text-grey py-4 is-hidden" th:text="#{admin.pets.vazio}">Nenhum pet cadastrado.</p>
           <nav id="pag-pets" class="pagination is-small is-centered py-3 is-hidden" role="navigation"></nav>
         </div>
       </div>
@@ -248,54 +300,54 @@
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
-        <p class="modal-card-title" id="modal-u-titulo">Editar</p>
+        <p class="modal-card-title" id="modal-u-titulo" th:text="#{admin.modal.editar}">Editar</p>
         <button class="delete" id="fechar-modal-u"></button>
       </header>
       <section class="modal-card-body">
         <input type="hidden" id="modal-u-id" />
-        <div class="field"><label class="label is-small">Nome</label><input class="input" type="text" id="modal-u-nome" /></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.nome}">Nome</label><input class="input" type="text" id="modal-u-nome" /></div>
         <div id="campos-readonly-cliente" style="display:none;">
           <div class="columns">
-            <div class="column"><div class="field"><label class="label is-small has-text-grey">CPF <span class="tag is-light is-small ml-1">somente leitura</span></label><input class="input" type="text" id="modal-u-cpf" readonly /></div></div>
-            <div class="column"><div class="field"><label class="label is-small has-text-grey">Data de Nascimento <span class="tag is-light is-small ml-1">somente leitura</span></label><input class="input" type="text" id="modal-u-nascimento" readonly /></div></div>
+            <div class="column"><div class="field"><label class="label is-small has-text-grey"><span th:text="#{admin.modal.cpf}">CPF</span> <span class="tag is-light is-small ml-1" th:text="#{admin.modal.leitura}">somente leitura</span></label><input class="input" type="text" id="modal-u-cpf" readonly /></div></div>
+            <div class="column"><div class="field"><label class="label is-small has-text-grey"><span th:text="#{admin.modal.nascimento}">Data de Nascimento</span> <span class="tag is-light is-small ml-1" th:text="#{admin.modal.leitura}">somente leitura</span></label><input class="input" type="text" id="modal-u-nascimento" readonly /></div></div>
           </div>
         </div>
         <div id="campos-address-cliente">
           <div class="columns">
-            <div class="column"><div class="field"><label class="label is-small">CEP</label><input class="input" type="text" id="modal-u-cep" /></div></div>
-            <div class="column"><div class="field"><label class="label is-small">Número</label><input class="input" type="text" id="modal-u-numero" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.cep}">CEP</label><input class="input" type="text" id="modal-u-cep" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.numero}">Número</label><input class="input" type="text" id="modal-u-numero" /></div></div>
           </div>
-          <div class="field"><label class="label is-small">Endereço</label><input class="input" type="text" id="modal-u-endereco" /></div>
+          <div class="field"><label class="label is-small" th:text="#{admin.modal.endereco}">Endereço</label><input class="input" type="text" id="modal-u-endereco" /></div>
         </div>
         <div id="campos-func-admin" style="display:none;">
           <div class="columns">
-            <div class="column"><div class="field"><label class="label is-small">E-mail</label><input class="input" type="email" id="modal-u-func-email" /></div></div>
-            <div class="column"><div class="field"><label class="label is-small">Telefone</label><input class="input" type="text" id="modal-u-func-telefone" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.email}">E-mail</label><input class="input" type="email" id="modal-u-func-email" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.telefone}">Telefone</label><input class="input" type="text" id="modal-u-func-telefone" /></div></div>
           </div>
-          <div class="field"><label class="label is-small">CPF</label><input class="input" type="text" id="modal-u-func-cpf" placeholder="000.000.000-00" /></div>
+          <div class="field"><label class="label is-small" th:text="#{admin.modal.cpf}">CPF</label><input class="input" type="text" id="modal-u-func-cpf" placeholder="000.000.000-00" /></div>
         </div>
         <div class="field" id="campo-modal-cargo" style="display:none;">
-          <label class="label is-small">Cargo</label>
+          <label class="label is-small" th:text="#{admin.modal.cargo}">Cargo</label>
           <div class="select is-fullwidth">
             <select id="modal-u-cargo">
-              <option value="">Selecione...</option>
-              <option value="Veterinário">Veterinário</option>
-              <option value="Esteticista">Esteticista</option>
-              <option value="Atendente">Atendente</option>
+              <option value="" th:text="#{admin.modal.cargo.selecione}">Selecione...</option>
+              <option value="Veterinário" th:text="#{admin.modal.cargo.vet}">Veterinário</option>
+              <option value="Esteticista" th:text="#{admin.modal.cargo.esteticista}">Esteticista</option>
+              <option value="Atendente" th:text="#{admin.modal.cargo.atendente}">Atendente</option>
             </select>
           </div>
         </div>
         <div class="field mt-3">
-          <label class="label is-small">Foto</label>
+          <label class="label is-small" th:text="#{admin.modal.foto}">Foto</label>
           <div class="control"><input id="modal-u-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'modal-u-preview')" /></div>
           <img id="modal-u-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:50%;" />
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
-        <button class="button is-danger is-outlined" id="btn-excluir-usuario">Excluir</button>
+        <button class="button is-danger is-outlined" id="btn-excluir-usuario" th:text="#{admin.modal.btn.excluir}">Excluir</button>
         <div style="display:flex; gap:0.5rem;">
-          <button class="button" id="cancelar-modal-u">Cancelar</button>
-          <button class="button is-primary" id="btn-salvar-modal-usuario">Salvar</button>
+          <button class="button" id="cancelar-modal-u" th:text="#{admin.modal.btn.cancelar}">Cancelar</button>
+          <button class="button is-primary" id="btn-salvar-modal-usuario" th:text="#{admin.modal.btn.salvar}">Salvar</button>
         </div>
       </footer>
     </div>
@@ -306,29 +358,36 @@
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
-        <p class="modal-card-title">Editar Pet</p>
+        <p class="modal-card-title" th:text="#{admin.modal.editar.pet}">Editar Pet</p>
         <button class="delete" id="fechar-modal-p"></button>
       </header>
       <section class="modal-card-body">
         <input type="hidden" id="modal-p-id" />
-        <div class="field"><label class="label is-small">Nome</label><input class="input" type="text" id="modal-p-nome" /></div>
-        <div class="field"><label class="label is-small">Raça</label><input class="input" type="text" id="modal-p-raca" /></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.nome}">Nome</label><input class="input" type="text" id="modal-p-nome" /></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.raca}">Raça</label><input class="input" type="text" id="modal-p-raca" /></div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">Porte</label><div class="select is-fullwidth"><select id="modal-p-porte"><option value="Pequeno">Pequeno</option><option value="Médio">Médio</option><option value="Grande">Grande</option></select></div></div></div>
-          <div class="column"><div class="field"><label class="label is-small">Sexo</label><div class="select is-fullwidth"><select id="modal-p-sexo"><option value="Macho">Macho</option><option value="Fêmea">Fêmea</option></select></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.porte}">Porte</label><div class="select is-fullwidth"><select id="modal-p-porte">
+            <option value="Pequeno" th:text="#{pet.porte.pequeno}">Pequeno</option>
+            <option value="Médio" th:text="#{pet.porte.medio}">Médio</option>
+            <option value="Grande" th:text="#{pet.porte.grande}">Grande</option>
+          </select></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.sexo}">Sexo</label><div class="select is-fullwidth"><select id="modal-p-sexo">
+            <option value="Macho" th:text="#{pet.sexo.macho}">Macho</option>
+            <option value="Fêmea" th:text="#{pet.sexo.femea}">Fêmea</option>
+          </select></div></div></div>
         </div>
-        <div class="field"><label class="label is-small">Observação</label><input class="input" type="text" id="modal-p-observacao" /></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.obs}">Observação</label><input class="input" type="text" id="modal-p-observacao" /></div>
         <div class="field mt-3">
-          <label class="label is-small">Foto</label>
+          <label class="label is-small" th:text="#{admin.modal.foto}">Foto</label>
           <div class="control"><input id="modal-p-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'modal-p-preview')" /></div>
           <img id="modal-p-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:8px;" />
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
-        <button class="button is-danger is-outlined" id="btn-excluir-pet">Excluir</button>
+        <button class="button is-danger is-outlined" id="btn-excluir-pet" th:text="#{admin.modal.btn.excluir}">Excluir</button>
         <div style="display:flex; gap:0.5rem;">
-          <button class="button" id="cancelar-modal-p">Cancelar</button>
-          <button class="button is-primary" id="btn-salvar-modal-pet">Salvar</button>
+          <button class="button" id="cancelar-modal-p" th:text="#{admin.modal.btn.cancelar}">Cancelar</button>
+          <button class="button is-primary" id="btn-salvar-modal-pet" th:text="#{admin.modal.btn.salvar}">Salvar</button>
         </div>
       </footer>
     </div>
@@ -339,33 +398,33 @@
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
-        <p class="modal-card-title" id="modal-ag-det-titulo">Agendamento</p>
+        <p class="modal-card-title" id="modal-ag-det-titulo" th:text="#{admin.modal.ag.titulo}">Agendamento</p>
         <button class="delete" id="fechar-modal-ag-det"></button>
       </header>
       <section class="modal-card-body">
         <div id="ag-detalhe-form">
           <div class="columns mb-2">
-            <div class="column"><p class="is-size-7 has-text-grey">Cliente</p><p id="ag-det-cliente" class="has-text-weight-bold"></p></div>
-            <div class="column"><p class="is-size-7 has-text-grey">Pet</p><p id="ag-det-pet" class="has-text-weight-bold"></p></div>
-            <div class="column is-narrow"><p class="is-size-7 has-text-grey">Status</p><p id="ag-det-status"></p></div>
+            <div class="column"><p class="is-size-7 has-text-grey" th:text="#{admin.modal.ag.cliente}">Cliente</p><p id="ag-det-cliente" class="has-text-weight-bold"></p></div>
+            <div class="column"><p class="is-size-7 has-text-grey" th:text="#{admin.modal.ag.pet}">Pet</p><p id="ag-det-pet" class="has-text-weight-bold"></p></div>
+            <div class="column is-narrow"><p class="is-size-7 has-text-grey" th:text="#{admin.modal.ag.status}">Status</p><p id="ag-det-status"></p></div>
           </div>
           <div class="field"><div id="ag-det-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
           <div class="columns">
-            <div class="column"><div class="field"><label class="label is-small">Data</label><input class="input" type="date" id="ag-det-data" /></div></div>
-            <div class="column"><div class="field"><label class="label is-small">Horário</label><div class="select is-fullwidth"><select id="ag-det-hora"><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.ag.data}">Data</label><input class="input" type="date" id="ag-det-data" /></div></div>
+            <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.ag.hora}">Horário</label><div class="select is-fullwidth"><select id="ag-det-hora"><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
           </div>
-          <div class="field"><label class="label is-small">Observação</label><textarea class="textarea is-small" id="ag-det-obs" rows="3"></textarea></div>
-          <div class="field" id="ag-det-motivo-section" style="display:none;"><label class="label is-small has-text-danger">Motivo do cancelamento</label><p id="ag-det-motivo" class="has-text-grey-dark is-size-6"></p></div>
+          <div class="field"><label class="label is-small" th:text="#{admin.modal.ag.obs}">Observação</label><textarea class="textarea is-small" id="ag-det-obs" rows="3"></textarea></div>
+          <div class="field" id="ag-det-motivo-section" style="display:none;"><label class="label is-small has-text-danger" th:text="#{admin.modal.ag.motivo}">Motivo do cancelamento</label><p id="ag-det-motivo" class="has-text-grey-dark is-size-6"></p></div>
         </div>
         <div id="ag-cancel-confirm" class="is-hidden">
-          <p class="has-text-weight-bold mb-3">Tem certeza que deseja cancelar este agendamento?</p>
-          <div class="field"><label class="label is-small">Motivo do cancelamento <span class="has-text-danger">*</span></label><textarea class="textarea is-small" id="ag-cancel-motivo" rows="3" placeholder="Descreva o motivo..."></textarea></div>
+          <p class="has-text-weight-bold mb-3" th:text="#{admin.modal.ag.confirm.msg}">Tem certeza que deseja cancelar este agendamento?</p>
+          <div class="field"><label class="label is-small"><span th:text="#{admin.modal.ag.motivo}">Motivo do cancelamento</span> <span class="has-text-danger">*</span></label><textarea class="textarea is-small" id="ag-cancel-motivo" rows="3" th:placeholder="#{admin.modal.ag.motivo.placeholder}"></textarea></div>
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap:0.5rem;">
-        <div id="ag-footer-esq" style="display:none;"><button class="button is-danger is-outlined" id="btn-ag-cancelar-inicio">Cancelar Agendamento</button></div>
-        <div id="ag-footer-dir" style="margin-left:auto;"><button class="button is-primary" id="btn-ag-det-salvar" style="display:none;">Salvar</button><button class="button" id="btn-ag-det-fechar" style="display:none;">Fechar</button></div>
-        <div id="ag-det-footer-confirm" style="display:none; width:100%; justify-content:space-between;"><button class="button" id="btn-ag-voltar-form">Voltar</button><button class="button is-danger" id="btn-ag-confirmar-cancel">Confirmar Cancelamento</button></div>
+        <div id="ag-footer-esq" style="display:none;"><button class="button is-danger is-outlined" id="btn-ag-cancelar-inicio" th:text="#{admin.modal.ag.cancelar}">Cancelar Agendamento</button></div>
+        <div id="ag-footer-dir" style="margin-left:auto;"><button class="button is-primary" id="btn-ag-det-salvar" style="display:none;" th:text="#{admin.modal.ag.salvar}">Salvar</button><button class="button" id="btn-ag-det-fechar" style="display:none;" th:text="#{admin.modal.ag.fechar}">Fechar</button></div>
+        <div id="ag-det-footer-confirm" style="display:none; width:100%; justify-content:space-between;"><button class="button" id="btn-ag-voltar-form" th:text="#{admin.modal.ag.voltar}">Voltar</button><button class="button is-danger" id="btn-ag-confirmar-cancel" th:text="#{admin.modal.ag.confirmar.cancel}">Confirmar Cancelamento</button></div>
       </footer>
     </div>
   </div>
@@ -374,20 +433,20 @@
   <div id="modal-novo-agendamento" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title">Novo Agendamento</p><button class="delete" id="fechar-modal-ag"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" th:text="#{admin.modal.novo.ag}">Novo Agendamento</p><button class="delete" id="fechar-modal-ag"></button></header>
       <section class="modal-card-body">
-        <div class="field"><label class="label is-small">Cliente</label><div class="select is-fullwidth"><select id="modal-ag-cliente"><option value="">Selecione o cliente...</option></select></div></div>
-        <div class="field"><label class="label is-small">Pet</label><div class="select is-fullwidth"><select id="modal-ag-pet" disabled><option value="">Selecione o cliente primeiro</option></select></div></div>
-        <div class="field"><label class="label is-small">Serviços</label><div id="modal-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.tabela.cliente}">Cliente</label><div class="select is-fullwidth"><select id="modal-ag-cliente"><option value="" th:text="#{admin.modal.ag.selecione.cliente}">Selecione o cliente...</option></select></div></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.tabela.pet}">Pet</label><div class="select is-fullwidth"><select id="modal-ag-pet" disabled><option value="" th:text="#{admin.modal.ag.selecione.pet}">Selecione o cliente primeiro</option></select></div></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.ag.servicos}">Serviços</label><div id="modal-ag-servicos" class="columns is-multiline is-mobile" style="gap:0;"></div></div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small">Data</label><input class="input" type="date" id="modal-ag-data" /></div></div>
-          <div class="column"><div class="field"><label class="label is-small">Horário</label><div class="select is-fullwidth"><select id="modal-ag-hora"><option value="">Selecione...</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.ag.data}">Data</label><input class="input" type="date" id="modal-ag-data" /></div></div>
+          <div class="column"><div class="field"><label class="label is-small" th:text="#{admin.modal.ag.hora}">Horário</label><div class="select is-fullwidth"><select id="modal-ag-hora"><option value="" th:text="#{admin.modal.ag.selecione.hora}">Selecione...</option><option>08:00</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select></div></div></div>
         </div>
-        <div class="field"><label class="label is-small">Observação</label><textarea class="textarea is-small" id="modal-ag-observacao" rows="2"></textarea></div>
+        <div class="field"><label class="label is-small" th:text="#{admin.modal.ag.obs}">Observação</label><textarea class="textarea is-small" id="modal-ag-observacao" rows="2"></textarea></div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
-        <button class="button" id="cancelar-modal-ag">Cancelar</button>
-        <button class="button is-primary" id="btn-salvar-modal-ag">Agendar</button>
+        <button class="button" id="cancelar-modal-ag" th:text="#{admin.modal.btn.cancelar}">Cancelar</button>
+        <button class="button is-primary" id="btn-salvar-modal-ag" th:text="#{admin.modal.ag.btn.agendar}">Agendar</button>
       </footer>
     </div>
   </div>
@@ -396,33 +455,38 @@
   <div id="modal-novo-funcionario" class="modal">
     <div class="modal-background"></div>
     <div class="modal-card">
-      <header class="modal-card-head"><p class="modal-card-title">Novo Funcionário</p><button class="delete" id="fechar-modal-func"></button></header>
+      <header class="modal-card-head"><p class="modal-card-title" th:text="#{admin.modal.novo.func}">Novo Funcionário</p><button class="delete" id="fechar-modal-func"></button></header>
       <section class="modal-card-body">
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Nome Completo</label><div class="control"><input id="func-nome" class="input" type="text" placeholder="Nome do funcionário" /></div></div></div>
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">CPF</label><div class="control"><input id="func-cpf" class="input" type="text" placeholder="000.000.000-00" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.nome}">Nome Completo</label><div class="control"><input id="func-nome" class="input" type="text" th:placeholder="#{admin.modal.func.nome.placeholder}" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.cpf}">CPF</label><div class="control"><input id="func-cpf" class="input" type="text" placeholder="000.000.000-00" /></div></div></div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Cargo</label><div class="control"><div class="select is-fullwidth" id="wrap-func-cargo"><select id="func-cargo"><option value="">Selecione o cargo</option><option value="Veterinário">Veterinário</option><option value="Esteticista">Esteticista</option><option value="Atendente">Atendente</option></select></div></div></div></div>
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Data de Nascimento</label><div class="control"><input id="func-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.cargo}">Cargo</label><div class="control"><div class="select is-fullwidth" id="wrap-func-cargo"><select id="func-cargo">
+            <option value="" th:text="#{admin.modal.func.cargo.selecione}">Selecione o cargo</option>
+            <option value="Veterinário" th:text="#{admin.modal.cargo.vet}">Veterinário</option>
+            <option value="Esteticista" th:text="#{admin.modal.cargo.esteticista}">Esteticista</option>
+            <option value="Atendente" th:text="#{admin.modal.cargo.atendente}">Atendente</option>
+          </select></div></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.nascimento}">Data de Nascimento</label><div class="control"><input id="func-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div></div></div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">E-mail</label><div class="control"><input id="func-email" class="input" type="email" placeholder="funcionario@petgo.com" autocomplete="off" /></div></div></div>
-          <div class="column is-4"><div class="field"><label class="label is-small has-text-primary">Telefone</label><div class="control"><input id="func-telefone" class="input" type="text" placeholder="(00) 00000-0000" autocomplete="off" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.email}">E-mail</label><div class="control"><input id="func-email" class="input" type="email" th:placeholder="#{admin.modal.func.email.placeholder}" autocomplete="off" /></div></div></div>
+          <div class="column is-4"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.telefone}">Telefone</label><div class="control"><input id="func-telefone" class="input" type="text" placeholder="(00) 00000-0000" autocomplete="off" /></div></div></div>
         </div>
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Senha</label><div class="control"><input id="func-senha" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div></div></div>
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Confirmar Senha</label><div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.senha}">Senha</label><div class="control"><input id="func-senha" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{admin.modal.func.confirmar.senha}">Confirmar Senha</label><div class="control"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" autocomplete="new-password" /></div></div></div>
         </div>
         <div class="field mt-2">
-          <label class="label is-small has-text-primary">Foto do funcionário</label>
+          <label class="label is-small has-text-primary" th:text="#{admin.modal.func.foto}">Foto do funcionário</label>
           <div class="control"><input id="func-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'func-preview')" /></div>
           <img id="func-preview" src="" style="display:none; max-height:72px; margin-top:0.5rem; border-radius:50%;" />
         </div>
       </section>
       <footer class="modal-card-foot is-flex is-justify-content-space-between" style="gap: 0.5rem;">
-        <button class="button" id="cancelar-modal-func">Cancelar</button>
-        <button class="button is-primary has-text-weight-bold" id="btn-cadastrar-func-modal">Cadastrar</button>
+        <button class="button" id="cancelar-modal-func" th:text="#{admin.modal.btn.cancelar}">Cancelar</button>
+        <button class="button is-primary has-text-weight-bold" id="btn-cadastrar-func-modal" th:text="#{admin.modal.func.btn.cadastrar}">Cadastrar</button>
       </footer>
     </div>
   </div>

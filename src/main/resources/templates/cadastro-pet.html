@@ -15,12 +15,12 @@
 <body class="has-background-light">
 <div class="container">
 
-  <nav th:replace="~{fragments/navbar :: navbar('/perfil.html', 'Voltar ao perfil')}"></nav>
+  <nav th:replace="~{fragments/navbar :: navbar('/perfil.html', #{nav.voltar.perfil})}"></nav>
 
   <main class="section">
     <div class="container" style="max-width: 600px;">
 
-      <h1 class="title is-4 has-text-centered has-text-weight-bold has-text-primary mb-5">Cadastre seu Pet!</h1>
+      <h1 class="title is-4 has-text-centered has-text-weight-bold has-text-primary mb-5" th:text="#{pet.titulo}">Cadastre seu Pet!</h1>
 
       <div class="box">
 
@@ -30,15 +30,15 @@
               <div class="control">
                 <input id="pet-nome" class="input" type="text" placeholder="Rex" />
               </div>
-              <label class="label is-small has-text-primary">Nome Completo</label>
+              <label class="label is-small has-text-primary" th:text="#{pet.nome.label}">Nome Completo</label>
             </div>
           </div>
           <div class="column">
             <div class="field">
               <div class="control">
-                <input id="pet-raca" class="input" type="text" placeholder="Rottweiler" />
+                <input id="pet-raca" class="input" type="text" th:placeholder="#{pet.raca.placeholder}" />
               </div>
-              <label class="label is-small has-text-primary">Raça</label>
+              <label class="label is-small has-text-primary" th:text="#{pet.raca.label}">Raça</label>
             </div>
           </div>
         </div>
@@ -49,14 +49,14 @@
               <div id="wrap-pet-porte" class="control">
                 <div class="select is-fullwidth">
                   <select id="pet-porte">
-                    <option value="">Tamanho do pet?</option>
-                    <option>Pequeno</option>
-                    <option>Médio</option>
-                    <option>Grande</option>
+                    <option value="" th:text="#{pet.porte.placeholder}">Tamanho do pet?</option>
+                    <option value="Pequeno" th:text="#{pet.porte.pequeno}">Pequeno</option>
+                    <option value="Médio" th:text="#{pet.porte.medio}">Médio</option>
+                    <option value="Grande" th:text="#{pet.porte.grande}">Grande</option>
                   </select>
                 </div>
               </div>
-              <label class="label is-small has-text-primary">Porte</label>
+              <label class="label is-small has-text-primary" th:text="#{pet.porte.label}">Porte</label>
             </div>
           </div>
           <div class="column">
@@ -64,13 +64,13 @@
               <div id="wrap-pet-sexo" class="control">
                 <div class="select is-fullwidth">
                   <select id="pet-sexo">
-                    <option value="">Escolha o sexo</option>
-                    <option>Macho</option>
-                    <option>Fêmea</option>
+                    <option value="" th:text="#{pet.sexo.placeholder}">Escolha o sexo</option>
+                    <option value="Macho" th:text="#{pet.sexo.macho}">Macho</option>
+                    <option value="Fêmea" th:text="#{pet.sexo.femea}">Fêmea</option>
                   </select>
                 </div>
               </div>
-              <label class="label is-small has-text-primary">Sexo</label>
+              <label class="label is-small has-text-primary" th:text="#{pet.sexo.label}">Sexo</label>
             </div>
           </div>
           <div class="column">
@@ -78,16 +78,18 @@
               <div class="control">
                 <input id="pet-idade" class="input" type="text" placeholder="DD/MM/AAAA" />
               </div>
-              <label class="label is-small has-text-primary">Data de Nascimento <span class="has-text-grey has-text-weight-normal">(Aprox.)</span></label>
+              <label class="label is-small has-text-primary">
+                <span th:text="#{pet.nascimento.label}">Data de Nascimento</span> <span class="has-text-grey has-text-weight-normal" th:text="#{pet.nascimento.aprox}">(Aprox.)</span>
+              </label>
             </div>
           </div>
         </div>
 
         <div class="field">
           <div class="control">
-            <input id="pet-observacao" class="input" type="text" placeholder="Não gosta do secador" />
+            <input id="pet-observacao" class="input" type="text" th:placeholder="#{pet.obs.placeholder}" />
           </div>
-          <label class="label is-small has-text-primary">Observação</label>
+          <label class="label is-small has-text-primary" th:text="#{pet.obs.label}">Observação</label>
         </div>
 
         <div class="field">
@@ -95,19 +97,19 @@
             <input type="file" id="pet-inputImagem" accept="image/*" onchange="previewImagem(event)" class="input" />
             <img id="preview-imagem" src="" alt="Preview" style="display:none; max-height:80px; border-radius:4px; margin-top:0.5rem;" />
           </div>
-          <label class="label is-small has-text-primary">Imagem</label>
+          <label class="label is-small has-text-primary" th:text="#{pet.imagem.label}">Imagem</label>
         </div>
 
         <div class="field mt-3">
           <label class="checkbox">
             <input type="checkbox" checked />
-            Concordo com os <a href="#"><u>termos de uso e privacidade.</u></a>
+            <span th:text="#{pet.termos.prefixo}">Concordo com os</span> <a href="#"><u th:text="#{pet.termos.link}">termos de uso e privacidade.</u></a>
           </label>
         </div>
 
         <div class="is-flex is-justify-content-space-between mt-5 form-actions">
-          <a href="/perfil.html" class="button is-light">Cancelar</a>
-          <button id="btn-cadastrar-pet" class="button is-primary has-text-weight-bold">Cadastrar</button>
+          <a href="/perfil.html" class="button is-light" th:text="#{pet.btn.cancelar}">Cancelar</a>
+          <button id="btn-cadastrar-pet" class="button is-primary has-text-weight-bold" th:text="#{pet.btn.cadastrar}">Cadastrar</button>
         </div>
 
       </div>

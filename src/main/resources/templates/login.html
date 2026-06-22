@@ -15,21 +15,21 @@
 <body class="has-background-light">
 <div class="container" style="min-height: 100vh; display: flex; flex-direction: column;">
 
-  <nav th:replace="~{fragments/navbar :: navbar('/index.html', 'Voltar ao Início')}"></nav>
+  <nav th:replace="~{fragments/navbar :: navbar('/index.html', #{nav.voltar.inicio})}"></nav>
 
   <main class="section" style="flex: 1;">
     <div class="container" style="max-width: 420px;">
 
-      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-2">Entrar</h1>
+      <h1 class="title is-3 has-text-centered has-text-weight-bold mb-2" th:text="#{login.titulo}">Entrar</h1>
       <p class="has-text-centered mb-5 is-size-7">
-        Não tem cadastro? <a href="/cadastro.html" class="has-text-primary has-text-weight-bold">Cadastre-se aqui</a>
+        <span th:text="#{login.sem.cadastro}">Não tem cadastro?</span> <a href="/cadastro.html" class="has-text-primary has-text-weight-bold" th:text="#{login.cadastrar}">Cadastre-se aqui</a>
       </p>
 
       <div class="field">
         <div class="control">
           <input id="email" class="input" type="email" placeholder="JoãodaSilvaSantosPerreira@Email.com" />
         </div>
-        <label class="label is-small has-text-primary">Email</label>
+        <label class="label is-small has-text-primary" th:text="#{login.email.label}">Email</label>
       </div>
 
       <div class="field">
@@ -40,13 +40,13 @@
           </button>
         </div>
         <div class="is-flex is-justify-content-space-between is-align-items-center mb-5">
-          <label class="label is-small has-text-primary mb-0">Senha</label>
-          <a href="#" class="is-size-7 has-text-primary">Esqueci minha senha</a>
+          <label class="label is-small has-text-primary mb-0" th:text="#{login.senha.label}">Senha</label>
+          <a href="#" class="is-size-7 has-text-primary" th:text="#{login.esqueci.senha}">Esqueci minha senha</a>
         </div>
       </div>
 
       <div class="has-text-centered">
-        <button id="btnLogin" class="button is-primary has-text-weight-bold px-6">Entrar</button>
+        <button id="btnLogin" class="button is-primary has-text-weight-bold px-6" th:text="#{login.btn}">Entrar</button>
       </div>
 
     </div>

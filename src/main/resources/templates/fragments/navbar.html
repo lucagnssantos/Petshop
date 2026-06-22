@@ -22,16 +22,22 @@
     </div>
     <div class="navbar-end">
       <div class="navbar-item">
+        <div class="buttons mb-0" style="gap: 0.25rem;">
+          <a href="?lang=pt_BR" class="button is-small" th:classappend="${#locale.language == 'pt' ? 'is-primary' : 'is-ghost'}">PT</a>
+          <a href="?lang=en" class="button is-small" th:classappend="${#locale.language == 'en' ? 'is-primary' : 'is-ghost'}">EN</a>
+        </div>
+      </div>
+      <div class="navbar-item">
         <button class="btn-tema button is-ghost" aria-label="Alternar tema">
           <span class="icon"><i class="icon-tema fas fa-moon"></i></span>
         </button>
       </div>
       <div class="navbar-item" id="nav-btn-entrar">
-        <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold">Entrar/Cadastrar</a>
+        <a href="/login.html" class="button is-primary is-outlined has-text-weight-bold" th:text="#{nav.entrar}">Entrar/Cadastrar</a>
       </div>
       <div class="navbar-item is-align-items-center is-hidden" id="nav-usuario" style="gap: 0.5rem; display: none;">
         <a id="nav-btn-painel" href="#" class="button is-small is-primary is-outlined has-text-weight-bold" style="display:none;"></a>
-        <span class="has-text-grey">Olá, <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
+        <span class="has-text-grey"><span th:text="#{nav.ola}">Olá,</span> <a href="/perfil.html" class="has-text-primary has-text-weight-bold" id="nav-nome">...</a></span>
         <figure class="image is-40x40" style="flex-shrink:0;">
           <img id="nav-avatar" class="is-rounded" src="https://placehold.co/40x40?text=?" alt="Avatar" style="width:40px;height:40px;object-fit:cover;border-radius:50%;" />
         </figure>
@@ -43,7 +49,7 @@
 <!-- Navbar simplificada para páginas de detalhe (cliente, pet, func-detalhe) -->
 <nav th:fragment="navbar-voltar(voltarHref)" class="navbar" role="navigation">
   <div class="navbar-brand">
-    <a class="navbar-item has-text-weight-bold" th:href="${voltarHref}">Voltar</a>
+    <a class="navbar-item has-text-weight-bold" th:href="${voltarHref}" th:text="#{nav.voltar}">Voltar</a>
     <div class="nav-logo">
       <a class="navbar-item" href="/index.html">
         <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO logo" class="nav-logo-img petgo-logo" />

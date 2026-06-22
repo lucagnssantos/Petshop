@@ -21,14 +21,18 @@
     <aside class="has-background-white" style="width: 220px; flex-shrink: 0; padding: 2rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-right: 1px solid #eee;">
       <div class="has-text-centered mb-5">
         <img src="https://pub-ff62bf51a3fa432ab455c83ccd93e3a1.r2.dev/logo-vertical.png" alt="PetGO" class="petgo-logo" style="height:48px;width:auto;" />
-        <p class="is-size-7 has-text-grey mt-2">Painel Admin</p>
+        <p class="is-size-7 has-text-grey mt-2" th:text="#{cadastro.func.painel}">Painel Admin</p>
       </div>
-      <a class="navbar-item" href="/admin.html"><span class="icon mr-2"><i class="fas fa-chart-bar"></i></span> Dashboard</a>
-      <a class="navbar-item is-active has-text-weight-bold" href="/cadastro-funcionario.html"><span class="icon mr-2"><i class="fas fa-user-plus"></i></span> Novo Funcionário</a>
+      <a class="navbar-item" href="/admin.html"><span class="icon mr-2"><i class="fas fa-chart-bar"></i></span> <span th:text="#{cadastro.func.sidebar.dashboard}">Dashboard</span></a>
+      <a class="navbar-item is-active has-text-weight-bold" href="/cadastro-funcionario.html"><span class="icon mr-2"><i class="fas fa-user-plus"></i></span> <span th:text="#{cadastro.func.sidebar.novo}">Novo Funcionário</span></a>
       <div style="margin-top: auto;">
+        <div class="is-flex mb-3" style="gap: 0.25rem;">
+          <a href="?lang=pt_BR" class="button is-small" th:classappend="${#locale.language == 'pt' ? 'is-primary' : 'is-ghost'}">PT</a>
+          <a href="?lang=en" class="button is-small" th:classappend="${#locale.language == 'en' ? 'is-primary' : 'is-ghost'}">EN</a>
+        </div>
         <button id="btn-sair-admin" class="button is-danger is-outlined is-fullwidth is-small">
           <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-          <span>Sair</span>
+          <span th:text="#{cadastro.func.sidebar.sair}">Sair</span>
         </button>
       </div>
     </aside>
@@ -38,55 +42,60 @@
 
       <div class="is-flex is-align-items-center mb-5" style="gap: 1rem;">
         <a href="/admin.html" class="button is-light"><span class="icon"><i class="fas fa-arrow-left"></i></span></a>
-        <h1 class="title is-4 mb-0">Cadastrar Funcionário</h1>
+        <h1 class="title is-4 mb-0" th:text="#{cadastro.func.titulo}">Cadastrar Funcionário</h1>
       </div>
 
       <div class="box" style="max-width: 640px;">
 
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Nome Completo</label><div class="control"><input id="func-nome" class="input" type="text" placeholder="Nome do funcionário" /></div></div></div>
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">CPF</label><div class="control"><input id="func-cpf" class="input" type="text" placeholder="000.000.000-00" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{cadastro.func.nome}">Nome Completo</label><div class="control"><input id="func-nome" class="input" type="text" th:placeholder="#{cadastro.func.nome.placeholder}" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{cadastro.func.cpf}">CPF</label><div class="control"><input id="func-cpf" class="input" type="text" placeholder="000.000.000-00" /></div></div></div>
         </div>
 
         <div class="columns">
           <div class="column">
             <div class="field">
-              <label class="label is-small has-text-primary">Cargo</label>
-              <div class="control"><div class="select is-fullwidth" id="wrap-func-cargo"><select id="func-cargo"><option value="">Selecione o cargo</option><option value="Veterinário">Veterinário</option><option value="Esteticista">Esteticista</option><option value="Atendente">Atendente</option></select></div></div>
+              <label class="label is-small has-text-primary" th:text="#{cadastro.func.cargo}">Cargo</label>
+              <div class="control"><div class="select is-fullwidth" id="wrap-func-cargo"><select id="func-cargo">
+                <option value="" th:text="#{cadastro.func.cargo.selecione}">Selecione o cargo</option>
+                <option value="Veterinário" th:text="#{cadastro.func.cargo.vet}">Veterinário</option>
+                <option value="Esteticista" th:text="#{cadastro.func.cargo.esteticista}">Esteticista</option>
+                <option value="Atendente" th:text="#{cadastro.func.cargo.atendente}">Atendente</option>
+              </select></div></div>
             </div>
           </div>
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">Data de Nascimento</label><div class="control"><input id="func-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{cadastro.func.nascimento}">Data de Nascimento</label><div class="control"><input id="func-dataNascimento" class="input" type="text" placeholder="DD/MM/AAAA" /></div></div></div>
         </div>
 
         <div class="columns">
-          <div class="column"><div class="field"><label class="label is-small has-text-primary">E-mail</label><div class="control"><input id="func-email" class="input" type="email" placeholder="funcionario@petgo.com" /></div></div></div>
-          <div class="column is-4"><div class="field"><label class="label is-small has-text-primary">Telefone</label><div class="control"><input id="func-telefone" class="input" type="text" placeholder="(00) 00000-0000" /></div></div></div>
+          <div class="column"><div class="field"><label class="label is-small has-text-primary" th:text="#{cadastro.func.email}">E-mail</label><div class="control"><input id="func-email" class="input" type="email" th:placeholder="#{cadastro.func.email.placeholder}" /></div></div></div>
+          <div class="column is-4"><div class="field"><label class="label is-small has-text-primary" th:text="#{cadastro.func.telefone}">Telefone</label><div class="control"><input id="func-telefone" class="input" type="text" placeholder="(00) 00000-0000" /></div></div></div>
         </div>
 
         <div class="columns">
           <div class="column">
             <div class="field">
-              <label class="label is-small has-text-primary">Senha</label>
+              <label class="label is-small has-text-primary" th:text="#{cadastro.func.senha}">Senha</label>
               <div class="control" style="position: relative;"><input id="func-senha" class="input" type="password" placeholder="*********" style="padding-right: 45px;" /><button type="button" id="toggleFuncSenha" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button></div>
             </div>
           </div>
           <div class="column">
             <div class="field">
-              <label class="label is-small has-text-primary">Confirmar Senha</label>
+              <label class="label is-small has-text-primary" th:text="#{cadastro.func.confirmar.senha}">Confirmar Senha</label>
               <div class="control" style="position: relative;"><input id="func-senhaRepetida" class="input" type="password" placeholder="*********" style="padding-right: 45px;" /><button type="button" id="toggleFuncSenhaRepetida" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;cursor:pointer;"><i class="fas fa-eye"></i></button></div>
             </div>
           </div>
         </div>
 
         <div class="field">
-          <label class="label is-small has-text-primary">Foto do funcionário</label>
+          <label class="label is-small has-text-primary" th:text="#{cadastro.func.foto}">Foto do funcionário</label>
           <div class="control"><input id="func-foto" class="input" type="file" accept="image/*" onchange="previewImagem(event, 'func-preview')" /></div>
           <img id="func-preview" src="" style="display:none; max-height:80px; margin-top:0.5rem; border-radius:50%;" />
         </div>
 
         <div class="is-flex is-justify-content-space-between mt-4 form-actions">
-          <a href="/admin.html" class="button is-light">Cancelar</a>
-          <button id="btn-cadastrar-funcionario" class="button is-primary has-text-weight-bold">Cadastrar</button>
+          <a href="/admin.html" class="button is-light" th:text="#{cadastro.func.btn.cancelar}">Cancelar</a>
+          <button id="btn-cadastrar-funcionario" class="button is-primary has-text-weight-bold" th:text="#{cadastro.func.btn.cadastrar}">Cadastrar</button>
         </div>
 
       </div>
