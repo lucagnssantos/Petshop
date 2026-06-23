@@ -91,6 +91,27 @@
   <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 </div>
+<div id="petgo-i18n" hidden
+     th:data-status-agendado="#{status.agendado}"
+     th:data-status-concluido="#{status.concluido}"
+     th:data-status-cancelado="#{status.cancelado}"
+     th:data-cargo-vet="#{admin.func.cargo.vet}"
+     th:data-cargo-esteticista="#{admin.func.cargo.esteticista}"
+     th:data-cargo-atendente="#{admin.func.cargo.atendente}"
+     th:data-sexo-macho="#{admin.pets.sexo.macho}"
+     th:data-sexo-femea="#{admin.pets.sexo.femea}"
+     th:data-porte-p="#{admin.pets.porte.pequeno}"
+     th:data-porte-m="#{admin.pets.porte.medio}"
+     th:data-porte-g="#{admin.pets.porte.grande}"
+     th:data-servico-banho="#{servico.nome.banho}"
+     th:data-servico-tosa="#{servico.nome.tosa}"
+     th:data-servico-corteunha="#{servico.nome.corteunha}"
+     th:data-servico-desembolamento="#{servico.nome.desembolamento}"
+     th:data-servico-hidratacao="#{servico.nome.hidratacao}"
+     th:data-servico-consulta="#{servico.nome.consulta}"
+     th:data-servico-vacinacao="#{servico.nome.vacinacao}"
+     th:data-btn-ver-pet="#{btn.ver.pet}"
+     th:data-cli-nao-encontrado="#{cli.nao.encontrado}"></div>
 <script src="/utils.js"></script>
 <script src="/scripts.js"></script>
 </body>

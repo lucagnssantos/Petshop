@@ -74,6 +74,20 @@
   <footer th:replace="~{fragments/footer :: footer}"></footer>
 
 </div>
+<div id="petgo-i18n" hidden
+     th:data-status-agendado="#{status.agendado}"
+     th:data-status-concluido="#{status.concluido}"
+     th:data-status-cancelado="#{status.cancelado}"
+     th:data-cargo-vet="#{admin.func.cargo.vet}"
+     th:data-cargo-esteticista="#{admin.func.cargo.esteticista}"
+     th:data-cargo-atendente="#{admin.func.cargo.atendente}"
+     th:data-servico-banho="#{servico.nome.banho}"
+     th:data-servico-tosa="#{servico.nome.tosa}"
+     th:data-servico-corteunha="#{servico.nome.corteunha}"
+     th:data-servico-desembolamento="#{servico.nome.desembolamento}"
+     th:data-servico-hidratacao="#{servico.nome.hidratacao}"
+     th:data-servico-consulta="#{servico.nome.consulta}"
+     th:data-servico-vacinacao="#{servico.nome.vacinacao}"></div>
 <script src="/utils.js"></script>
 <script src="/scripts.js"></script>
 </body>

@@ -19,6 +19,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const i18n = (() => { const el = document.getElementById('petgo-i18n'); return el ? el.dataset : {}; })();
 
+    function traduzirServico(nome) {
+        if (!nome) return nome || "";
+        const map = {
+            "Banho": i18n.servicoBanho,
+            "Tosa": i18n.servicoTosa,
+            "Corte de unha": i18n.servicoCorteunha,
+            "Desembolamento": i18n.servicoDesembolamento,
+            "Hidratação": i18n.servicoHidratacao,
+            "Consulta": i18n.servicoConsulta,
+            "Vacinação": i18n.servicoVacinacao,
+        };
+        return map[nome] || nome;
+    }
+
+    function traduzirListaServicos(str) {
+        if (!str) return str;
+        return str.split(",").map(s => traduzirServico(s.trim())).join(", ");
+    }
+
+    function traduzirCargo(cargo) {
+        const map = {
+            "Veterinário": i18n.cargoVet,
+            "Esteticista": i18n.cargoEsteticista,
+            "Atendente": i18n.cargoAtendente,
+        };
+        return map[cargo] || cargo || "";
+    }
+
+    function traduzirPorte(porte) {
+        const map = {
+            "Pequeno": i18n.porteP,
+            "Médio": i18n.porteM,
+            "Grande": i18n.porteG,
+        };
+        return map[porte] || porte || "";
+    }
+
+    function traduzirSexo(sexo) {
+        const map = {
+            "Macho": i18n.sexoMacho,
+            "Fêmea": i18n.sexoFemea,
+        };
+        return map[sexo] || sexo || "";
+    }
+
     function fmtData(data) {
         if (!data) return "—";
         const [a, m, d] = data.split("-");
@@ -154,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 cb.checked = selecionados.includes(s.nome);
                 cb.disabled = !!disabled;
                 label.appendChild(cb);
-                label.appendChild(document.createTextNode(" " + s.nome));
+                label.appendChild(document.createTextNode(" " + traduzirServico(s.nome)));
                 div.appendChild(label);
                 container.appendChild(div);
             });
@@ -222,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if ((slots[key] || 0) <= 0) { blocked = true; break; }
                 }
                 opt.disabled = blocked;
-                opt.text = blocked ? opt.value + " (ocupado)" : opt.value;
+                opt.text = blocked ? opt.value + " " + (i18n.slotOcupado || "(ocupado)") : opt.value;
             });
         } catch {}
     }
@@ -243,20 +288,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
             if (algumBloqueado)
-                toast("Serviços veterinários e gerais não podem ser combinados no mesmo agendamento.", "warning");
+                toast(i18n.msgVetGeral || "Serviços veterinários e gerais não podem ser combinados no mesmo agendamento.", "warning");
         });
     }
 
     function setupClientePetSelect(clienteSelectId, petSelectId) {
         document.getElementById(clienteSelectId)?.addEventListener("change", function() {
             const selectPet = document.getElementById(petSelectId);
-            selectPet.innerHTML = "<option value=''>Carregando...</option>";
+            selectPet.innerHTML = `<option value=''>${i18n.selectCarregando || "Carregando..."}</option>`;
             selectPet.disabled = true;
-            if (!this.value) { selectPet.innerHTML = "<option value=''>Selecione o cliente primeiro</option>"; return; }
+            if (!this.value) { selectPet.innerHTML = `<option value=''>${i18n.selectClientePrimeiro || "Selecione o cliente primeiro"}</option>`; return; }
             authFetch(`${BASE_URL}/api/pets/usuario/${this.value}`)
                 .then(r => r.ok ? r.json() : [])
                 .then(pets => {
-                    selectPet.innerHTML = "<option value=''>Selecione o pet...</option>";
+                    selectPet.innerHTML = `<option value=''>${i18n.selectSelecionePet || "Selecione o pet..."}</option>`;
                     pets.forEach(p => {
                         const opt = document.createElement("option");
                         opt.value = p.id;
@@ -264,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         selectPet.appendChild(opt);
                     });
                     selectPet.disabled = pets.length === 0;
-                    if (pets.length === 0) selectPet.innerHTML = "<option value=''>Este cliente não tem pets</option>";
+                    if (pets.length === 0) selectPet.innerHTML = `<option value=''>${i18n.selectSemPets || "Este cliente não tem pets"}</option>`;
                 });
         });
     }
@@ -828,7 +873,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="is-flex-grow-1">
 
                       <p class="has-text-weight-bold">
-                        ${ag.servico || "Serviço"}
+                        ${traduzirListaServicos(ag.servico) || "Serviço"}
                       </p>
 
                       <p class="is-size-7 has-text-grey">
@@ -1070,9 +1115,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${ag.hora || "—"}</td>
                         <td>${ag.usuarioNome || "—"}</td>
                         <td>${ag.petNome || "—"}</td>
-                        <td>${ag.servico || "—"}</td>
+                        <td>${traduzirListaServicos(ag.servico) || "—"}</td>
                         <td>${tagStatus(ag.status)}</td>
-                        <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-dash="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}</td>`;
+                        <td>${ag.status === "Agendado" ? `<button class="button is-success is-light is-small" data-concluir-dash="${ag.id}" title="${i18n.btnMarcarConcluido || "Marcar como Concluído"}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}</td>`;
                     tbodyHoje.appendChild(tr);
                 });
             }
@@ -1098,7 +1143,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <td>${ag.hora || "—"}</td>
                         <td>${ag.usuarioNome || "—"}</td>
                         <td>${ag.petNome || "—"}</td>
-                        <td>${ag.servico || "—"}</td>
+                        <td>${traduzirListaServicos(ag.servico) || "—"}</td>
                         <td>${tagStatus(ag.status)}</td>`;
                     tbodyProx.appendChild(tr);
                 });
@@ -1130,14 +1175,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${ag.id}</td>
                 <td>${ag.usuarioNome || "—"}</td>
                 <td>${ag.petNome || "—"}</td>
-                <td>${ag.servico || "—"}</td>
+                <td>${traduzirListaServicos(ag.servico) || "—"}</td>
                 <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
                 <td>${tagStatus(ag.status)}</td>
                 <td>
                   <div class="buttons are-small mb-0">
-                    <button class="button is-light" title="${ag.status === "Agendado" ? "Ver / Editar" : "Detalhes"}" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>
-                    <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                    ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="Marcar como Concluído" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
+                    <button class="button is-light" title="${ag.status === "Agendado" ? (i18n.btnVerEditar || "Ver / Editar") : (i18n.btnDetalhes || "Detalhes")}" data-ag='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>
+                    <a class="button is-light" href="pet.html?id=${ag.petId}" title="${i18n.btnVerPet || "Ver pet"}" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                    ${ag.status === "Agendado" ? `<button class="button is-success is-light" title="${i18n.btnMarcarConcluido || "Marcar como Concluído"}" data-concluir="${ag.id}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
                   </div>
                 </td>`,
             "tabela-agendamentos", "agendamentos-vazio", "pag-agendamentos");
@@ -1376,8 +1421,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${u.telefone || "—"}</td>
                 <td>
                   <div class="buttons are-small mb-0">
-                    <a class="button is-light" href="cliente.html?id=${u.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                    <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                    <a class="button is-light" href="cliente.html?id=${u.id}" title="${i18n.btnDetalhes || "Detalhes"}" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="${i18n.btnEditar || "Editar"}" data-edit-u='${JSON.stringify(u)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
                   </div>
                 </td>`,
             "tabela-clientes", "clientes-vazio", "pag-clientes");
@@ -1400,13 +1445,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             paginar(dados, f => `
                 <td>${f.nome || "—"}</td>
-                <td>${f.cargo || "—"}</td>
+                <td>${traduzirCargo(f.cargo) || "—"}</td>
                 <td>${f.telefone || "—"}</td>
                 <td>${f.email || "—"}</td>
                 <td>
                   <div class="buttons are-small mb-0">
-                    <a class="button is-light" href="func-detalhe.html?id=${f.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                    <button class="button is-light" title="Editar" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                    <a class="button is-light" href="func-detalhe.html?id=${f.id}" title="${i18n.btnDetalhes || "Detalhes"}" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="${i18n.btnEditar || "Editar"}" data-edit-u='${JSON.stringify(f)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
                   </div>
                 </td>`,
             "tabela-funcionarios", "funcionarios-vazio", "pag-funcionarios");
@@ -1433,12 +1478,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${p.id}</td>
                 <td>${p.nome || "—"}</td>
                 <td>${p.raca || "—"}</td>
-                <td>${p.porte || "—"}</td>
-                <td>${p.sexo || "—"}</td>
+                <td>${traduzirPorte(p.porte) || "—"}</td>
+                <td>${traduzirSexo(p.sexo) || "—"}</td>
                 <td>
                   <div class="buttons are-small mb-0">
-                    <a class="button is-light" href="pet.html?id=${p.id}" title="Detalhes" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
-                    <button class="button is-light" title="Editar" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
+                    <a class="button is-light" href="pet.html?id=${p.id}" title="${i18n.btnDetalhes || "Detalhes"}" target="_blank"><span class="icon"><i class="fas fa-eye"></i></span></a>
+                    <button class="button is-light" title="${i18n.btnEditar || "Editar"}" data-edit-p='${JSON.stringify(p)}'><span class="icon"><i class="fas fa-pen"></i></span></button>
                   </div>
                 </td>`,
             "tabela-pets", "pets-admin-vazio", "pag-pets");
@@ -1468,9 +1513,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${s.id}</td>
-                    <td>${s.nome}</td>
+                    <td>${traduzirServico(s.nome)}</td>
                     <td>${s.duracao ? s.duracao + ' min' : '—'}</td>
-                    <td>${s.isVet ? '<span class="tag is-info is-light is-small">Veterinário</span>' : '<span class="tag is-light is-small">Geral</span>'}</td>
+                    <td>${s.isVet ? `<span class="tag is-info is-light is-small">${i18n.tipoVet || "Veterinário"}</span>` : `<span class="tag is-light is-small">${i18n.tipoGeral || "Geral"}</span>`}</td>
                     <td><button class="button is-small is-danger is-outlined" data-del-serv="${s.id}" title="Excluir"><span class="icon"><i class="fas fa-trash"></i></span></button></td>`;
                 tbody.appendChild(tr);
             });
@@ -1498,7 +1543,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById("kpi-total-ags").textContent = total;
             document.getElementById("kpi-taxa-conclusao").textContent = taxa + "%";
-            document.getElementById("kpi-servico-top").textContent = servicoTop;
+            document.getElementById("kpi-servico-top").textContent = traduzirListaServicos(servicoTop) || "—";
             document.getElementById("kpi-pet-top").textContent = petTop;
 
             // Donut: status
@@ -1524,7 +1569,7 @@ document.addEventListener("DOMContentLoaded", () => {
             _chartServicos = new Chart(document.getElementById("chart-servicos"), {
                 type: "bar",
                 data: {
-                    labels: servicoEntries.map(e => e[0]),
+                    labels: servicoEntries.map(e => traduzirListaServicos(e[0])),
                     datasets: [{ label: "Agendamentos", data: servicoEntries.map(e => e[1]), backgroundColor: "#3273dc99", borderColor: "#3273dc", borderWidth: 1 }]
                 },
                 options: { indexAxis: "y", responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { stepSize: 1 } } } }
@@ -2190,13 +2235,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${fmtData(ag.data)} ${ag.hora || ""}</td>
                     <td>${ag.usuarioNome || "—"}</td>
                     <td>${ag.petNome || "—"}</td>
-                    <td>${ag.servico || "—"}</td>
+                    <td>${traduzirListaServicos(ag.servico) || "—"}</td>
                     <td>${tagStatus(ag.status)}</td>
                     <td>
                       <div class="buttons are-small mb-0">
-                        <button class="button is-light" title="Detalhes" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
-                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
+                        <button class="button is-light" title="${i18n.btnDetalhes || "Detalhes"}" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>
+                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="${i18n.btnVerPet || "Ver pet"}" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="${i18n.btnMarcarConcluido || "Marcar como Concluído"}"><span class="icon"><i class="fas fa-check"></i></span></button>` : ""}
                       </div>
                     </td>`,
                 "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
@@ -2206,17 +2251,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${fmtData(ag.data)} ${ag.hora || "—"}</td>
                     <td>${ag.usuarioNome || "—"}</td>
                     <td>${ag.petNome || "—"}</td>
-                    <td>${ag.servico || "—"}</td>
+                    <td>${traduzirListaServicos(ag.servico) || "—"}</td>
                     <td>${tagStatus(ag.status)}</td>
                     <td>
                       <div class="buttons are-small mb-0">
                         ${usaEdit
-                            ? `<button class="button is-light" title="${ag.status === "Agendado" ? "Ver / Editar" : "Detalhes"}" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>`
-                            : `<button class="button is-light" title="Detalhes" data-ag-func='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>`
+                            ? `<button class="button is-light" title="${ag.status === "Agendado" ? (i18n.btnVerEditar || "Ver / Editar") : (i18n.btnDetalhes || "Detalhes")}" data-ag-func-edit='${JSON.stringify(ag)}'><span class="icon"><i class="fas ${ag.status === "Agendado" ? "fa-pen" : "fa-eye"}"></i></span></button>`
+                            : `<button class="button is-light" title="${i18n.btnDetalhes || "Detalhes"}" data-ag-func='${JSON.stringify(ag)}'><span class="icon"><i class="fas fa-eye"></i></span></button>`
                         }
-                        <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="Ver cliente" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
-                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>${i18n.btnConcluir || "Concluir"}</span></button>` : ""}
+                        <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="${i18n.btnVerCliente || "Ver cliente"}" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
+                        <a class="button is-light" href="pet.html?id=${ag.petId}" title="${i18n.btnVerPet || "Ver pet"}" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
+                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="${i18n.btnMarcarConcluido || "Marcar como Concluído"}"><span class="icon"><i class="fas fa-check"></i></span><span>${i18n.btnConcluir || "Concluir"}</span></button>` : ""}
                       </div>
                     </td>`,
                 "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
@@ -2686,7 +2731,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(r => r.ok ? r.json() : null)
             .then(u => {
                 if (!u) {
-                    document.getElementById("cli-nome").textContent = "Cliente não encontrado";
+                    document.getElementById("cli-nome").textContent = i18n.cliNaoEncontrado || "Cliente não encontrado.";
                     return;
                 }
                 document.title = `PetGO - ${u.nome}`;
@@ -2717,11 +2762,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     img.style.cssText = "width:40px;height:40px;object-fit:cover;border-radius:50%;flex-shrink:0;";
                     img.src = p.imagemUrl || `https://placehold.co/40x40?text=${(p.nome||"?")[0].toUpperCase()}`;
                     const info = document.createElement("span");
-                    info.innerHTML = `<strong>${p.nome}</strong> <span class="has-text-grey">${p.raca || ""} · ${p.porte || ""} · ${p.sexo || ""}</span>`;
+                    info.innerHTML = `<strong>${p.nome}</strong> <span class="has-text-grey">${p.raca || ""} · ${traduzirPorte(p.porte) || ""} · ${traduzirSexo(p.sexo) || ""}</span>`;
                     const link = document.createElement("a");
                     link.href = `/pet.html?id=${p.id}`;
                     link.className = "button is-small is-light ml-auto";
-                    link.title = "Ver pet";
+                    link.title = i18n.btnVerPet || "Ver pet";
                     link.target = "_blank";
                     link.innerHTML = `<span class="icon"><i class="fas fa-eye"></i></span>`;
                     div.appendChild(img);
@@ -2741,7 +2786,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (futuros.length === 0) { vazio.classList.remove("is-hidden"); return; }
                 futuros.sort((a, b) => a.data.localeCompare(b.data) || (a.hora || "").localeCompare(b.hora || "")).forEach(ag => {
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
+                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${traduzirListaServicos(ag.servico) || "—"}</td><td>${tagStatus(ag.status)}</td>`;
                     tbody.appendChild(tr);
                 });
             });
@@ -2761,10 +2806,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.title = `PetGO - ${pet.nome}`;
                 document.getElementById("pet-nome").textContent = pet.nome || "—";
                 document.getElementById("pet-raca").textContent = pet.raca || "—";
-                document.getElementById("pet-porte").textContent = pet.porte || "—";
-                document.getElementById("pet-sexo").textContent = pet.sexo || "—";
+                document.getElementById("pet-porte").textContent = traduzirPorte(pet.porte) || "—";
+                document.getElementById("pet-sexo").textContent = traduzirSexo(pet.sexo) || "—";
                 document.getElementById("pet-idade").textContent = pet.idade || "—";
-                document.getElementById("pet-obs").textContent = pet.observacao || "Nenhuma observação registrada.";
+                document.getElementById("pet-obs").textContent = pet.observacao || (i18n.petDetObsVazio || "Nenhuma observação registrada.");
                 const foto = document.getElementById("pet-foto");
                 foto.src = pet.imagemUrl || `https://placehold.co/128x128?text=${(pet.nome||"?")[0].toUpperCase()}`;
                 if (pet.usuarioId) {
@@ -2795,7 +2840,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!u) return;
                 document.title = `PetGO - ${u.nome}`;
                 document.getElementById("func-nome").textContent = u.nome || "—";
-                document.getElementById("func-cargo").textContent = u.cargo || "—";
+                document.getElementById("func-cargo").textContent = traduzirCargo(u.cargo) || "—";
                 document.getElementById("func-email").textContent = u.email || "—";
                 document.getElementById("func-cpf").textContent = u.cpf || "—";
                 document.getElementById("func-nascimento").textContent = u.dataNascimento || "—";
@@ -2812,7 +2857,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!ags || ags.length === 0) { vazio.classList.remove("is-hidden"); return; }
                 ags.sort((a, b) => b.data.localeCompare(a.data)).forEach(ag => {
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${ag.servico || "—"}</td><td>${tagStatus(ag.status)}</td>`;
+                    tr.innerHTML = `<td>${fmtData(ag.data)} ${ag.hora || ""}</td><td>${ag.petNome || "—"}</td><td>${traduzirListaServicos(ag.servico) || "—"}</td><td>${tagStatus(ag.status)}</td>`;
                     tbody.appendChild(tr);
                 });
             });
