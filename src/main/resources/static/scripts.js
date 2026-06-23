@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const BASE_URL = "http://localhost:8080";
 
+    const i18n = (() => { const el = document.getElementById('petgo-i18n'); return el ? el.dataset : {}; })();
+
     function fmtData(data) {
         if (!data) return "—";
         const [a, m, d] = data.split("-");
@@ -25,7 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function tagStatus(status) {
         const cor = status === "Concluído" ? "is-success" : status === "Cancelado" ? "is-danger" : "is-primary";
-        return `<span class="tag ${cor} is-light">${status || "Agendado"}</span>`;
+        const label = status === "Concluído" ? (i18n.statusConcluido || status)
+                    : status === "Cancelado" ? (i18n.statusCancelado || status)
+                    : (i18n.statusAgendado || status || "Agendado");
+        return `<span class="tag ${cor} is-light">${label}</span>`;
     }
 
     function checados(name) {
@@ -82,8 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (t <= 1) { nav.classList.add("is-hidden"); return; }
             nav.classList.remove("is-hidden");
             nav.innerHTML = `
-                <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>Anterior</a>
-                <a class="pagination-next" ${pagina === t ? "disabled" : ""}>Próximo</a>
+                <a class="pagination-previous" ${pagina === 1 ? "disabled" : ""}>${i18n.anterior || "Anterior"}</a>
+                <a class="pagination-next" ${pagina === t ? "disabled" : ""}>${i18n.proximo || "Próximo"}</a>
                 <ul class="pagination-list">
                   ${getJanela(pagina, t).map(p =>
                     p === "…"
@@ -118,6 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 lista = servicos.filter(s => Boolean(s.isVet) === isVetSel);
             }
         }
+        if (disabled && selecionados.length > 0) {
+            const existingNames = new Set(lista.map(s => s.nome));
+            const missing = selecionados
+                .filter(n => !existingNames.has(n))
+                .map(n => ({ nome: n, isVet: false }));
+            if (missing.length > 0) lista = [...lista, ...missing];
+        }
 
         const normais = lista.filter(s => !s.isVet);
         const vets    = lista.filter(s =>  s.isVet);
@@ -148,8 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         };
 
-        renderGrupo("Serviços Gerais:", normais);
-        renderGrupo("Serviços Veterinários:", vets);
+        renderGrupo(i18n.servicosGerais || "Serviços Gerais:", normais);
+        renderGrupo(i18n.servicosVet || "Serviços Veterinários:", vets);
     }
 
     // ================= AUTH FETCH =================
@@ -992,7 +1004,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
                     localStorage.setItem("petgo_nome", body.nome);
-                    window.location.href = "perfil.html";
+                    toast("Perfil atualizado com sucesso!");
+                    setTimeout(() => { window.location.href = "perfil.html"; }, 1500);
                 } else {
                     const err = await response.json().catch(() => ({}));
                     toast(err.mensagem || "Erro ao salvar. Tente novamente.", "danger");
@@ -1489,8 +1502,12 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("kpi-pet-top").textContent = petTop;
 
             // Donut: status
-            const statusLabels = ["Agendado", "Concluído", "Cancelado"];
-            const statusData = statusLabels.map(s => ags.filter(a => a.status === s).length);
+            const statusLabels = [
+                i18n.statusAgendado || "Agendado",
+                i18n.statusConcluido || "Concluído",
+                i18n.statusCancelado || "Cancelado"
+            ];
+            const statusData = ["Agendado", "Concluído", "Cancelado"].map(s => ags.filter(a => a.status === s).length);
             _chartStatus?.destroy();
             _chartStatus = new Chart(document.getElementById("chart-status"), {
                 type: "doughnut",
@@ -1514,7 +1531,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             // Bar: dias da semana
-            const diasNomes = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+            const diasNomes = (i18n.diasSemana || "Dom,Seg,Ter,Qua,Qui,Sex,Sáb").split(",");
             const diasData = Array(7).fill(0);
             ags.forEach(a => { if (a.data) diasData[new Date(a.data + "T12:00:00").getDay()]++; });
             _chartDias?.destroy();
@@ -1528,8 +1545,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             // Donut: porte dos pets
-            const porteCont = { "Pequeno": 0, "Médio": 0, "Grande": 0 };
-            pets.forEach(p => { if (p.porte && porteCont[p.porte] !== undefined) porteCont[p.porte]++; });
+            const porteP = i18n.porteP || "Pequeno";
+            const porteM = i18n.porteM || "Médio";
+            const porteG = i18n.porteG || "Grande";
+            const porteCont = { [porteP]: 0, [porteM]: 0, [porteG]: 0 };
+            pets.forEach(p => {
+                const lbl = p.porte === "Pequeno" ? porteP : p.porte === "Médio" ? porteM : p.porte === "Grande" ? porteG : null;
+                if (lbl) porteCont[lbl]++;
+            });
             _chartPorte?.destroy();
             _chartPorte = new Chart(document.getElementById("chart-porte"), {
                 type: "doughnut",
@@ -1972,7 +1995,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isAtendente) {
             document.getElementById("btn-func-novo-ag")?.classList.remove("is-hidden");
             const sub = document.getElementById("func-agenda-subtitulo");
-            if (sub) sub.textContent = "Todos os agendamentos";
+            if (sub) sub.textContent = i18n.todosAgendamentos || "Todos os agendamentos";
         }
 
         // Navegação entre seções
@@ -2193,7 +2216,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         <a class="button is-light" href="cliente.html?id=${ag.usuarioId}" title="Ver cliente" target="_blank"><span class="icon"><i class="fas fa-user"></i></span></a>
                         <a class="button is-light" href="pet.html?id=${ag.petId}" title="Ver pet" target="_blank"><span class="icon"><i class="fas fa-paw"></i></span></a>
-                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>Concluir</span></button>` : ""}
+                        ${ag.status === "Agendado" ? `<button class="button is-success is-light" data-concluir-func="${ag.id}" title="Marcar como Concluído"><span class="icon"><i class="fas fa-check"></i></span><span>${i18n.btnConcluir || "Concluir"}</span></button>` : ""}
                       </div>
                     </td>`,
                 "tabela-func-agenda", "func-agenda-vazio", "pag-func-agenda");
@@ -2462,6 +2485,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ].every(Boolean);
 
             if (!ok) return;
+
+            if (!petEditId) {
+                const termosCheck = document.getElementById("pet-termos");
+                if (termosCheck && !termosCheck.checked) {
+                    toast("Você deve aceitar os termos de uso para cadastrar um pet.", "warning");
+                    return;
+                }
+            }
 
             const body = {
                 nome: document.getElementById("pet-nome").value,
@@ -2795,7 +2826,7 @@ document.addEventListener("DOMContentLoaded", () => {
             el.className = 'icon-tema fas ' + (tema === 'dark' ? 'fa-sun' : 'fa-moon');
         });
         document.querySelectorAll('.btn-tema .btn-tema-label').forEach(el => {
-            el.textContent = tema === 'dark' ? 'Modo claro' : 'Modo escuro';
+            el.textContent = tema === 'dark' ? (i18n.modoClaro || 'Modo claro') : (i18n.modoEscuro || 'Modo escuro');
         });
         document.querySelectorAll('.petgo-logo').forEach(img => {
             img.src = tema === 'dark' ? LOGO_DARK : LOGO_LIGHT;
